@@ -148,11 +148,6 @@ namespace LogManager.Backup
         {
             BackupFilesTemp = null;
         }
-
-        private string formatBackupName(string backupName, int value)
-        {
-            return backupName + "_" + value;
-        }
     }
 
     public class Backup
