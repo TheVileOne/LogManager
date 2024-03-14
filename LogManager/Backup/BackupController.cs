@@ -144,12 +144,12 @@ namespace LogManager.Backup
         private int parseBackupNumber(string backupFilename)
         {
             int parseIndexStart = backupFilename.LastIndexOf('[');
-            int parseIndexEnd = backupFilename.LastIndexOf(']');
+            int parseIndexEnd = 1;//backupFilename.LastIndexOf(']');
 
-            if (parseIndexStart < 0 || parseIndexEnd < 0)
+            if (parseIndexStart < 0)
                 return -1;
 
-            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd - parseIndexStart + 1);
+            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd);
 
             int foundIndex;
             if (int.TryParse(parseSubstring, out foundIndex))
