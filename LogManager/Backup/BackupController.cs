@@ -83,7 +83,7 @@ namespace LogManager.Backup
 
         private string formatBackupPath(string sourceFilename, string sourceExtension, int backupNumber)
         {
-            return Path.Combine(BackupPath, sourceFilename + "_" + backupNumber + sourceExtension);
+            return Path.Combine(BackupPath, $"{sourceFilename}_bkp[{backupNumber}]{sourceExtension}");
         }
 
         public List<string> FindExistingBackups(string backupName)
@@ -96,10 +96,10 @@ namespace LogManager.Backup
                 string backupPath = BackupFilesTemp[i];
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
 
-                if (backupFile.StartsWith(backupName + "_")) //Look for the format '<file>_<number>'
+                if (backupFile.StartsWith(backupName + "_bkp")) //Look for the format '<file>_<number>'
                 {
-                    int backupNumber; //Not zero-based
-                    if (int.TryParse(backupFile.Last().ToString(), out backupNumber)) //Leave malformatted backups alone
+                    int backupNumber = parseBackupNumber(backupFile); //Not zero-based
+                    if (backupNumber != -1) //Leave malformatted backups alone
                     {
                         //Sort the list by backupNumber
 
@@ -141,6 +141,22 @@ namespace LogManager.Backup
             return existingBackups;
         }
 
+        private int parseBackupNumber(string backupFilename)
+        {
+            int parseIndexStart = backupFilename.LastIndexOf('[');
+            int parseIndexEnd = backupFilename.LastIndexOf(']');
+
+            if (parseIndexStart < 0 || parseIndexEnd < 0)
+                return -1;
+
+            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd - parseIndexStart + 1);
+
+            int foundIndex;
+            if (int.TryParse(parseSubstring, out foundIndex))
+                return foundIndex;
+            return -1;
+        }
+
         /// <summary>
         /// Call this when the backup process is finished to release temp references used during the backup process
         /// </summary>
@@ -148,11 +164,5 @@ namespace LogManager.Backup
         {
             BackupFilesTemp = null;
         }
-    }
-
-    public class Backup
-    {
-        public string Filename;
-        public int MoveOffset;
     }
 }
