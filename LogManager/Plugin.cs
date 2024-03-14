@@ -60,7 +60,7 @@ namespace LogManager
         {
             try
             {
-                DeleteExistingLogs();
+                ManageExistingLogs();
 
                 On.RainWorld.OnModsInit += RainWorld_OnModsInit;
                 On.RainWorld.Update += RainWorld_Update;
@@ -406,13 +406,13 @@ namespace LogManager
         }
 
         /// <summary>
-        /// This handles what happens to existing logs on startup
+        /// Handles existing logs on startup
         /// </summary>
         public void ManageExistingLogs()
         {
             string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
 
-            BackupController backupManager = new BackupController(existingLogsDirectory, "BACKUP");
+            BackupController backupManager = new BackupController(existingLogsDirectory, "backup");
 
             backupManager.BackupFromFolder(existingLogsDirectory);
             DeleteExistingLogs();

@@ -53,23 +53,31 @@ namespace LogManager.Backup
 
             List<string> existingBackups = FindExistingBackups(sourceFilename);
 
-            int backupCountOverMaximum = Math.Max(0, existingBackups.Count - AllowedBackupsPerFile);
-
-            for (int i = 0; i < existingBackups.Count; i++)
+            //Handle existing backups
+            if (existingBackups.Count > 0)
             {
-                string backup = existingBackups[i];
+                int backupCountOverMaximum = Math.Max(0, existingBackups.Count - AllowedBackupsPerFile);
 
-                if (backupCountOverMaximum > 0)
+                for (int i = 0; i < existingBackups.Count; i++)
                 {
-                    Helpers.FileSystemUtils.SafeDeleteFile(backup);
-                    backupCountOverMaximum--;
-                    continue;
-                }
+                    string backup = existingBackups[i];
 
-                if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                    Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, sourceFileExt, i + 1), 3);
-                else
-                    Helpers.FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
+                    if (backupCountOverMaximum > 0)
+                    {
+                        Helpers.FileSystemUtils.SafeDeleteFile(backup);
+                        backupCountOverMaximum--;
+                        continue;
+                    }
+
+                    if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
+                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, sourceFileExt, i + 1), 3);
+                    else
+                        Helpers.FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
+                }
+            }
+            else //Create the first backup
+            {
+                Helpers.FileSystemUtils.SafeMoveFile(filepath, formatBackupPath(sourceFilename, sourceFileExt, 1), 3);
             }
         }
 
