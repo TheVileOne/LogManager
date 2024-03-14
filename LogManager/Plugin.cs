@@ -412,7 +412,7 @@ namespace LogManager
         {
             string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
 
-            BackupController backupManager = new BackupController(existingLogsDirectory, "backup");
+            BackupController backupManager = new BackupController(existingLogsDirectory, "Backup");
 
             backupManager.BackupFromFolder(existingLogsDirectory);
             DeleteExistingLogs();
