@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using LogManager.Backup;
 using LogManager.Helpers;
 using LogManager.Listeners;
 using LogUtils;
@@ -405,9 +406,22 @@ namespace LogManager
         }
 
         /// <summary>
+        /// This handles what happens to existing logs on startup
+        /// </summary>
+        public void ManageExistingLogs()
+        {
+            string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
+
+            BackupController backupManager = new BackupController(existingLogsDirectory, "BACKUP");
+
+            backupManager.BackupFromFolder(existingLogsDirectory);
+            DeleteExistingLogs();
+        }
+
+        /// <summary>
         /// Preexisting logs are deleted each, and every startup
         /// </summary>
-        private void DeleteExistingLogs()
+        internal void DeleteExistingLogs()
         {
             string executingFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             DateTime deleteBeforeTime = File.GetLastAccessTime(executingFilePath);
