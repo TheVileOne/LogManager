@@ -47,6 +47,11 @@ namespace LogManager.Helpers
 
         public static bool SafeMoveFile(string sourcePath, string destPath, int attemptsAllowed = 1)
         {
+            string sourceFilename = Path.GetFileName(sourcePath);
+            string destFilename = Path.GetFileName(destPath);
+
+            Plugin.Logger.LogInfo($"Moving {sourceFilename} to {destFilename}");
+
             bool destEmpty = !File.Exists(destPath);
             bool exceptionLogged = false;
             while (attemptsAllowed > 0)
@@ -58,7 +63,7 @@ namespace LogManager.Helpers
                     {
                         SafeDeleteFile(destPath);
 
-                        if (File.Exists(destPath))
+                        if (File.Exists(destPath)) //File removal failed
                         {
                             attemptsAllowed--;
                             continue;
@@ -69,16 +74,33 @@ namespace LogManager.Helpers
                     File.Move(sourcePath, destPath);
                     return true;
                 }
+                catch (FileNotFoundException)
+                {
+                    Plugin.Logger.LogError($"ERROR: Move target file {sourceFilename} could not be found");
+                    return false;
+                }
+                catch (IOException ioex)
+                {
+                    if (ioex.Message.StartsWith("Sharing violation"))
+                        Plugin.Logger.LogError($"ERROR: Move target file {sourceFilename} is currently in use");
+                    handleException(ioex);
+                }
                 catch (Exception ex)
                 {
-                    attemptsAllowed--;
-                    if (!exceptionLogged)
-                    {
-                        Plugin.Logger.LogError(ex);
-                        exceptionLogged = true;
-                    }
+                    handleException(ex);
                 }
             }
+
+            void handleException(Exception ex)
+            {
+                attemptsAllowed--;
+                if (!exceptionLogged)
+                {
+                    Plugin.Logger.LogError(ex);
+                    exceptionLogged = true;
+                }
+            }
+
             return false;
         }
 
