@@ -95,7 +95,7 @@ namespace LogManager.Backup
         /// </summary>
         private string formatBackupPath(string filenameBase, int backupNumber)
         {
-            return Path.Combine(BackupPath, $"{filenameBase}_bkp[{backupNumber}]{Path.GetExtension(filenameBase)}");
+            return Path.Combine(BackupPath, $"{Path.GetFileNameWithoutExtension(filenameBase)}_bkp[{backupNumber}]{Path.GetExtension(filenameBase)}");
         }
 
         public List<string> FindExistingBackups(string backupName)
