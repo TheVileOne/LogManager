@@ -45,6 +45,43 @@ namespace LogManager.Helpers
             SafeDeleteDirectory(path, false, customErrorMsg);
         }
 
+        public static bool SafeMoveFile(string sourcePath, string destPath, int attemptsAllowed = 1)
+        {
+            bool destEmpty = !File.Exists(destPath);
+            bool exceptionLogged = false;
+            while (attemptsAllowed > 0)
+            {
+                try
+                {
+                    //Make sure destination is clear
+                    if (!destEmpty)
+                    {
+                        SafeDeleteFile(destPath);
+
+                        if (File.Exists(destPath))
+                        {
+                            attemptsAllowed--;
+                            continue;
+                        }
+                        destEmpty = true;
+                    }
+
+                    File.Move(sourcePath, destPath);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    attemptsAllowed--;
+                    if (!exceptionLogged)
+                    {
+                        Plugin.Logger.LogError(ex);
+                        exceptionLogged = true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static int DirectoryFileCount(string path)
         {
             return Directory.Exists(path) ? Directory.GetFiles(path).Length : 0;
