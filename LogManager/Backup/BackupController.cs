@@ -43,15 +43,28 @@ namespace LogManager.Backup
         /// <summary>
         /// Logic necessary for storing backup file data
         /// </summary>
-        public void BackupFile(string filepath)
+        public void BackupFile(string backupSourcePath)
         {
             if (BackupFilesTemp == null)
                 BackupFilesTemp = Directory.GetFiles(BackupPath);
 
-            string sourceFileExt = Path.GetExtension(filepath);
-            string sourceFilename = Path.GetFileNameWithoutExtension(filepath);
+            string sourceFilename = Path.GetFileName(backupSourcePath);
+            string backupTargetPath = formatBackupPath(sourceFilename, 1); //Formats the path that backup file will be copied to 
 
-            List<string> existingBackups = FindExistingBackups(sourceFilename);
+            //After this runs, if there are no issues, the target path will be free
+            manageExistingBackups(sourceFilename);
+
+            //Create backup file
+            Helpers.FileSystemUtils.SafeMoveFile(backupSourcePath, backupTargetPath, 3);
+        }
+
+        /// <summary>
+        /// Finds all existing backups with valid backup formatting for a given file, either deleting, or moving the file to a higher backup number
+        /// </summary>
+        /// <param name="sourceFilename">The filename (with extension) of the source file containing backups</param>
+        private void manageExistingBackups(string sourceFilename)
+        {
+            List<string> existingBackups = FindExistingBackups(Path.GetFileNameWithoutExtension(sourceFilename));
 
             //Handle existing backups
             if (existingBackups.Count > 0)
@@ -70,20 +83,19 @@ namespace LogManager.Backup
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, sourceFileExt, i + 1), 3);
+                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 1), 3);
                     else
                         Helpers.FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
                 }
             }
-            else //Create the first backup
-            {
-                Helpers.FileSystemUtils.SafeMoveFile(filepath, formatBackupPath(sourceFilename, sourceFileExt, 1), 3);
-            }
         }
 
-        private string formatBackupPath(string sourceFilename, string sourceExtension, int backupNumber)
+        /// <summary>
+        /// Formats a valid backup path using a base with file extension as a reference
+        /// </summary>
+        private string formatBackupPath(string filenameBase, int backupNumber)
         {
-            return Path.Combine(BackupPath, $"{sourceFilename}_bkp[{backupNumber}]{sourceExtension}");
+            return Path.Combine(BackupPath, $"{filenameBase}_bkp[{backupNumber}]{Path.GetExtension(filenameBase)}");
         }
 
         public List<string> FindExistingBackups(string backupName)
