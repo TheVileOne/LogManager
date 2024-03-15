@@ -55,7 +55,7 @@ namespace LogManager.Backup
             manageExistingBackups(sourceFilename);
 
             //Create backup file
-            Helpers.FileSystemUtils.SafeMoveFile(backupSourcePath, backupTargetPath, 3);
+            Helpers.FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
         }
 
         /// <summary>

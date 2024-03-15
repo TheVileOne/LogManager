@@ -45,6 +45,65 @@ namespace LogManager.Helpers
             SafeDeleteDirectory(path, false, customErrorMsg);
         }
 
+        public static bool SafeCopyFile(string sourcePath, string destPath, int attemptsAllowed = 1)
+        {
+            string sourceFilename = Path.GetFileName(sourcePath);
+            string destFilename = Path.GetFileName(destPath);
+
+            Plugin.Logger.LogInfo($"Copying {sourceFilename} to {destFilename}");
+
+            bool destEmpty = !File.Exists(destPath);
+            bool exceptionLogged = false;
+            while (attemptsAllowed > 0)
+            {
+                try
+                {
+                    //Make sure destination is clear
+                    /*if (!destEmpty)
+                    {
+                        SafeDeleteFile(destPath);
+
+                        if (File.Exists(destPath)) //File removal failed
+                        {
+                            attemptsAllowed--;
+                            continue;
+                        }
+                        destEmpty = true;
+                    }*/
+
+                    File.Copy(sourcePath, destPath, true);
+                    return true;
+                }
+                catch (FileNotFoundException)
+                {
+                    Plugin.Logger.LogError($"ERROR: Copy target file {sourceFilename} could not be found");
+                    return false;
+                }
+                catch (IOException ioex)
+                {
+                    if (ioex.Message.StartsWith("Sharing violation"))
+                        Plugin.Logger.LogError($"ERROR: Copy target file {sourceFilename} is currently in use");
+                    handleException(ioex);
+                }
+                catch (Exception ex)
+                {
+                    handleException(ex);
+                }
+            }
+
+            void handleException(Exception ex)
+            {
+                attemptsAllowed--;
+                if (!exceptionLogged)
+                {
+                    Plugin.Logger.LogError(ex);
+                    exceptionLogged = true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool SafeMoveFile(string sourcePath, string destPath, int attemptsAllowed = 1)
         {
             string sourceFilename = Path.GetFileName(sourcePath);
