@@ -66,12 +66,14 @@ namespace LogManager.Backup
         {
             List<string> existingBackups = FindExistingBackups(Path.GetFileNameWithoutExtension(sourceFilename));
 
+            Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups for {sourceFilename} detected");
+
             //Handle existing backups
             if (existingBackups.Count > 0)
             {
                 int backupCountOverMaximum = Math.Max(0, existingBackups.Count - AllowedBackupsPerFile);
 
-                for (int i = 0; i < existingBackups.Count; i++)
+                for (int i = existingBackups.Count - 1; i >= 0; i--)
                 {
                     string backup = existingBackups[i];
 
@@ -83,7 +85,7 @@ namespace LogManager.Backup
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 1), 3);
+                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 2), 3);
                     else
                         Helpers.FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
                 }

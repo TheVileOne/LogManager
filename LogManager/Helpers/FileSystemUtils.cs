@@ -111,6 +111,12 @@ namespace LogManager.Helpers
 
             Plugin.Logger.LogInfo($"Moving {sourceFilename} to {destFilename}");
 
+            if (sourcePath == destPath)
+            {
+                Plugin.Logger.LogInfo($"Same filepath for {sourceFilename}");
+                return true;
+            }
+
             bool destEmpty = !File.Exists(destPath);
             bool exceptionLogged = false;
             while (attemptsAllowed > 0)
