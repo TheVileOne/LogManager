@@ -17,7 +17,14 @@ namespace LogManager.Backup
         /// The path containing backup files
         /// </summary>
         public string BackupPath;
-        public List<string> EnabledForBackup = new List<string>();
+
+        /// <summary>
+        /// A flag that controls whether backups may be processed
+        /// </summary>
+        public bool Enabled;
+
+        public List<string> EnabledList = new List<string>();
+        public List<string> DisabledList = new List<string>();
 
         protected string[] BackupFilesTemp;
 
@@ -29,11 +36,13 @@ namespace LogManager.Backup
 
         public void BackupFromFolder(string targetPath)
         {
+            if (!Enabled) return;
+
             foreach (string file in Directory.GetFiles(targetPath))
             {
                 string filenameNoExt = Path.GetFileNameWithoutExtension(file);
 
-                if (EnabledForBackup.Contains(filenameNoExt)) //Only allowed files will be available for backup
+                if (EnabledList.Contains(filenameNoExt)) //Only allowed files will be available for backup
                     BackupFile(file);
             }
 
@@ -153,6 +162,55 @@ namespace LogManager.Backup
             }
 
             return existingBackups;
+        }
+
+        public void PopulateLists()
+        {
+            PopulateDisallowList(); //Populate disabled list first, as it affects how the enabled list is handled
+            PopulateAllowList();
+        }
+
+        public void PopulateAllowList()
+        {
+            EnabledList.Clear();
+
+            string whitelistPath = Path.Combine(Plugin.ModPath, "backup-whitelist.txt");
+
+            if (!File.Exists(whitelistPath)) return;
+
+            //Populates enabled backup candidates from backup-whitelist.txt
+            IEnumerator<string> whitelist = File.ReadLines(whitelistPath).GetEnumerator();
+            while (whitelist.MoveNext())
+            {
+                string entry = whitelist.Current.Trim();
+
+                if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
+                    continue;
+
+                if (!DisabledList.Contains(entry))
+                    EnabledList.Add(entry);
+            }
+        }
+
+        public void PopulateDisallowList()
+        {
+            DisabledList.Clear();
+
+            string blacklistPath = Path.Combine(Plugin.ModPath, "backup-blacklist.txt");
+
+            if (!File.Exists(blacklistPath)) return;
+
+            //Populates disabled backup candidates from backup-blacklist.txt
+            IEnumerator<string> blacklist = File.ReadLines(blacklistPath).GetEnumerator();
+            while (blacklist.MoveNext())
+            {
+                string entry = blacklist.Current.Trim();
+
+                if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
+                    continue;
+
+                DisabledList.Add(entry);
+            }
         }
 
         private int parseBackupNumber(string backupFilename)

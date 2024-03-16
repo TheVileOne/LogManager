@@ -433,6 +433,9 @@ namespace LogManager
 
             BackupController backupManager = new BackupController(existingLogsDirectory, "Backup");
 
+            backupManager.Enabled = LogManager.Config.ReadFromDisk(nameof(LogManager.Config.cfgAllowBackups), false);
+
+            backupManager.PopulateLists();
             backupManager.BackupFromFolder(existingLogsDirectory);
             DeleteExistingLogs();
         }
