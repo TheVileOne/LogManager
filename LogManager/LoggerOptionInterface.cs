@@ -40,9 +40,9 @@ namespace LogManager
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate("Logging Tools"), FLabelAlignment.Center, true, null);
             OpCheckBox directoryOptionToggle = new OpCheckBox(Config.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f))
             {
-                description = Translate(Config.cfgUseAlternativeDirectory.info.description)
+                description = Translate(Config.GetDescription(Config.cfgUseAlternativeDirectory))
             };
-            OpLabel directoryOptionTooltip = new OpLabel(60f, y_offset - 90f, Translate(Config.cfgUseAlternativeDirectory.info.Tags[0] as string), false)
+            OpLabel directoryOptionTooltip = new OpLabel(60f, y_offset - 90f, Translate(Config.GetTooltip(Config.cfgUseAlternativeDirectory)), false)
             {
                 bumpBehav = directoryOptionToggle.bumpBehav,
                 description = directoryOptionToggle.description
@@ -66,9 +66,9 @@ namespace LogManager
 
             OpCheckBox enableBackupsToggle = new OpCheckBox(Config.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f))
             {
-                description = Translate(Config.cfgAllowBackups.info.description)
+                description = Translate(Config.GetDescription(Config.cfgAllowBackups))
             };
-            OpLabel enableBackupsTooltip = new OpLabel(60f, headerOffsetY - 40f, Translate(Config.cfgAllowBackups.info.Tags[0] as string), false)
+            OpLabel enableBackupsTooltip = new OpLabel(60f, headerOffsetY - 40f, Translate(Config.GetTooltip(Config.cfgAllowBackups)), false)
             {
                 bumpBehav = enableBackupsToggle.bumpBehav,
                 description = enableBackupsToggle.description
@@ -76,9 +76,9 @@ namespace LogManager
 
             OpCheckBox progressiveBackupsToggle = new OpCheckBox(Config.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f))
             {
-                description = Translate(Config.cfgAllowProgressiveBackups.info.description)
+                description = Translate(Config.GetDescription(Config.cfgAllowProgressiveBackups))
             };
-            OpLabel progressiveBackupsTooltip = new OpLabel(60f, headerOffsetY - 80f, Translate(Config.cfgAllowProgressiveBackups.info.Tags[0] as string), false)
+            OpLabel progressiveBackupsTooltip = new OpLabel(60f, headerOffsetY - 80f, Translate(Config.GetTooltip(Config.cfgAllowProgressiveBackups)), false)
             {
                 bumpBehav = enableBackupsToggle.bumpBehav,
                 description = enableBackupsToggle.description

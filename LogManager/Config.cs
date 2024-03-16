@@ -37,6 +37,22 @@ namespace LogManager
             Plugin.OptionInterface.OnConfigChanged += OptionInterface_OnConfigChanged;
         }
 
+        /// <summary>
+        /// Gets the string that appears on the label associated with a config option
+        /// </summary>
+        public static string GetDescription(Configurable<bool> option)
+        {
+            return option.info.description;
+        }
+
+        /// <summary>
+        /// Gets the string that appears on the bottom of the screen and describes the function of the config option when hovered
+        /// </summary>
+        public static string GetTooltip(Configurable<bool> option)
+        {
+            return option.info.Tags[0] as string;
+        }
+
         private static void OptionInterface_OnConfigChanged()
         {
             try
