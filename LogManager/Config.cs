@@ -9,15 +9,15 @@ namespace LogManager
     public static class Config
     {
         public static Configurable<bool> cfgUseAlternativeDirectory;
+        public static OptionInterface.ConfigHolder ConfigData => Plugin.OptionInterface.config;
 
-        public static bool cfgUseAlternativeDirectoryModified = false;
 
         public static void Initialize()
         {
-            Plugin.OptionInterface.config.configurables.Clear();
+            ConfigData.configurables.Clear();
 
             //Define config options
-            cfgUseAlternativeDirectory = Plugin.OptionInterface.config.Bind<bool>("cfgUseAlternativeDirectory", false, new ConfigurableInfo("Choose your Logs folder", null, string.Empty, new object[]
+            cfgUseAlternativeDirectory = ConfigData.Bind("cfgUseAlternativeDirectory", false, new ConfigInfo("Choose your Logs folder", new object[]
             {
                 "Prefer StreamingAssets folder for Logs directory"
             }));
@@ -34,6 +34,13 @@ namespace LogManager
             catch (Exception ex)
             {
                 Plugin.Logger.LogError(ex);
+            }
+        }
+
+        public class ConfigInfo : ConfigurableInfo
+        {
+            public ConfigInfo(string description, params object[] tags) : base(description, null, string.Empty, tags)
+            {
             }
         }
     }
