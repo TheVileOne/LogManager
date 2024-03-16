@@ -29,6 +29,16 @@ namespace LogManager
         public static new ManualLogSource Logger;
 
         /// <summary>
+        /// The path of the mod's executing DLL file
+        /// </summary>
+        public static string ExecutingPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+        /// <summary>
+        /// The path that contains and includes this mod's folder
+        /// </summary>
+        public static string ModPath;
+
+        /// <summary>
         /// This is used by BepInEx to log messages it receives to file
         /// </summary>
         public static CustomizableDiskLogListener Listener;
@@ -41,6 +51,9 @@ namespace LogManager
 
         public void Awake()
         {
+            int pluginDirIndex = ExecutingPath.LastIndexOf("plugin", StringComparison.InvariantCultureIgnoreCase);
+            ModPath = Path.GetDirectoryName(ExecutingPath.Remove(pluginDirIndex, ExecutingPath.Length - pluginDirIndex));
+
             try
             {
                 InitializeLogger();
@@ -423,8 +436,7 @@ namespace LogManager
         /// </summary>
         internal void DeleteExistingLogs()
         {
-            string executingFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            DateTime deleteBeforeTime = File.GetLastAccessTime(executingFilePath);
+            DateTime deleteBeforeTime = File.GetLastAccessTime(ExecutingPath);
 
             string[] logPaths = getStreamingAssetsLogPathsOrig();
 
