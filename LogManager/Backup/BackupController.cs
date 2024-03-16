@@ -26,6 +26,16 @@ namespace LogManager.Backup
         public List<string> EnabledList = new List<string>();
         public List<string> DisabledList = new List<string>();
 
+        /// <summary>
+        /// These logs default to being enabled except when the user adds them to the disabled list
+        /// </summary>
+        public string[] EnabledByDefault = new string[]
+        {
+            "console.log",
+            "exception.log",
+            "mods.log",
+        };
+
         protected string[] BackupFilesTemp;
 
         public BackupController(string containingFolderPath, string backupFolderName)
@@ -34,9 +44,20 @@ namespace LogManager.Backup
             Directory.CreateDirectory(BackupPath);
         }
 
+        private void applyEnabledDefaults()
+        {
+            foreach (string defaultEntry in EnabledByDefault)
+            {
+                if (!EnabledList.Contains(defaultEntry) && !DisabledList.Contains(defaultEntry))
+                    EnabledList.Add(defaultEntry);
+            }
+        }
+
         public void BackupFromFolder(string targetPath)
         {
             if (!Enabled) return;
+
+            applyEnabledDefaults();
 
             foreach (string file in Directory.GetFiles(targetPath))
             {
