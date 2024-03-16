@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace LogManager
 {
@@ -51,6 +53,56 @@ namespace LogManager
         public static string GetTooltip(Configurable<bool> option)
         {
             return option.info.Tags[0] as string;
+        }
+
+        /// <summary>
+        /// Searches the mod config file for a config setting and returns the stored setting value if one exists, expectedDefault otherwise
+        /// </summary>
+        public static T ReadFromDisk<T>(string settingName, T expectedDefault) where T : IConvertible
+        {
+            if (!File.Exists(Plugin.ConfigFilePath))
+                return expectedDefault;
+
+            IEnumerator<string> configData = File.ReadLines(Plugin.ConfigFilePath).GetEnumerator();
+
+            IConvertible data = expectedDefault;
+            bool dataFound = false;
+            while (!dataFound && configData.MoveNext())
+            {
+                if (configData.Current.StartsWith("#")) //The setting this is looking for will not start with a # symbol
+                    continue;
+
+                dataFound = configData.Current.StartsWith(settingName); //This will likely be matching a setting name like this: cfgSetting
+            }
+
+            if (dataFound)
+            {
+                try
+                {
+                    Type dataType = typeof(T);
+                    string rawData = configData.Current; //Formatted line containing the data
+                    string dataFromString = rawData.Substring(rawData.LastIndexOf(' ') + 1);
+
+                    //Parse the data into the specified data type
+                    if (dataType == typeof(bool))
+                        data = bool.Parse(dataFromString);
+                    else if (dataType == typeof(int))
+                        data = int.Parse(dataFromString);
+                    else if (dataType == typeof(string))
+                        data = dataFromString;
+                    else
+                        throw new NotSupportedException(dataType + " is not able to be converted");
+                }
+                catch (FormatException)
+                {
+                    Debug.LogError("Config setting is malformed, or not in the expected format");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Debug.LogError(ex);
+                }
+            }
+            return (T)data;
         }
 
         private static void OptionInterface_OnConfigChanged()
