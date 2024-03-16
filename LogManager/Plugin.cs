@@ -8,7 +8,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,6 +38,11 @@ namespace LogManager
         public static string ModPath;
 
         /// <summary>
+        /// The path that contains the mod-specific config settings managed by Remix menu
+        /// </summary>
+        public static string ConfigFilePath;
+
+        /// <summary>
         /// This is used by BepInEx to log messages it receives to file
         /// </summary>
         public static CustomizableDiskLogListener Listener;
@@ -51,8 +55,10 @@ namespace LogManager
 
         public void Awake()
         {
+            //Store path values that the mod uses
             int pluginDirIndex = ExecutingPath.LastIndexOf("plugin", StringComparison.InvariantCultureIgnoreCase);
             ModPath = Path.GetDirectoryName(ExecutingPath.Remove(pluginDirIndex, ExecutingPath.Length - pluginDirIndex));
+            ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
             try
             {
