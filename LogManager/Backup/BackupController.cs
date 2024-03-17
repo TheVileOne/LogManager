@@ -43,6 +43,11 @@ namespace LogManager.Backup
         /// </summary>
         public bool ProgressiveEnableMode;
 
+        /// <summary>
+        /// All detected backup entries, and their enabled status
+        /// </summary>
+        public List<(string, bool)> BackupEntries = new List<(string, bool)>();
+
         protected string[] BackupFilesTemp;
 
         public BackupController(string containingFolderPath, string backupFolderName)
@@ -66,23 +71,45 @@ namespace LogManager.Backup
 
             applyEnabledDefaults();
 
+            List<string> enabledList = new List<string>(EnabledList);
+            List<string> disabledList = new List<string>(DisabledList);
+
             foreach (string file in Directory.GetFiles(targetPath))
             {
                 string backupFileEntry = Path.GetFileNameWithoutExtension(file);
 
-                bool backupEnabled = EnabledList.Contains(backupFileEntry);
+                bool backupEnabled = enabledList.Contains(backupFileEntry);
 
-                //ProgressiveEnableMode acts like an enable all, except if user disabled function
-                if (!backupEnabled && ProgressiveEnableMode && !DisabledList.Contains(backupFileEntry))
+                if (!backupEnabled)
                 {
-                    EnabledList.Add(backupFileEntry);
-                    backupEnabled = true;
+                    bool backupDisabled = disabledList.Contains(backupFileEntry);
+
+                    //Entries are removed in order to narrow down the lists of entries to those not present in the target path
+                    if (backupDisabled)
+                    {
+                        disabledList.Remove(backupFileEntry);
+                        BackupEntries.Add((backupFileEntry, false));
+                    }
+                    else if (ProgressiveEnableMode) //ProgressiveEnableMode acts like an enable all, except if user disabled function
+                    {
+                        EnabledList.Add(backupFileEntry);
+                        backupEnabled = true;
+                    }
                 }
 
+                Plugin.Logger.LogInfo("Target " + backupFileEntry);
+
                 if (backupEnabled) //Only allowed files will be available for backup
+                {
+                    enabledList.Remove(backupFileEntry);
+                    BackupEntries.Add((backupFileEntry, true));
                     BackupFile(file);
+                }
             }
 
+            //Include the remaining objects in both lists. These entries are not contained within the target path, but have been recorded to file
+            BackupEntries.AddRange(enabledList.Select<string, (string, bool)>(entry => (entry, true)));
+            BackupEntries.AddRange(disabledList.Select<string, (string, bool)>(entry => (entry, false)));
             Finish();
         }
 
@@ -293,7 +320,11 @@ namespace LogManager.Backup
         /// </summary>
         public void Finish()
         {
-            SaveListsToFile(); //Make sure lists are up to date - list data may have been incomplete
+            SaveListsToFile(); //Make sure files are up to date - list data may have been incomplete
+            BackupEntries = BackupEntries.OrderBy(entry => //TODO Check if default sort is alphabetical
+            {
+                return entry.Item1;
+            }).ToList();
             BackupFilesTemp = null;
         }
     }
