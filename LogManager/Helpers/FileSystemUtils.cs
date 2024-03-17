@@ -181,17 +181,17 @@ namespace LogManager.Helpers
             // Get information about the source directory
             DirectoryInfo dir = new DirectoryInfo(sourceDir);
 
-            // Check if the source directory exists
+            //Check if the source directory exists
             if (!dir.Exists)
                 throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
 
-            // Cache directories before we start copying
+            //Cache directories before we start copying
             DirectoryInfo[] dirs = dir.GetDirectories();
 
-            // Create the destination directory
+            //Create the destination directory
             Directory.CreateDirectory(destinationDir);
 
-            // Get the files in the source directory and copy to the destination directory
+            //Get the files in the source directory and copy to the destination directory
             foreach (FileInfo file in dir.GetFiles())
             {
                 try
@@ -205,7 +205,7 @@ namespace LogManager.Helpers
                 }
             }
 
-            // If recursive and copying subdirectories, recursively call this method
+            //If recursive and copying subdirectories, recursively call this method
             if (recursive)
             {
                 foreach (DirectoryInfo subDir in dirs)

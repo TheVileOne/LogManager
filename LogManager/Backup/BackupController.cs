@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LogManager.Helpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -85,7 +86,7 @@ namespace LogManager.Backup
             manageExistingBackups(sourceFilename);
 
             //Create backup file
-            Helpers.FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
+            FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
         }
 
         /// <summary>
@@ -109,15 +110,15 @@ namespace LogManager.Backup
 
                     if (backupCountOverMaximum > 0)
                     {
-                        Helpers.FileSystemUtils.SafeDeleteFile(backup);
+                        FileSystemUtils.SafeDeleteFile(backup);
                         backupCountOverMaximum--;
                         continue;
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        Helpers.FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 2), 3);
+                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 2), 3);
                     else
-                        Helpers.FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
+                        FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
                 }
             }
         }
