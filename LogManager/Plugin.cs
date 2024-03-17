@@ -62,6 +62,8 @@ namespace LogManager
 
             try
             {
+                LogManager.Config.Load();
+
                 InitializeLogger();
                 InitializeFileSwitcher();
 

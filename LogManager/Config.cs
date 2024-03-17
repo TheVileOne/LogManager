@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LogManager.Helpers;
+using System;
+using System.Collections.Specialized;
 using System.IO;
 using UnityEngine;
 
@@ -25,10 +26,19 @@ namespace LogManager
             }
         }
 
+        /// <summary>
+        /// Contains config values read directly from the mod config. This data may be accessed at any time in the mod load process.
+        /// </summary>
+        public static StringDictionary ConfigDataRaw;
 
         public static Configurable<bool> cfgUseAlternativeDirectory;
         public static Configurable<bool> cfgAllowBackups;
         public static Configurable<bool> cfgAllowProgressiveBackups;
+
+        public static void Load()
+        {
+            ConfigDataRaw = ConfigReader.ReadFile(Plugin.ConfigFilePath);
+        }
 
         public static void Initialize()
         {
@@ -52,6 +62,30 @@ namespace LogManager
             }));
 
             Plugin.OptionInterface.OnConfigChanged += OptionInterface_OnConfigChanged;
+        }
+
+        public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible
+        {
+            try
+            {
+                if (!SafeToLoad)
+                {
+                    if (ConfigDataRaw.ContainsKey(settingName))
+                        return ConfigDataRaw[settingName].ConvertParse<T>();
+                }
+                else
+                {
+                    //Use reflection to get the correct configurable and return its value
+                    Configurable<T> configSetting = (Configurable<T>)typeof(Config).GetField(settingName).GetValue(null);
+                    return configSetting.Value;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Exception occurred while retrieving config settings");
+                Debug.LogError(ex);
+            }
+            return expectedDefault;
         }
 
         /// <summary>
@@ -78,46 +112,7 @@ namespace LogManager
             if (!File.Exists(Plugin.ConfigFilePath))
                 return expectedDefault;
 
-            IEnumerator<string> configData = File.ReadLines(Plugin.ConfigFilePath).GetEnumerator();
-
-            IConvertible data = expectedDefault;
-            bool dataFound = false;
-            while (!dataFound && configData.MoveNext())
-            {
-                if (configData.Current.StartsWith("#")) //The setting this is looking for will not start with a # symbol
-                    continue;
-
-                dataFound = configData.Current.StartsWith(settingName); //This will likely be matching a setting name like this: cfgSetting
-            }
-
-            if (dataFound)
-            {
-                try
-                {
-                    Type dataType = typeof(T);
-                    string rawData = configData.Current; //Formatted line containing the data
-                    string dataFromString = rawData.Substring(rawData.LastIndexOf(' ') + 1);
-
-                    //Parse the data into the specified data type
-                    if (dataType == typeof(bool))
-                        data = bool.Parse(dataFromString);
-                    else if (dataType == typeof(int))
-                        data = int.Parse(dataFromString);
-                    else if (dataType == typeof(string))
-                        data = dataFromString;
-                    else
-                        throw new NotSupportedException(dataType + " is not able to be converted");
-                }
-                catch (FormatException)
-                {
-                    Debug.LogError("Config setting is malformed, or not in the expected format");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Debug.LogError(ex);
-                }
-            }
-            return (T)data;
+            return ConfigReader.ReadFromDisk(Plugin.ConfigFilePath, settingName, expectedDefault);
         }
 
         private static void OptionInterface_OnConfigChanged()
