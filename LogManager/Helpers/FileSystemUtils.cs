@@ -169,6 +169,24 @@ namespace LogManager.Helpers
             return false;
         }
 
+        public static void SafeWriteToFile(string filePath, List<string> values)
+        {
+            try
+            {
+                using (TextWriter writer = File.CreateText(filePath))
+                {
+                    foreach (string entry in values)
+                        writer.WriteLine(entry);
+                    writer.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError("Unable to write to file " + filePath);
+                Plugin.Logger.LogError(ex);
+            }
+        }
+
         public static int DirectoryFileCount(string path)
         {
             return Directory.Exists(path) ? Directory.GetFiles(path).Length : 0;

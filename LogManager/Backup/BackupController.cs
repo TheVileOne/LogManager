@@ -235,6 +235,23 @@ namespace LogManager.Backup
             }
         }
 
+        /// <summary>
+        /// Creates blacklist, and whitelist txt files based on current lists
+        /// </summary>
+        public void SaveListsToFile()
+        {
+            if (!Enabled) return;
+
+            string blacklistPath, whitelistPath;
+
+            blacklistPath = Path.Combine(Plugin.ModPath, "backup-blacklist.txt");
+            whitelistPath = Path.Combine(Plugin.ModPath, "backup-whitelist.txt");
+
+            //Create or overwrite existing files
+            FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList);
+            FileSystemUtils.SafeWriteToFile(whitelistPath, EnabledList);
+        }
+
         private int parseBackupNumber(string backupFilename)
         {
             int parseIndexStart = backupFilename.LastIndexOf('[');
@@ -256,6 +273,7 @@ namespace LogManager.Backup
         /// </summary>
         public void Finish()
         {
+            SaveListsToFile(); //Make sure lists are up to date - list data may have been incomplete
             BackupFilesTemp = null;
         }
     }
