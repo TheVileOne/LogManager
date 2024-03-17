@@ -50,17 +50,19 @@ namespace LogManager
             bool dataFound = false;
             while (!dataFound && configData.MoveNext())
             {
-                if (configData.Current.StartsWith("#")) //The setting this is looking for will not start with a # symbol
+                string entry = configData.Current.Trim();
+
+                if (entry.StartsWith("#") || entry == string.Empty) //The setting this is looking for will not start with a # symbol
                     continue;
 
-                dataFound = configData.Current.StartsWith(settingName); //This will likely be matching a setting name like this: cfgSetting
+                dataFound = entry.StartsWith(settingName); //This will likely be matching a setting name like this: cfgSetting
             }
 
             if (dataFound)
             {
                 try
                 {
-                    string rawData = configData.Current; //Formatted line containing the data
+                    string rawData = configData.Current.Trim(); //Formatted line containing the data
                     string dataFromString = rawData.Substring(rawData.LastIndexOf(' ') + 1);
 
                     //Parse the data into the specified data type
