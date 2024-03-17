@@ -1,16 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace LogManager
 {
     public static class Config
     {
-        public static OptionInterface.ConfigHolder ConfigData => Plugin.OptionInterface.config;
+        /// <summary>
+        /// Indicates that Config data is safe to be accessed from the OptionInterface (initialized OnModsInIt)  
+        /// </summary>
+        public static bool SafeToLoad;
+
+        /// <summary>
+        /// Contains config values that are managed by the OptionInterface. This should only be interacted with after RainWorld has initialized to avoid errors.
+        /// </summary>
+        public static OptionInterface.ConfigHolder ConfigData
+        {
+            get
+            {
+                if (SafeToLoad)
+                    return Plugin.OptionInterface.config;
+                return null;
+            }
+        }
+
 
         public static Configurable<bool> cfgUseAlternativeDirectory;
         public static Configurable<bool> cfgAllowBackups;
@@ -18,6 +32,7 @@ namespace LogManager
 
         public static void Initialize()
         {
+            SafeToLoad = true;
             ConfigData.configurables.Clear();
 
             //Define config options
