@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vector2 = UnityEngine.Vector2;
 
-namespace LogManager
+namespace LogManager.Interface
 {
     internal class LoggerOptionInterface : OptionInterface
     {
@@ -14,7 +14,7 @@ namespace LogManager
         /// The initial y-value by which all other controls are positioned from 
         /// </summary>
         private const float y_offset = 560f;
-        
+
         /// <summary>
         /// The position by which controls are aligned along the x-axis
         /// </summary>

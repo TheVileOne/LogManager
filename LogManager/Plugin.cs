@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using LogManager.Backup;
 using LogManager.Helpers;
+using LogManager.Interface;
 using LogManager.Listeners;
 using LogUtils;
 using Mono.Cecil.Cil;
