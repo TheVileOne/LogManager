@@ -203,8 +203,8 @@ namespace LogManager.Backup
 
         public void PopulateLists()
         {
-            PopulateDisallowList(); //Populate disabled list first, as it affects how the enabled list is handled
             PopulateAllowList();
+            PopulateDisallowList();
         }
 
         public void PopulateAllowList()
@@ -250,6 +250,7 @@ namespace LogManager.Backup
 
                 entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
 
+                EnabledList.Remove(entry);
                 DisabledList.Add(entry);
             }
         }
