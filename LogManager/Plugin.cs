@@ -52,6 +52,7 @@ namespace LogManager
         /// This is the primary method individual log files are moved
         /// </summary>
         public static LogFileSwitcher FileSwitcher;
+        public static BackupController BackupManager;
         public static OptionInterface OptionInterface;
 
         public void Awake()
@@ -434,13 +435,13 @@ namespace LogManager
         {
             string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
 
-            BackupController backupManager = new BackupController(existingLogsDirectory, "Backup");
+            BackupManager = new BackupController(existingLogsDirectory, "Backup");
 
-            backupManager.Enabled = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowBackups), false);
-            backupManager.ProgressiveEnableMode = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowProgressiveBackups), false);
+            BackupManager.Enabled = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowBackups), false);
+            BackupManager.ProgressiveEnableMode = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowProgressiveBackups), false);
 
-            backupManager.PopulateLists();
-            backupManager.BackupFromFolder(existingLogsDirectory);
+            BackupManager.PopulateLists();
+            BackupManager.BackupFromFolder(existingLogsDirectory);
             DeleteExistingLogs();
         }
 

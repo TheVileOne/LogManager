@@ -1,5 +1,6 @@
 ﻿using LogManager.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using UnityEngine;
@@ -35,6 +36,10 @@ namespace LogManager
         public static Configurable<bool> cfgAllowBackups;
         public static Configurable<bool> cfgAllowProgressiveBackups;
 
+        public static Configurable<int> cfgBackupsPerFile;
+
+        public static List<Configurable<bool>> cfgBackupEntries;
+
         public static void Load()
         {
             ConfigDataRaw = ConfigReader.ReadFile(Plugin.ConfigFilePath);
@@ -46,20 +51,25 @@ namespace LogManager
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgUseAlternativeDirectory = ConfigData.Bind("cfgUseAlternativeDirectory", false, new ConfigInfo("Choose your Logs folder", new object[]
+            cfgUseAlternativeDirectory = ConfigData.Bind(nameof(cfgUseAlternativeDirectory), false, new ConfigInfo("Choose your Logs folder", new object[]
             {
                 "Prefer StreamingAssets folder for Logs directory"
             }));
 
-            cfgAllowBackups = ConfigData.Bind("cfgAllowBackups", false, new ConfigInfo("Allow log backups", new object[]
+            cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false, new ConfigInfo("Allow log backups", new object[]
             {
                 "Backup log files when Rain World starts"
             }));
 
-            cfgAllowProgressiveBackups = ConfigData.Bind("cfgAllowProgressiveBackups", false, new ConfigInfo("Enable backups for newly detected log files on startup", new object[]
+            cfgAllowProgressiveBackups = ConfigData.Bind(nameof(cfgAllowProgressiveBackups), false, new ConfigInfo("Enable backups for newly detected log files on startup", new object[]
             {
                 "Automatically enable backups for newly detected log files"
             }));
+
+            cfgBackupsPerFile = ConfigData.Bind(nameof(cfgBackupsPerFile), 2, new ConfigAcceptableRange<int>(1, 5));
+            cfgBackupsPerFile.info.Tags = new object[] { "Allowed backups per file" };
+
+            cfgBackupEntries = new List<Configurable<bool>>();
 
             Plugin.OptionInterface.OnConfigChanged += OptionInterface_OnConfigChanged;
         }
