@@ -37,6 +37,12 @@ namespace LogManager.Backup
             "mods",
         };
 
+        /// <summary>
+        /// When true, any backup candidate that hasn't been added to backup-blacklist.txt will be enabled by default.
+        /// This feature only works when backups are enabled. This flag can still be true when Enabled is false.
+        /// </summary>
+        public bool ProgressiveEnableMode;
+
         protected string[] BackupFilesTemp;
 
         public BackupController(string containingFolderPath, string backupFolderName)
@@ -62,9 +68,18 @@ namespace LogManager.Backup
 
             foreach (string file in Directory.GetFiles(targetPath))
             {
-                string filenameNoExt = Path.GetFileNameWithoutExtension(file);
+                string backupFileEntry = Path.GetFileNameWithoutExtension(file);
 
-                if (EnabledList.Contains(filenameNoExt)) //Only allowed files will be available for backup
+                bool backupEnabled = EnabledList.Contains(backupFileEntry);
+
+                //ProgressiveEnableMode acts like an enable all, except if user disabled function
+                if (!backupEnabled && ProgressiveEnableMode && !DisabledList.Contains(backupFileEntry))
+                {
+                    EnabledList.Add(backupFileEntry);
+                    backupEnabled = true;
+                }
+
+                if (backupEnabled) //Only allowed files will be available for backup
                     BackupFile(file);
             }
 

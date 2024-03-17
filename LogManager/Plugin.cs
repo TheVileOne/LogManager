@@ -436,6 +436,7 @@ namespace LogManager
             BackupController backupManager = new BackupController(existingLogsDirectory, "Backup");
 
             backupManager.Enabled = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowBackups), false);
+            backupManager.ProgressiveEnableMode = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowProgressiveBackups), false);
 
             backupManager.PopulateLists();
             backupManager.BackupFromFolder(existingLogsDirectory);
