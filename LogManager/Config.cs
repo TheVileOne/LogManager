@@ -91,7 +91,7 @@ namespace LogManager
         /// <summary>
         /// Gets the string that appears on the label associated with a config option
         /// </summary>
-        public static string GetDescription(Configurable<bool> option)
+        public static string GetDescription(ConfigurableBase option)
         {
             return option.info.description;
         }
@@ -99,7 +99,7 @@ namespace LogManager
         /// <summary>
         /// Gets the string that appears on the bottom of the screen and describes the function of the config option when hovered
         /// </summary>
-        public static string GetTooltip(Configurable<bool> option)
+        public static string GetTooltip(ConfigurableBase option)
         {
             return option.info.Tags[0] as string;
         }

@@ -36,17 +36,13 @@ namespace LogManager.Interface
 
         private void initializePrimaryOptions(OpTab tab)
         {
+
+
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate("Logging Tools"), FLabelAlignment.Center, true, null);
-            OpCheckBox directoryOptionToggle = new OpCheckBox(Config.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f))
-            {
-                description = Translate(Config.GetDescription(Config.cfgUseAlternativeDirectory))
-            };
-            OpLabel directoryOptionTooltip = new OpLabel(60f, y_offset - 90f, Translate(Config.GetTooltip(Config.cfgUseAlternativeDirectory)), false)
-            {
-                bumpBehav = directoryOptionToggle.bumpBehav,
-                description = directoryOptionToggle.description
-            };
+
+            OpCheckBox directoryOptionToggle = createCheckBox(Config.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f));
+            OpLabel directoryOptionTooltip = createTooltip(directoryOptionToggle);
 
             //Add elements to container
             tab.AddItems(new UIelement[]
@@ -64,25 +60,11 @@ namespace LogManager.Interface
             //Create elements
             OpLabel backupsHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate("Backup Management"), FLabelAlignment.Left, true, null);
 
-            OpCheckBox enableBackupsToggle = new OpCheckBox(Config.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f))
-            {
-                description = Translate(Config.GetDescription(Config.cfgAllowBackups))
-            };
-            OpLabel enableBackupsTooltip = new OpLabel(60f, headerOffsetY - 40f, Translate(Config.GetTooltip(Config.cfgAllowBackups)), false)
-            {
-                bumpBehav = enableBackupsToggle.bumpBehav,
-                description = enableBackupsToggle.description
-            };
+            OpCheckBox enableBackupsToggle = createCheckBox(Config.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f));
+            OpLabel enableBackupsTooltip = createTooltip(enableBackupsToggle);
 
-            OpCheckBox progressiveBackupsToggle = new OpCheckBox(Config.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f))
-            {
-                description = Translate(Config.GetDescription(Config.cfgAllowProgressiveBackups))
-            };
-            OpLabel progressiveBackupsTooltip = new OpLabel(60f, headerOffsetY - 80f, Translate(Config.GetTooltip(Config.cfgAllowProgressiveBackups)), false)
-            {
-                bumpBehav = enableBackupsToggle.bumpBehav,
-                description = enableBackupsToggle.description
-            };
+            OpCheckBox progressiveBackupsToggle = createCheckBox(Config.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f));
+            OpLabel progressiveBackupsTooltip = createTooltip(progressiveBackupsToggle);
 
             OpSimpleButton backupDeleteButton = new OpSimpleButton(new Vector2(x_left_align, headerOffsetY - 140f), new Vector2(120f, 30f), Translate("Delete Backups"))
             {
@@ -99,6 +81,26 @@ namespace LogManager.Interface
                 progressiveBackupsTooltip,
                 backupDeleteButton
             });
+        }
+
+        /// <summary>
+        /// Creates the elements used by the Remix menu interface to produce a standard OpCheckBox
+        /// </summary>
+        private OpCheckBox createCheckBox(Configurable<bool> configurable, Vector2 position)
+        {
+            return new OpCheckBox(configurable, position)
+            {
+                description = Translate(Config.GetDescription(configurable))
+            };
+        }
+
+        private OpLabel createTooltip(OpCheckBox owner)
+        {
+            return new OpLabel(60f, owner.ScreenPos.y, Translate(Config.GetTooltip(owner.cfgEntry)), false)
+            {
+                bumpBehav = owner.bumpBehav,
+                description = owner.description
+            };
         }
     }
 }
