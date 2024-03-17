@@ -32,9 +32,9 @@ namespace LogManager.Backup
         /// </summary>
         public string[] EnabledByDefault = new string[]
         {
-            "console.log",
-            "exception.log",
-            "mods.log",
+            "console",
+            "exception",
+            "mods",
         };
 
         protected string[] BackupFilesTemp;
@@ -209,6 +209,8 @@ namespace LogManager.Backup
                 if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
                     continue;
 
+                entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
+
                 if (!DisabledList.Contains(entry))
                     EnabledList.Add(entry);
             }
@@ -230,6 +232,8 @@ namespace LogManager.Backup
 
                 if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
                     continue;
+
+                entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
 
                 DisabledList.Add(entry);
             }
