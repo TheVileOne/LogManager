@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
 
 namespace LogManager.Interface
@@ -45,17 +46,17 @@ namespace LogManager.Interface
         private void initializePrimaryOptions(OpTab tab)
         {
             //Create elements
-            OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate("Logging Tools"), FLabelAlignment.Center, true, null);
+            OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate(Headers.PRIMARY), FLabelAlignment.Center, true, null);
 
             OpCheckBox directoryOptionToggle = createCheckBox(Config.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f));
-            OpLabel directoryOptionTooltip = createTooltip(directoryOptionToggle);
+            OpLabel directoryOptionLabel = createOptionLabel(directoryOptionToggle);
 
             //Add elements to container
             tab.AddItems(new UIelement[]
             {
                 tabHeader,
                 directoryOptionToggle,
-                directoryOptionTooltip,
+                directoryOptionLabel,
             });
         }
 
@@ -64,24 +65,24 @@ namespace LogManager.Interface
             float headerOffsetY = y_offset - 150f;
 
             //Upper left section
-            OpLabel backupsHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate("Backup Management"), FLabelAlignment.Left, true, null);
+            OpLabel backupsHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS), FLabelAlignment.Left, true, null);
 
             OpCheckBox enableBackupsToggle = createCheckBox(Config.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f));
-            OpLabel enableBackupsTooltip = createTooltip(enableBackupsToggle);
+            OpLabel enableBackupsLabel = createOptionLabel(enableBackupsToggle);
 
             OpCheckBox progressiveBackupsToggle = createCheckBox(Config.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f));
-            OpLabel progressiveBackupsTooltip = createTooltip(progressiveBackupsToggle);
+            OpLabel progressiveBackupsLabel = createOptionLabel(progressiveBackupsToggle);
 
             //Right section
             OpUpdown backupLimitUpDown = new OpUpdown(Config.cfgBackupsPerFile, new Vector2(x_right_align + 80f, headerOffsetY - 40f), 0)
             {
-                description = Translate("Backups per file"),
+                description = Translate(ModConsts.Config.Descriptions.BACKUPS_PER_FILE),
             };
-            OpLabel backupLimitTooltip = createTooltip(backupLimitUpDown, new Vector2(x_right_align - 60f, headerOffsetY - 35f));           
+            OpLabel backupLimitLabel = createOptionLabel(backupLimitUpDown, new Vector2(x_right_align - 60f, headerOffsetY - 35f));           
 
-            OpSimpleButton backupDeleteButton = new OpSimpleButton(new Vector2(x_right_align, headerOffsetY - 80f), new Vector2(120f, 30f), Translate("Delete Backups"))
+            OpSimpleButton backupDeleteButton = new OpSimpleButton(new Vector2(x_right_align, headerOffsetY - 80f), new Vector2(120f, 30f), Translate(ModConsts.Config.OptionLabels.DELETE_OPTION))
             {
-                description = Translate("Removes Backup folder and its contents")
+                description = Translate(ModConsts.Config.Descriptions.DELETE_OPTION)
             };
 
             //Add elements to container
@@ -89,18 +90,18 @@ namespace LogManager.Interface
             {
                 backupsHeader,
                 enableBackupsToggle,
-                enableBackupsTooltip,
+                enableBackupsLabel,
                 progressiveBackupsToggle,
-                progressiveBackupsTooltip,
+                progressiveBackupsLabel,
                 backupLimitUpDown,
-                backupLimitTooltip,
+                backupLimitLabel,
                 backupDeleteButton,
             });
 
             headerOffsetY = progressiveBackupsToggle.PosY - 40f;
 
             //Lower left section
-            OpLabel backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate("Backup Allow List"), FLabelAlignment.Left, true, null);
+            OpLabel backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
 
             tab.AddItems(backupsAllowedHeader);
 
@@ -110,7 +111,8 @@ namespace LogManager.Interface
                 var backupEntry = Plugin.BackupManager.BackupEntries[i];
                 bool backupEnabledByDefault = Plugin.BackupManager.ProgressiveEnableMode;
 
-                var backupConfigurable = Config.ConfigData.Bind("bkp" + backupEntry.Item1, backupEnabledByDefault, new Config.ConfigInfo("Allow backups for this log", new object[]
+                var backupConfigurable = Config.ConfigData.Bind("bkp" + backupEntry.Item1, backupEnabledByDefault,
+                    new Config.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
                 {
                     backupEntry.Item1
                 }));
@@ -118,10 +120,10 @@ namespace LogManager.Interface
                 Config.cfgBackupEntries.Add(backupConfigurable);
 
                 OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, headerOffsetY - (40f * (i + 1))));
-                OpLabel tooltip = createTooltip(checkBox);
+                OpLabel optionLabel = createOptionLabel(checkBox);
 
-                tab.AddItems(checkBox, tooltip);
-                BackupElements.Add((checkBox, tooltip));
+                tab.AddItems(checkBox, optionLabel);
+                BackupElements.Add((checkBox, optionLabel));
             }
         }
 
@@ -136,12 +138,12 @@ namespace LogManager.Interface
             };
         }
 
-        private OpLabel createTooltip(UIconfig owner)
+        private OpLabel createOptionLabel(UIconfig owner)
         {
-            return createTooltip(owner, new Vector2(60f, owner.ScreenPos.y));
+            return createOptionLabel(owner, new Vector2(60f, owner.ScreenPos.y));
         }
 
-        private OpLabel createTooltip(UIconfig owner, Vector2 pos)
+        private OpLabel createOptionLabel(UIconfig owner, Vector2 pos)
         {
             return new OpLabel(pos.x, pos.y, Translate(Config.GetTooltip(owner.cfgEntry)), false)
             {

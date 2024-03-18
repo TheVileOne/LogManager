@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using UnityEngine;
+using Descriptions = LogManager.ModConsts.Config.Descriptions;
+using OptionLabels = LogManager.ModConsts.Config.OptionLabels;
 
 namespace LogManager
 {
@@ -51,23 +53,26 @@ namespace LogManager
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgUseAlternativeDirectory = ConfigData.Bind(nameof(cfgUseAlternativeDirectory), false, new ConfigInfo("Choose your Logs folder", new object[]
+            cfgUseAlternativeDirectory = ConfigData.Bind(nameof(cfgUseAlternativeDirectory), false,
+                new ConfigInfo(Descriptions.ALT_DIRECTORY_TOGGLE, new object[]
             {
-                "Prefer StreamingAssets folder for Logs directory"
+                OptionLabels.ALT_DIRECTORY_TOGGLE
             }));
 
-            cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false, new ConfigInfo("Allow log backups", new object[]
+            cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false,
+                new ConfigInfo(Descriptions.ALLOW_BACKUPS_TOGGLE, new object[]
             {
-                "Backup log files when Rain World starts"
+                OptionLabels.ALLOW_BACKUPS_TOGGLE
             }));
 
-            cfgAllowProgressiveBackups = ConfigData.Bind(nameof(cfgAllowProgressiveBackups), false, new ConfigInfo("Enable backups for newly detected log files on startup", new object[]
+            cfgAllowProgressiveBackups = ConfigData.Bind(nameof(cfgAllowProgressiveBackups), false,
+                new ConfigInfo(Descriptions.PROGRESSIVE_BACKUPS_TOGGLE, new object[]
             {
-                "Automatically enable backups for newly detected log files"
+                OptionLabels.PROGRESSIVE_BACKUPS_TOGGLE
             }));
 
             cfgBackupsPerFile = ConfigData.Bind(nameof(cfgBackupsPerFile), 2, new ConfigAcceptableRange<int>(1, 5));
-            cfgBackupsPerFile.info.Tags = new object[] { "Allowed backups per file" };
+            cfgBackupsPerFile.info.Tags = new object[] { OptionLabels.BACKUPS_PER_FILE };
 
             cfgBackupEntries = new List<Configurable<bool>>();
 
@@ -92,7 +97,7 @@ namespace LogManager
             }
             catch (Exception ex)
             {
-                Debug.LogError("Exception occurred while retrieving config settings");
+                Debug.LogError("Error occurred while retrieving config settings");
                 Debug.LogError(ex);
             }
             return expectedDefault;
