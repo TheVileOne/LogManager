@@ -228,6 +228,63 @@ namespace LogManager.Backup
             return existingBackups;
         }
 
+        /// <summary>
+        /// Updates all lists with new enabled state values
+        /// </summary>
+        public void ProcessChanges(List<(string, bool)> changedEntries)
+        {
+            bool shouldSort = false;
+            foreach (var backupEntry in changedEntries)
+            {
+                string backupName = backupEntry.Item1;
+                bool backupEnabled = backupEntry.Item2;
+
+                Plugin.Logger.LogInfo("Processing entry: " + backupName);
+
+                //A changed entry means that the entry has been changed from enabled to disabled, or vice versa,
+                //or a new entry has been detected that is not part of any of the lists
+                if (backupEnabled)
+                {
+                    if (DisabledList.Remove(backupName))
+                        EnabledList.Add(backupName);
+                    else if (!EnabledList.Contains(backupName)) //Maybe, it is a new entry 
+                    {
+                        EnabledList.Add(backupName);
+
+                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupName);
+                        if (entryIndex != -1) //Replace original backup entry with changed one
+                            BackupEntries[entryIndex] = backupEntry;
+                        else
+                        {
+                            BackupEntries.Add(backupEntry);
+                            shouldSort = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (EnabledList.Remove(backupName))
+                        DisabledList.Add(backupName);
+                    else if (!DisabledList.Contains(backupName)) //Maybe, it is a new entry 
+                    {
+                        DisabledList.Add(backupName);
+
+                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupName);
+                        if (entryIndex != -1) //Replace original backup entry with changed one
+                            BackupEntries[entryIndex] = backupEntry;
+                        else
+                        {
+                            BackupEntries.Add(backupEntry);
+                            shouldSort = true;
+                        }
+                    }
+                }
+            }
+
+            if (shouldSort)
+                BackupEntries.Sort();
+        }
+
         public void PopulateLists()
         {
             PopulateAllowList();

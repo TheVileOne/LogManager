@@ -130,10 +130,43 @@ namespace LogManager
             return ConfigReader.ReadFromDisk(Plugin.ConfigFilePath, settingName, expectedDefault);
         }
 
+        public static List<(string, bool)> GetBackupEnabledChanges()
+        {
+            if (cfgBackupEntries.Count != Plugin.BackupManager.BackupEntries.Count)
+            {
+                //Both lists should contain the same number of entries
+                Plugin.Logger.LogError("Backup entry count detected does not match managed entry count");
+                return new List<(string, bool)>();
+            }
+
+            List<(string, bool)> detectedChanges = new List<(string, bool)>();
+
+            //Cycle through both lists until one of the entries doesn't match. The list order should be the same here.
+            for (int i = 0; i < Plugin.BackupManager.BackupEntries.Count; i++)
+            {
+                var backupEntry = Plugin.BackupManager.BackupEntries[i];
+                var backupConfigurable = cfgBackupEntries[i];
+
+                //Check that enabled bool matches
+                if (backupConfigurable.Value != backupEntry.Item2)
+                    detectedChanges.Add((backupEntry.Item1, backupConfigurable.Value));
+            }
+            return detectedChanges;
+        }
+
         private static void OptionInterface_OnConfigChanged()
         {
             try
             {
+                List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
+
+                if (detectedChanges.Count > 0)
+                {
+                    Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
+                    Plugin.BackupManager.ProcessChanges(detectedChanges);
+                    Plugin.BackupManager.SaveListsToFile();
+                }
+
                 Plugin.UpdateLogDirectory();
             }
             catch (Exception ex)
