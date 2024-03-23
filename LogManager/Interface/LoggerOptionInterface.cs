@@ -9,8 +9,10 @@ using Vector2 = UnityEngine.Vector2;
 
 namespace LogManager.Interface
 {
-    internal class LoggerOptionInterface : OptionInterface
+    public class LoggerOptionInterface : OptionInterface
     {
+        public bool HasInitialized;
+
         /// <summary>
         /// The initial y-value by which all other controls are positioned from 
         /// </summary>
@@ -28,6 +30,21 @@ namespace LogManager.Interface
 
         public List<(OpCheckBox, OpLabel)> BackupElements = new List<(OpCheckBox, OpLabel)>();
 
+        /// <summary>
+        /// The tab that handles Backup related UIelements
+        /// </summary>
+        private OpTab backupElementsTab
+        {
+            get
+            {
+                if (Tabs != null)
+                    return Tabs[0];
+                return null;
+            }
+        }
+
+        private OpLabel backupsAllowedHeader;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -41,6 +58,7 @@ namespace LogManager.Interface
 
             initializePrimaryOptions(tab);
             initializeBackupOptions(tab);
+            HasInitialized = true;
         }
 
         private void initializePrimaryOptions(OpTab tab)
@@ -101,9 +119,38 @@ namespace LogManager.Interface
             headerOffsetY = progressiveBackupsToggle.PosY - 40f;
 
             //Lower left section
-            OpLabel backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
+            backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
 
             tab.AddItems(backupsAllowedHeader);
+            UpdateEnableBackupOptions();
+        }
+
+        /// <summary>
+        /// Removes existing enable backup options replacing them with a new set based on BackupEntries list
+        /// </summary>
+        public void UpdateEnableBackupOptions()
+        {
+            OpTab tab = backupElementsTab;
+
+            if (Plugin.BackupManager.HasRunOnce && BackupElements.Count > 0) //Sanity check
+            {
+                Plugin.Logger.LogInfo($"Replacing {BackupElements.Count} backup options");
+
+                //Remove existing items from tab
+                for (int i = 0; i < BackupElements.Count; i++)
+                {
+                    var backupElementTuple = BackupElements[i];
+                    var backupConfigurable = Config.cfgBackupEntries[i];
+
+                    tab.RemoveItems(backupElementTuple.Item1, backupElementTuple.Item2);
+                    Config.ConfigData.configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
+                }
+
+                BackupElements.Clear();
+                Config.cfgBackupEntries.Clear();
+            }
+            else
+                Plugin.Logger.LogInfo($"Initilizing backup options");
 
             //Create a backup element option for each backup entry
             for (int i = 0; i < Plugin.BackupManager.BackupEntries.Count; i++)
@@ -119,12 +166,14 @@ namespace LogManager.Interface
 
                 Config.cfgBackupEntries.Add(backupConfigurable);
 
-                OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, headerOffsetY - (40f * (i + 1))));
+                OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, backupsAllowedHeader.PosY - (40f * (i + 1))));
                 OpLabel optionLabel = createOptionLabel(checkBox);
 
                 tab.AddItems(checkBox, optionLabel);
                 BackupElements.Add((checkBox, optionLabel));
             }
+
+            Plugin.Logger.LogInfo($"Processed {BackupElements.Count} backup options");
         }
 
         /// <summary>

@@ -53,7 +53,7 @@ namespace LogManager
         /// </summary>
         public static LogFileSwitcher FileSwitcher;
         public static BackupController BackupManager;
-        public static OptionInterface OptionInterface;
+        public static LoggerOptionInterface OptionInterface;
 
         public void Awake()
         {
@@ -96,12 +96,35 @@ namespace LogManager
                 IL.JollyCoop.JollyCustom.CreateJollyLog += replaceLogPathHook_JollyCoop;
                 IL.JollyCoop.JollyCustom.Log += replaceLogPathHook_JollyCoop;
                 IL.JollyCoop.JollyCustom.WriteToLog += replaceLogPathHook_JollyCoop;
+
+                //Config processing hooks
+                On.OptionInterface._LoadConfigFile += OptionInterface__LoadConfigFile;
+                hasInitialized = true;
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error while applying hooks");
                 Logger.LogError(ex);
             }
+        }
+
+        private void OptionInterface__LoadConfigFile(On.OptionInterface.orig__LoadConfigFile orig, OptionInterface self)
+        {
+            //Each time the config is loaded, we need to check for newly created logs, and update the backup lists accordingly
+            if (hasInitialized && self is LoggerOptionInterface)
+            {
+                Logger.LogInfo("Loading config");
+                try
+                {
+                    ManageExistingBackups();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error occurred while handling backups");
+                    Logger.LogError(ex);
+                }
+            }
+            orig(self);
         }
 
         private void ModdingMenu_Singal(On.Menu.ModdingMenu.orig_Singal orig, Menu.ModdingMenu self, Menu.MenuObject sender, string message)
@@ -437,12 +460,37 @@ namespace LogManager
 
             BackupManager = new BackupController(existingLogsDirectory, "Backup");
 
+            ManageExistingBackups();
+            DeleteExistingLogs();
+        }
+
+        /// <summary>
+        /// Manages the process of clearing existing backup entry lists, and then updating them with new backup information from file
+        /// </summary>
+        public void ManageExistingBackups()
+        {
             BackupManager.Enabled = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowBackups), false);
             BackupManager.ProgressiveEnableMode = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowProgressiveBackups), false);
+            BackupManager.AllowedBackupsPerFile = LogManager.Config.GetValue(nameof(LogManager.Config.cfgBackupsPerFile), 2);
 
             BackupManager.PopulateLists();
-            BackupManager.BackupFromFolder(existingLogsDirectory);
-            DeleteExistingLogs();
+
+            string targetPath = LogManager.Logger.BaseDirectory;
+
+            //The first time BackupManager is run, we either store a copy of the backups, or not. Internally
+            //BackupInFolder() invokes ProcessFolder() either way. It is required in order for the Remix menu
+            //to know which enable options to show. That process requires the Logs directory to be analyzed
+            //whether or not Backups are enabled
+            if (!BackupManager.HasRunOnce)
+                BackupManager.BackupFromFolder(targetPath);
+            else
+            {
+                BackupManager.ProcessFolder(targetPath, false);
+
+                //Ensure that OptionInterface is in a state where elements can be modified
+                if (hasInitialized && OptionInterface.HasInitialized)
+                    OptionInterface.UpdateEnableBackupOptions(); //Will be handled on OptionInterface init
+            }
         }
 
         /// <summary>

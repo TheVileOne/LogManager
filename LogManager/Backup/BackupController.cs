@@ -19,6 +19,8 @@ namespace LogManager.Backup
         /// </summary>
         public string BackupPath;
 
+        public bool HasRunOnce;
+
         /// <summary>
         /// A flag that controls whether backups may be processed
         /// </summary>
@@ -56,20 +58,33 @@ namespace LogManager.Backup
             Directory.CreateDirectory(BackupPath);
         }
 
-        private void applyEnabledDefaults()
-        {
-            foreach (string defaultEntry in EnabledByDefault)
-            {
-                if (!EnabledList.Contains(defaultEntry) && !DisabledList.Contains(defaultEntry))
-                    EnabledList.Add(defaultEntry);
-            }
-        }
-
         public void BackupFromFolder(string targetPath)
         {
-            if (!Enabled) return;
+            ProcessFolder(targetPath, Enabled);
+            HasRunOnce = true;
+        }
 
-            applyEnabledDefaults();
+        /// <summary>
+        /// Logic necessary for storing backup file data
+        /// </summary>
+        public void BackupFile(string backupSourcePath)
+        {
+            if (BackupFilesTemp == null)
+                BackupFilesTemp = Directory.GetFiles(BackupPath);
+
+            string sourceFilename = Path.GetFileName(backupSourcePath);
+            string backupTargetPath = formatBackupPath(sourceFilename, 1); //Formats the path that backup file will be copied to 
+
+            //After this runs, if there are no issues, the target path will be free
+            manageExistingBackups(sourceFilename);
+
+            //Create backup file
+            FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
+        }
+
+        public void ProcessFolder(string targetPath, bool backupFiles)
+        {
+            BackupEntries.Clear();
 
             List<string> enabledList = new List<string>(EnabledList);
             List<string> disabledList = new List<string>(DisabledList);
@@ -103,7 +118,9 @@ namespace LogManager.Backup
                 {
                     enabledList.Remove(backupFileEntry);
                     BackupEntries.Add((backupFileEntry, true));
-                    BackupFile(file);
+
+                    if (backupFiles)
+                        BackupFile(file);
                 }
             }
 
@@ -111,24 +128,6 @@ namespace LogManager.Backup
             BackupEntries.AddRange(enabledList.Select<string, (string, bool)>(entry => (entry, true)));
             BackupEntries.AddRange(disabledList.Select<string, (string, bool)>(entry => (entry, false)));
             Finish();
-        }
-
-        /// <summary>
-        /// Logic necessary for storing backup file data
-        /// </summary>
-        public void BackupFile(string backupSourcePath)
-        {
-            if (BackupFilesTemp == null)
-                BackupFilesTemp = Directory.GetFiles(BackupPath);
-
-            string sourceFilename = Path.GetFileName(backupSourcePath);
-            string backupTargetPath = formatBackupPath(sourceFilename, 1); //Formats the path that backup file will be copied to 
-
-            //After this runs, if there are no issues, the target path will be free
-            manageExistingBackups(sourceFilename);
-
-            //Create backup file
-            FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
         }
 
         /// <summary>
@@ -289,6 +288,8 @@ namespace LogManager.Backup
         {
             PopulateAllowList();
             PopulateDisallowList();
+
+            applyEnabledDefaults();
         }
 
         public void PopulateAllowList()
@@ -340,11 +341,23 @@ namespace LogManager.Backup
         }
 
         /// <summary>
+        /// Common log sources, while other logs require a setting, or user interaction to enable
+        /// </summary>
+        private void applyEnabledDefaults()
+        {
+            foreach (string defaultEntry in EnabledByDefault)
+            {
+                if (!EnabledList.Contains(defaultEntry) && !DisabledList.Contains(defaultEntry))
+                    EnabledList.Add(defaultEntry);
+            }
+        }
+
+        /// <summary>
         /// Creates blacklist, and whitelist txt files based on current lists
         /// </summary>
-        public void SaveListsToFile()
+        public void SaveListsToFile(bool forceSave)
         {
-            if (!Enabled) return;
+            if (!Enabled && !forceSave) return;
 
             string blacklistPath, whitelistPath;
 
@@ -377,7 +390,7 @@ namespace LogManager.Backup
         /// </summary>
         public void Finish()
         {
-            SaveListsToFile(); //Make sure files are up to date - list data may have been incomplete
+            SaveListsToFile(false); //Make sure files are up to date - list data may have been incomplete
             BackupEntries = BackupEntries.OrderBy(entry => //TODO Check if default sort is alphabetical
             {
                 return entry.Item1;

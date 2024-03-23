@@ -97,8 +97,8 @@ namespace LogManager
             }
             catch (Exception ex)
             {
-                Debug.LogError("Error occurred while retrieving config settings");
-                Debug.LogError(ex);
+                Plugin.Logger.LogError("Error occurred while retrieving config settings");
+                Plugin.Logger.LogError(ex);
             }
             return expectedDefault;
         }
@@ -132,17 +132,23 @@ namespace LogManager
 
         public static List<(string, bool)> GetBackupEnabledChanges()
         {
-            if (cfgBackupEntries.Count != Plugin.BackupManager.BackupEntries.Count)
+            int backupEntryCount = Plugin.BackupManager.BackupEntries.Count;
+            int configEntryCount = cfgBackupEntries.Count;
+
+            if (configEntryCount != backupEntryCount)
             {
-                //Both lists should contain the same number of entries
-                Plugin.Logger.LogError("Backup entry count detected does not match managed entry count");
+                Plugin.Logger.LogInfo("Config Entry Count " + configEntryCount);
+                Plugin.Logger.LogInfo("Backup Entry Count " + backupEntryCount);
+
+                //This shouldn't log under normal circumstances
+                Plugin.Logger.LogWarning("Backup entry count detected does not match managed entry count");
                 return new List<(string, bool)>();
             }
 
             List<(string, bool)> detectedChanges = new List<(string, bool)>();
 
             //Cycle through both lists until one of the entries doesn't match. The list order should be the same here.
-            for (int i = 0; i < Plugin.BackupManager.BackupEntries.Count; i++)
+            for (int i = 0; i < backupEntryCount; i++)
             {
                 var backupEntry = Plugin.BackupManager.BackupEntries[i];
                 var backupConfigurable = cfgBackupEntries[i];
@@ -156,23 +162,27 @@ namespace LogManager
 
         private static void OptionInterface_OnConfigChanged()
         {
-            try
+            if (cfgBackupEntries.Count > 0) //Until config entries are processed once, we shouldn't run this code yet
             {
-                List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
-
-                if (detectedChanges.Count > 0)
+                try
                 {
-                    Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
-                    Plugin.BackupManager.ProcessChanges(detectedChanges);
-                    Plugin.BackupManager.SaveListsToFile();
-                }
+                    List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
 
-                Plugin.UpdateLogDirectory();
+                    if (detectedChanges.Count > 0)
+                    {
+                        Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
+                        Plugin.BackupManager.ProcessChanges(detectedChanges);
+                        Plugin.BackupManager.SaveListsToFile(true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Logger.LogError("Error occurred while processing backup changes");
+                    Plugin.Logger.LogError(ex);
+                }
             }
-            catch (Exception ex)
-            {
-                Plugin.Logger.LogError(ex);
-            }
+
+            Plugin.UpdateLogDirectory();
         }
 
         public class ConfigInfo : ConfigurableInfo
