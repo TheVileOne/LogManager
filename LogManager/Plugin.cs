@@ -98,6 +98,7 @@ namespace LogManager
                 IL.JollyCoop.JollyCustom.WriteToLog += replaceLogPathHook_JollyCoop;
 
                 //Config processing hooks
+                On.OptionInterface.ConfigHolder.Save += ConfigSaveHook;
                 On.OptionInterface.ConfigHolder.Reload += ConfigLoadHook;
                 hasInitialized = true;
             }
@@ -105,6 +106,27 @@ namespace LogManager
             {
                 Logger.LogError("Error while applying hooks");
                 Logger.LogError(ex);
+            }
+        }
+
+        private void ConfigSaveHook(On.OptionInterface.ConfigHolder.orig_Save orig, OptionInterface.ConfigHolder self)
+        {
+            if (hasInitialized && self.owner == OptionInterface)
+            {
+                Logger.LogInfo("Saving config");
+                LogManager.Config.SaveInProgress = true;
+            }
+
+            try
+            {
+                orig(self);
+            }
+            finally
+            {
+                if (LogManager.Config.SaveInProgress)
+                    BackupManager.SaveListsToFile();
+
+                LogManager.Config.SaveInProgress = false;
             }
         }
 
@@ -116,6 +138,8 @@ namespace LogManager
             if (hasInitialized && self.owner == OptionInterface)
             {
                 Logger.LogInfo("Loading config");
+                LogManager.Config.ReloadInProgress = true;
+
                 try
                 {
                     ManageExistingBackups();
@@ -130,6 +154,7 @@ namespace LogManager
             }
 
             orig(self);
+            LogManager.Config.ReloadInProgress = false;
         }
 
         private void ModdingMenu_Singal(On.Menu.ModdingMenu.orig_Singal orig, Menu.ModdingMenu self, Menu.MenuObject sender, string message)

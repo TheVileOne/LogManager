@@ -360,10 +360,8 @@ namespace LogManager.Backup
         /// <summary>
         /// Creates blacklist, and whitelist txt files based on current lists
         /// </summary>
-        public void SaveListsToFile(bool forceSave)
+        public void SaveListsToFile()
         {
-            if (!Enabled && !forceSave) return;
-
             Plugin.Logger.LogInfo("Writing list data to file");
 
             string blacklistPath, whitelistPath;
@@ -397,8 +395,7 @@ namespace LogManager.Backup
         /// </summary>
         public void Finish()
         {
-            SaveListsToFile(false); //Make sure files are up to date - list data may have been incomplete
-            BackupEntries = BackupEntries.OrderBy(entry => //TODO Check if default sort is alphabetical
+            BackupEntries = BackupEntries.OrderBy(entry =>
             {
                 return entry.Item1;
             }).ToList();

@@ -16,6 +16,9 @@ namespace LogManager
         /// </summary>
         public static bool SafeToLoad;
 
+        public static bool SaveInProgress;
+        public static bool ReloadInProgress;
+
         /// <summary>
         /// Contains config values that are managed by the OptionInterface. This should only be interacted with after RainWorld has initialized to avoid errors.
         /// </summary>
@@ -76,7 +79,7 @@ namespace LogManager
 
             cfgBackupEntries = new List<Configurable<bool>>();
 
-            Plugin.OptionInterface.OnConfigChanged += OptionInterface_OnConfigChanged;
+            Plugin.OptionInterface.OnConfigChanged += OnConfigChanged;
         }
 
         public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible
@@ -160,7 +163,7 @@ namespace LogManager
             return detectedChanges;
         }
 
-        private static void OptionInterface_OnConfigChanged()
+        private static void OnConfigChanged()
         {
             if (Plugin.OptionInterface.HasInitialized)
             {
@@ -176,9 +179,8 @@ namespace LogManager
 
                         if (detectedChanges.Count > 0)
                         {
-                            Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
+                            Plugin.Logger.LogInfo("Backup enabled changes detected");
                             Plugin.BackupManager.ProcessChanges(detectedChanges);
-                            Plugin.BackupManager.SaveListsToFile(true);
                         }
                     }
                 }
