@@ -296,7 +296,7 @@ namespace LogManager.Backup
         {
             EnabledList.Clear();
 
-            string whitelistPath = Path.Combine(Plugin.ModPath, "backup-whitelist.txt");
+            string whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             if (!File.Exists(whitelistPath)) return;
 
@@ -320,7 +320,7 @@ namespace LogManager.Backup
         {
             DisabledList.Clear();
 
-            string blacklistPath = Path.Combine(Plugin.ModPath, "backup-blacklist.txt");
+            string blacklistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_BLACKLIST);
 
             if (!File.Exists(blacklistPath)) return;
 
@@ -359,10 +359,12 @@ namespace LogManager.Backup
         {
             if (!Enabled && !forceSave) return;
 
+            Plugin.Logger.LogInfo("Writing list data to file");
+
             string blacklistPath, whitelistPath;
 
-            blacklistPath = Path.Combine(Plugin.ModPath, "backup-blacklist.txt");
-            whitelistPath = Path.Combine(Plugin.ModPath, "backup-whitelist.txt");
+            blacklistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_BLACKLIST);
+            whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
             FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList);

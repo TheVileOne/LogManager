@@ -36,5 +36,11 @@ namespace LogManager
                 public const string BACKUPS_ENABLED_LIST = "Backup Allow List";
             }
         }
+
+        public static class Files
+        {
+            public const string BACKUP_BLACKLIST = "backup-blacklist.txt";
+            public const string BACKUP_WHITELIST = "backup-whitelist.txt";
+        }
     }
 }
