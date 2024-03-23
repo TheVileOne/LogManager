@@ -162,22 +162,29 @@ namespace LogManager
 
         private static void OptionInterface_OnConfigChanged()
         {
-            if (cfgBackupEntries.Count > 0) //Until config entries are processed once, we shouldn't run this code yet
+            if (Plugin.OptionInterface.HasInitialized)
             {
                 try
                 {
-                    List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
-
-                    if (detectedChanges.Count > 0)
+                    if (cfgBackupEntries.Count == 0)
                     {
-                        Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
-                        Plugin.BackupManager.ProcessChanges(detectedChanges);
-                        Plugin.BackupManager.SaveListsToFile(true);
+                        Plugin.OptionInterface.ProcessBackupEnableOptions();
+                    }
+                    else //Until config entries are processed once, we shouldn't run this code yet
+                    {
+                        List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
+
+                        if (detectedChanges.Count > 0)
+                        {
+                            Plugin.Logger.LogInfo("Backup enabled changes detected. Saving changes");
+                            Plugin.BackupManager.ProcessChanges(detectedChanges);
+                            Plugin.BackupManager.SaveListsToFile(true);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Plugin.Logger.LogError("Error occurred while processing backup changes");
+                    Plugin.Logger.LogError("Error occurred while processing backup options");
                     Plugin.Logger.LogError(ex);
                 }
             }
