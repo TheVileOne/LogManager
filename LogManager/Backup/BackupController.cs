@@ -91,21 +91,18 @@ namespace LogManager.Backup
 
             foreach (string file in Directory.GetFiles(targetPath))
             {
+                bool backupEnabled, backupDisabled;
+
                 string backupFileEntry = Path.GetFileNameWithoutExtension(file);
 
-                bool backupEnabled = enabledList.Contains(backupFileEntry);
+                backupEnabled = enabledList.Contains(backupFileEntry);
+                backupDisabled = !backupEnabled;
 
                 if (!backupEnabled)
                 {
-                    bool backupDisabled = disabledList.Contains(backupFileEntry);
+                    backupDisabled = disabledList.Contains(backupFileEntry) || !ProgressiveEnableMode;
 
-                    //Entries are removed in order to narrow down the lists of entries to those not present in the target path
-                    if (backupDisabled)
-                    {
-                        disabledList.Remove(backupFileEntry);
-                        BackupEntries.Add((backupFileEntry, false));
-                    }
-                    else if (ProgressiveEnableMode) //ProgressiveEnableMode acts like an enable all, except if user disabled function
+                    if (!backupDisabled) //ProgressiveEnableMode acts like an enable all, except if user disabled function
                     {
                         EnabledList.Add(backupFileEntry);
                         backupEnabled = true;
@@ -122,11 +119,19 @@ namespace LogManager.Backup
                     if (backupFiles)
                         BackupFile(file);
                 }
+                else if (backupDisabled)
+                {
+                    disabledList.Remove(backupFileEntry);
+                    BackupEntries.Add((backupFileEntry, false));
+                }
+                else
+                    throw new InvalidStateException("Backup entry must be enabled or disabled");
             }
 
             //Include the remaining objects in both lists. These entries are not contained within the target path, but have been recorded to file
             BackupEntries.AddRange(enabledList.Select<string, (string, bool)>(entry => (entry, true)));
             BackupEntries.AddRange(disabledList.Select<string, (string, bool)>(entry => (entry, false)));
+
             Finish();
         }
 
@@ -398,6 +403,11 @@ namespace LogManager.Backup
                 return entry.Item1;
             }).ToList();
             BackupFilesTemp = null;
+
+    class InvalidStateException : Exception
+    {
+        public InvalidStateException(string message) : base(message)
+        {
         }
     }
 }
