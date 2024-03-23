@@ -171,6 +171,9 @@ namespace LogManager.Helpers
 
         public static void SafeWriteToFile(string filePath, List<string> values)
         {
+            bool fileWriteSuccess = false;
+            Exception fileWriteError = null;
+
             try
             {
                 using (TextWriter writer = File.CreateText(filePath))
@@ -179,11 +182,20 @@ namespace LogManager.Helpers
                         writer.WriteLine(entry);
                     writer.Close();
                 }
+
+                fileWriteSuccess = File.Exists(filePath);
             }
             catch (Exception ex)
             {
+                fileWriteError = ex;
+            }
+
+            if (!fileWriteSuccess)
+            {
                 Plugin.Logger.LogError("Unable to write to file " + filePath);
-                Plugin.Logger.LogError(ex);
+
+                if (fileWriteError != null)
+                    Plugin.Logger.LogError(fileWriteError);
             }
         }
 
