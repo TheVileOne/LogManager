@@ -98,7 +98,7 @@ namespace LogManager
                 IL.JollyCoop.JollyCustom.WriteToLog += replaceLogPathHook_JollyCoop;
 
                 //Config processing hooks
-                On.OptionInterface._LoadConfigFile += OptionInterface__LoadConfigFile;
+                On.OptionInterface.ConfigHolder.Reload += ConfigLoadHook;
                 hasInitialized = true;
             }
             catch (Exception ex)
@@ -108,15 +108,19 @@ namespace LogManager
             }
         }
 
-        private void OptionInterface__LoadConfigFile(On.OptionInterface.orig__LoadConfigFile orig, OptionInterface self)
+        /// <summary>
+        /// Ensures that the latest settings are retrieved from file
+        /// </summary>
+        private void ConfigLoadHook(On.OptionInterface.ConfigHolder.orig_Reload orig, OptionInterface.ConfigHolder self)
         {
-            //Each time the config is loaded, we need to check for newly created logs, and update the backup lists accordingly
-            if (hasInitialized && self is LoggerOptionInterface)
+            if (hasInitialized && self.owner == OptionInterface)
             {
                 Logger.LogInfo("Loading config");
                 try
                 {
                     ManageExistingBackups();
+                    if (OptionInterface.HasInitialized)
+                        OptionInterface.ProcessBackupEnableOptions();
                 }
                 catch (Exception ex)
                 {
@@ -124,6 +128,7 @@ namespace LogManager
                     Logger.LogError(ex);
                 }
             }
+
             orig(self);
         }
 
@@ -484,13 +489,7 @@ namespace LogManager
             if (!BackupManager.HasRunOnce)
                 BackupManager.BackupFromFolder(targetPath);
             else
-            {
                 BackupManager.ProcessFolder(targetPath, false);
-
-                //Ensure that OptionInterface is in a state where elements can be modified
-                if (hasInitialized && OptionInterface.HasInitialized)
-                    OptionInterface.UpdateEnableBackupOptions(); //Will be handled on OptionInterface init
-            }
         }
 
         /// <summary>

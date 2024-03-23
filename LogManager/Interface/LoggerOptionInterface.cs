@@ -122,13 +122,12 @@ namespace LogManager.Interface
             backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
 
             tab.AddItems(backupsAllowedHeader);
-            UpdateEnableBackupOptions();
         }
 
         /// <summary>
         /// Removes existing enable backup options replacing them with a new set based on BackupEntries list
         /// </summary>
-        public void UpdateEnableBackupOptions()
+        public void ProcessBackupEnableOptions()
         {
             OpTab tab = backupElementsTab;
 
