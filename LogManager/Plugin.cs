@@ -22,7 +22,7 @@ namespace LogManager
     {
         public const string PLUGIN_GUID = "fluffball.logmanager";
         public const string PLUGIN_NAME = "Log Manager";
-        public const string PLUGIN_VERSION = "0.7.4";
+        public const string PLUGIN_VERSION = "0.8.0";
 
         private bool hasInitialized;
 

@@ -1,0 +1,11 @@
+{
+  "id": "fluffball.logmanager",
+  "name": "Log Manager",
+  "version": "0.8.0",
+  "target_game_version": "v1.9",
+  "authors": "Fluffball",
+  "description": "Redirects log outputs to a new log directory providing users with two directories to choose from. Options for logging have been expanded with the inclusion of a brand new logger adding new ways to filter log output. Extra filter options currently available for mods that implement the custom Logger class.",
+  "youtube_trailer_id": "",
+  "tags": [ "Logger", "Logging", "Utility", "BepInEx" ],
+  "checksum_override_version": true
+}
