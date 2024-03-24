@@ -244,6 +244,7 @@ namespace LogManager.Backup
                 bool backupEnabled = backupEntry.Item2;
 
                 Plugin.Logger.LogInfo("Processing entry: " + backupName);
+                Plugin.Logger.LogInfo("Enabled: " + backupEnabled);
 
                 //A changed entry means that the entry has been changed from enabled to disabled, or vice versa,
                 //or a new entry has been detected that is not part of any of the lists
@@ -400,6 +401,8 @@ namespace LogManager.Backup
                 return entry.Item1;
             }).ToList();
             BackupFilesTemp = null;
+        }
+    }
 
     class InvalidStateException : Exception
     {
