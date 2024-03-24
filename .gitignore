@@ -2,3 +2,5 @@
 /bin/Debug/net48/PUBLIC-Assembly-CSharp.dll
 /LogManager/bin/Debug/net48/PUBLIC-Assembly-CSharp.dll
 /LogManager/bin/Debug/net48/HOOKS-Assembly-CSharp.dll
+/lib/HOOKS-Assembly-CSharp.dll
+/lib/PUBLIC-Assembly-CSharp.dll
