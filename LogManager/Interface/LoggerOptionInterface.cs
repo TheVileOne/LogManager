@@ -193,7 +193,7 @@ namespace LogManager.Interface
 
         private OpLabel createOptionLabel(UIconfig owner, Vector2 pos)
         {
-            return new OpLabel(pos.x, pos.y, Translate(Config.GetTooltip(owner.cfgEntry)), false)
+            return new OpLabel(pos.x, pos.y, Translate(Config.GetOptionLabel(owner.cfgEntry)), false)
             {
                 bumpBehav = owner.bumpBehav,
                 description = owner.description
