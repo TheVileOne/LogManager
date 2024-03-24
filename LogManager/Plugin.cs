@@ -83,8 +83,6 @@ namespace LogManager
         {
             try
             {
-                ManageExistingLogs();
-
                 On.RainWorld.OnModsInit += RainWorld_OnModsInit;
                 On.RainWorld.Update += RainWorld_Update;
                 On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
@@ -341,6 +339,8 @@ namespace LogManager
 
             LogManager.Logger.InitializeLogDirectory();
 
+            ManageExistingLogs();
+
             //This code must be after log directory is established, and before listener is created, or data copy will fail
             transferBepInExLogData();
 
@@ -492,7 +492,7 @@ namespace LogManager
         /// </summary>
         public void ManageExistingLogs()
         {
-            string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
+            string existingLogsDirectory = LogManager.Logger.BaseDirectory;
 
             BackupManager = new BackupController(existingLogsDirectory, "Backup");
 
