@@ -1,6 +1,8 @@
-﻿using Menu.Remix.MixedUI;
+﻿using LogManager.Helpers;
+using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -103,6 +105,8 @@ namespace LogManager.Interface
                 description = Translate(ModConsts.Config.Descriptions.DELETE_OPTION)
             };
 
+            backupDeleteButton.OnClick += BackupDeleteButton_OnClick;
+
             //Add elements to container
             tab.AddItems(new UIelement[]
             {
@@ -122,6 +126,12 @@ namespace LogManager.Interface
             backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
 
             tab.AddItems(backupsAllowedHeader);
+        }
+
+        private void BackupDeleteButton_OnClick(UIfocusable trigger)
+        {
+            Plugin.Logger.LogInfo("Deleting backups");
+            FileSystemUtils.SafeDeleteDirectory(Path.Combine(Logger.BaseDirectory, "Backup"));
         }
 
         /// <summary>
