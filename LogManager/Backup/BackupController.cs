@@ -150,9 +150,9 @@ namespace LogManager.Backup
             {
                 int backupCountOverMaximum = Math.Max(0, existingBackups.Count - AllowedBackupsPerFile);
 
-                for (int i = existingBackups.Count - 1; i >= 0; i--)
+                for (int i = existingBackups.Count; i > 0; i--)
                 {
-                    string backup = existingBackups[i];
+                    string backup = existingBackups[i - 1];
 
                     if (backupCountOverMaximum > 0)
                     {
@@ -162,7 +162,7 @@ namespace LogManager.Backup
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 2), 3);
+                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 1), 3);
                     else
                         FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
                 }
