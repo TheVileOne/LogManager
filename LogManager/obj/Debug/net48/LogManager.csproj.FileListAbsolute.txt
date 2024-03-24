@@ -40,7 +40,7 @@ C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\PUBLIC-Ass
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\UnityEngine.CoreModule.dll
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\UnityEngine.dll
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\UnityEngine.InputLegacyModule.dll
-C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\UnityEngine.SharedInternalsModule.dll
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\MonoMod.RuntimeDetour.xml
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\MonoMod.Utils.xml
 C:\Users\Michael\source\repos\CustomLogger\LogManager\obj\Debug\net48\LogManager.csproj.CopyComplete
+C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\UnityEngine.InputModule.dll
