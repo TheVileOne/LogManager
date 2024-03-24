@@ -94,11 +94,11 @@ namespace LogManager.Interface
             OpLabel progressiveBackupsLabel = createOptionLabel(progressiveBackupsToggle);
 
             //Right section
-            OpUpdown backupLimitUpDown = new OpUpdown(Config.cfgBackupsPerFile, new Vector2(x_right_align + 80f, headerOffsetY - 40f), 0)
+            OpUpdown backupLimitUpDown = new OpUpdown(Config.cfgBackupsPerFile, new Vector2(x_right_align + 70f, headerOffsetY - 40f), 50f)
             {
                 description = Translate(ModConsts.Config.Descriptions.BACKUPS_PER_FILE),
             };
-            OpLabel backupLimitLabel = createOptionLabel(backupLimitUpDown, new Vector2(x_right_align - 60f, headerOffsetY - 35f));           
+            OpLabel backupLimitLabel = createOptionLabel(backupLimitUpDown, new Vector2(x_right_align - 80f, headerOffsetY - 35f));           
 
             OpSimpleButton backupDeleteButton = new OpSimpleButton(new Vector2(x_right_align, headerOffsetY - 80f), new Vector2(120f, 30f), Translate(ModConsts.Config.OptionLabels.DELETE_OPTION))
             {
