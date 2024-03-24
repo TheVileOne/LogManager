@@ -310,6 +310,10 @@ namespace LogManager
             IL.JollyCoop.JollyCustom.CreateJollyLog -= replaceLogPathHook_JollyCoop;
             IL.JollyCoop.JollyCustom.Log -= replaceLogPathHook_JollyCoop;
             IL.JollyCoop.JollyCustom.WriteToLog -= replaceLogPathHook_JollyCoop;
+
+            //Config processing hooks
+            On.OptionInterface.ConfigHolder.Save -= ConfigSaveHook;
+            On.OptionInterface.ConfigHolder.Reload -= ConfigLoadHook;
         }
 
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
