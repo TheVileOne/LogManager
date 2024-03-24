@@ -163,6 +163,8 @@ namespace LogManager.Interface
                     backupEntry.Item1
                 }));
 
+                backupConfigurable.Value = backupEntry.Item2;
+
                 Config.cfgBackupEntries.Add(backupConfigurable);
 
                 OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, backupsAllowedHeader.PosY - (40f * (i + 1))));

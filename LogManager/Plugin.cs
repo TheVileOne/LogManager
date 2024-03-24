@@ -113,7 +113,7 @@ namespace LogManager
         {
             if (hasInitialized && self.owner == OptionInterface)
             {
-                Logger.LogInfo("Saving config");
+                Logger.LogInfo("Saving log manager config");
                 LogManager.Config.SaveInProgress = true;
             }
 
@@ -140,7 +140,7 @@ namespace LogManager
         {
             if (hasInitialized && self.owner == OptionInterface)
             {
-                Logger.LogInfo("Loading config");
+                Logger.LogInfo("Loading log manager config");
                 LogManager.Config.ReloadInProgress = true;
 
                 try
@@ -156,6 +156,10 @@ namespace LogManager
             }
 
             orig(self);
+
+            if (LogManager.Config.ReloadInProgress && OptionInterface.HasInitialized)
+                OptionInterface.ProcessBackupEnableOptions();
+
             LogManager.Config.ReloadInProgress = false;
         }
 

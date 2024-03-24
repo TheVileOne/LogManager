@@ -158,43 +158,41 @@ namespace LogManager
 
                 //Check that enabled bool matches
                 if (backupConfigurable.Value != backupEntry.Item2)
-                    detectedChanges.Add((backupEntry.Item1, backupConfigurable.Value));
+                    detectedChanges.Add((backupEntry.Item1, !SaveInProgress ? backupEntry.Item2 : backupConfigurable.Value));
             }
             return detectedChanges;
         }
 
         public static void HandleBackupEnabledChanges()
         {
-            if (Plugin.OptionInterface.HasInitialized)
-            {
-                try
-                {
-                    if (cfgBackupEntries.Count == 0)
-                    {
-                        Plugin.OptionInterface.ProcessBackupEnableOptions();
-                    }
-                    else //Until config entries are processed once, we shouldn't run this code yet
-                    {
-                        List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
+            if (!Plugin.OptionInterface.HasInitialized) return;
 
-                        if (detectedChanges.Count > 0)
-                        {
-                            Plugin.Logger.LogInfo("Backup enabled changes detected");
-                            Plugin.BackupManager.ProcessChanges(detectedChanges);
-                        }
+            try
+            {
+                if (!SaveInProgress || cfgBackupEntries.Count == 0)
+                {
+                    Plugin.OptionInterface.ProcessBackupEnableOptions();
+                }
+                else //Until config entries are processed once, we shouldn't run this code yet
+                {
+                    List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
+
+                    if (detectedChanges.Count > 0)
+                    {
+                        Plugin.Logger.LogInfo("Backup enable state changes detected");
+                        Plugin.BackupManager.ProcessChanges(detectedChanges);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Plugin.Logger.LogError("Error occurred while processing backup options");
-                    Plugin.Logger.LogError(ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError("Error occurred while processing backup options");
+                Plugin.Logger.LogError(ex);
             }
         }
 
         private static void OnConfigChanged()
         {
-            //HandleBackupEnabledChanges();
             Plugin.UpdateLogDirectory();
         }
 
