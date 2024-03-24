@@ -124,7 +124,10 @@ namespace LogManager
             finally
             {
                 if (LogManager.Config.SaveInProgress)
+                {
+                    LogManager.Config.HandleBackupEnabledChanges();
                     BackupManager.SaveListsToFile();
+                }
 
                 LogManager.Config.SaveInProgress = false;
             }
@@ -143,8 +146,7 @@ namespace LogManager
                 try
                 {
                     ManageExistingBackups();
-                    if (OptionInterface.HasInitialized)
-                        OptionInterface.ProcessBackupEnableOptions();
+                    LogManager.Config.HandleBackupEnabledChanges();
                 }
                 catch (Exception ex)
                 {

@@ -163,7 +163,7 @@ namespace LogManager
             return detectedChanges;
         }
 
-        private static void OnConfigChanged()
+        public static void HandleBackupEnabledChanges()
         {
             if (Plugin.OptionInterface.HasInitialized)
             {
@@ -190,7 +190,11 @@ namespace LogManager
                     Plugin.Logger.LogError(ex);
                 }
             }
+        }
 
+        private static void OnConfigChanged()
+        {
+            //HandleBackupEnabledChanges();
             Plugin.UpdateLogDirectory();
         }
 
