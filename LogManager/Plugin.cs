@@ -4,15 +4,13 @@ using LogManager.Backup;
 using LogManager.Helpers;
 using LogManager.Interface;
 using LogManager.Listeners;
+using LogManager.Settings;
 using LogUtils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
 using System.Collections;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace LogManager
@@ -64,7 +62,7 @@ namespace LogManager
 
             try
             {
-                LogManager.Config.Load();
+                ConfigSettings.Load();
 
                 InitializeLogger();
                 InitializeFileSwitcher();
@@ -112,7 +110,7 @@ namespace LogManager
             if (hasInitialized && self.owner == OptionInterface)
             {
                 Logger.LogInfo("Saving log manager config");
-                LogManager.Config.SaveInProgress = true;
+                ConfigSettings.SaveInProgress = true;
             }
 
             try
@@ -121,13 +119,13 @@ namespace LogManager
             }
             finally
             {
-                if (LogManager.Config.SaveInProgress)
+                if (ConfigSettings.SaveInProgress)
                 {
-                    LogManager.Config.HandleBackupEnabledChanges();
+                    ConfigSettings.HandleBackupEnabledChanges();
                     BackupManager.SaveListsToFile();
                 }
 
-                LogManager.Config.SaveInProgress = false;
+                ConfigSettings.SaveInProgress = false;
             }
         }
 
@@ -139,12 +137,12 @@ namespace LogManager
             if (hasInitialized && self.owner == OptionInterface)
             {
                 Logger.LogInfo("Loading log manager config");
-                LogManager.Config.ReloadInProgress = true;
+                ConfigSettings.ReloadInProgress = true;
 
                 try
                 {
                     ManageExistingBackups();
-                    LogManager.Config.HandleBackupEnabledChanges();
+                    ConfigSettings.HandleBackupEnabledChanges();
                 }
                 catch (Exception ex)
                 {
@@ -155,10 +153,10 @@ namespace LogManager
 
             orig(self);
 
-            if (LogManager.Config.ReloadInProgress && OptionInterface.HasInitialized)
+            if (Settings.ConfigSettings.ReloadInProgress && OptionInterface.HasInitialized)
                 OptionInterface.ProcessBackupEnableOptions();
 
-            LogManager.Config.ReloadInProgress = false;
+            Settings.ConfigSettings.ReloadInProgress = false;
         }
 
         private void ModdingMenu_Singal(On.Menu.ModdingMenu.orig_Singal orig, Menu.ModdingMenu self, Menu.MenuObject sender, string message)
@@ -325,7 +323,7 @@ namespace LogManager
                 if (OptionInterface == null)
                 {
                     OptionInterface = new LoggerOptionInterface();
-                    LogManager.Config.Initialize();
+                    Settings.ConfigSettings.Initialize();
                 }
 
                 MachineConnector.SetRegisteredOI(PLUGIN_GUID, OptionInterface);
@@ -509,9 +507,9 @@ namespace LogManager
         /// </summary>
         public void ManageExistingBackups()
         {
-            BackupManager.Enabled = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowBackups), false);
-            BackupManager.ProgressiveEnableMode = LogManager.Config.GetValue(nameof(LogManager.Config.cfgAllowProgressiveBackups), false);
-            BackupManager.AllowedBackupsPerFile = LogManager.Config.GetValue(nameof(LogManager.Config.cfgBackupsPerFile), 2);
+            BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
+            BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
+            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), 2);
 
             BackupManager.PopulateLists();
 
@@ -775,7 +773,7 @@ namespace LogManager
             string defaultLogPath = LogManager.Logger.DefaultLogPath;
             string alternativeLogPath = LogManager.Logger.AlternativeLogPath;
 
-            return LogManager.Config.cfgUseAlternativeDirectory.Value ? alternativeLogPath : defaultLogPath;
+            return ConfigSettings.cfgUseAlternativeDirectory.Value ? alternativeLogPath : defaultLogPath;
         }
 
         /// <summary>

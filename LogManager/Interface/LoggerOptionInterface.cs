@@ -1,11 +1,8 @@
 ﻿using LogManager.Helpers;
+using LogManager.Settings;
 using Menu.Remix.MixedUI;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
 
@@ -68,7 +65,7 @@ namespace LogManager.Interface
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate(Headers.PRIMARY), FLabelAlignment.Center, true, null);
 
-            OpCheckBox directoryOptionToggle = createCheckBox(Config.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f));
+            OpCheckBox directoryOptionToggle = createCheckBox(ConfigSettings.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f));
             OpLabel directoryOptionLabel = createOptionLabel(directoryOptionToggle);
 
             //Add elements to container
@@ -87,14 +84,14 @@ namespace LogManager.Interface
             //Upper left section
             OpLabel backupsHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS), FLabelAlignment.Left, true, null);
 
-            OpCheckBox enableBackupsToggle = createCheckBox(Config.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f));
+            OpCheckBox enableBackupsToggle = createCheckBox(ConfigSettings.cfgAllowBackups, new Vector2(x_left_align, headerOffsetY - 40f));
             OpLabel enableBackupsLabel = createOptionLabel(enableBackupsToggle);
 
-            OpCheckBox progressiveBackupsToggle = createCheckBox(Config.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f));
+            OpCheckBox progressiveBackupsToggle = createCheckBox(ConfigSettings.cfgAllowProgressiveBackups, new Vector2(x_left_align, headerOffsetY - 80f));
             OpLabel progressiveBackupsLabel = createOptionLabel(progressiveBackupsToggle);
 
             //Right section
-            OpUpdown backupLimitUpDown = new OpUpdown(Config.cfgBackupsPerFile, new Vector2(x_right_align + 70f, headerOffsetY - 40f), 50f)
+            OpUpdown backupLimitUpDown = new OpUpdown(ConfigSettings.cfgBackupsPerFile, new Vector2(x_right_align + 70f, headerOffsetY - 40f), 50f)
             {
                 description = Translate(ModConsts.Config.Descriptions.BACKUPS_PER_FILE),
             };
@@ -149,14 +146,14 @@ namespace LogManager.Interface
                 for (int i = 0; i < BackupElements.Count; i++)
                 {
                     var backupElementTuple = BackupElements[i];
-                    var backupConfigurable = Config.cfgBackupEntries[i];
+                    var backupConfigurable = ConfigSettings.cfgBackupEntries[i];
 
                     tab.RemoveItems(backupElementTuple.Item1, backupElementTuple.Item2);
-                    Config.ConfigData.configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
+                    ConfigSettings.ConfigData.configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
                 }
 
                 BackupElements.Clear();
-                Config.cfgBackupEntries.Clear();
+                ConfigSettings.cfgBackupEntries.Clear();
             }
             else
                 Plugin.Logger.LogInfo($"Initilizing backup options");
@@ -167,15 +164,15 @@ namespace LogManager.Interface
                 var backupEntry = Plugin.BackupManager.BackupEntries[i];
                 bool backupEnabledByDefault = Plugin.BackupManager.ProgressiveEnableMode;
 
-                var backupConfigurable = Config.ConfigData.Bind("bkp" + backupEntry.Item1, backupEnabledByDefault,
-                    new Config.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
+                var backupConfigurable = ConfigSettings.ConfigData.Bind("bkp" + backupEntry.Item1, backupEnabledByDefault,
+                    new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
                 {
                     backupEntry.Item1
                 }));
 
                 backupConfigurable.Value = backupEntry.Item2;
 
-                Config.cfgBackupEntries.Add(backupConfigurable);
+                ConfigSettings.cfgBackupEntries.Add(backupConfigurable);
 
                 OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, backupsAllowedHeader.PosY - (40f * (i + 1))));
                 OpLabel optionLabel = createOptionLabel(checkBox);
@@ -194,7 +191,7 @@ namespace LogManager.Interface
         {
             return new OpCheckBox(configurable, position)
             {
-                description = Translate(Config.GetDescription(configurable))
+                description = Translate(ConfigSettings.GetDescription(configurable))
             };
         }
 
@@ -205,7 +202,7 @@ namespace LogManager.Interface
 
         private OpLabel createOptionLabel(UIconfig owner, Vector2 pos)
         {
-            return new OpLabel(pos.x, pos.y, Translate(Config.GetOptionLabel(owner.cfgEntry)), false)
+            return new OpLabel(pos.x, pos.y, Translate(ConfigSettings.GetOptionLabel(owner.cfgEntry)), false)
             {
                 bumpBehav = owner.bumpBehav,
                 description = owner.description

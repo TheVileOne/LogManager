@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using UnityEngine;
 using Descriptions = LogManager.ModConsts.Config.Descriptions;
 using OptionLabels = LogManager.ModConsts.Config.OptionLabels;
 
-namespace LogManager
+namespace LogManager.Settings
 {
-    public static class Config
+    public static class ConfigSettings
     {
         /// <summary>
         /// Indicates that Config data is safe to be accessed from the OptionInterface (initialized OnModsInIt)  
@@ -94,7 +93,7 @@ namespace LogManager
                 else
                 {
                     //Use reflection to get the correct configurable and return its value
-                    Configurable<T> configSetting = (Configurable<T>)typeof(Config).GetField(settingName).GetValue(null);
+                    Configurable<T> configSetting = (Configurable<T>)typeof(ConfigSettings).GetField(settingName).GetValue(null);
                     return configSetting.Value;
                 }
             }

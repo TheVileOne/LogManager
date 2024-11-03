@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.IO;
 using UnityEngine;
 
-namespace LogManager
+namespace LogManager.Settings
 {
     public static class ConfigReader
     {
