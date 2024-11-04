@@ -69,9 +69,6 @@ namespace LogManager
 
                 InitializeLogManager();
                 InitializeFileSwitcher();
-
-                //This needs to be handled very early
-                IL.RainWorld.HandleLog += RainWorld_HandleLog;
             }
             catch (Exception ex)
             {

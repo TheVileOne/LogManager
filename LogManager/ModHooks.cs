@@ -19,12 +19,6 @@ namespace LogManager
                 On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
                 On.Menu.Remix.MenuModList._ToggleMod += MenuModList_ToggleMod;
                 On.Menu.ModdingMenu.ShutDownProcess += ModdingMenu_ShutDownProcess;
-                IL.Expedition.ExpLog.Log += replaceLogPathHook_Expedition;
-                IL.Expedition.ExpLog.LogOnce += replaceLogPathHook_Expedition;
-                IL.Expedition.ExpLog.ClearLog += replaceLogPathHook_Expedition;
-                IL.JollyCoop.JollyCustom.CreateJollyLog += replaceLogPathHook_JollyCoop;
-                IL.JollyCoop.JollyCustom.Log += replaceLogPathHook_JollyCoop;
-                IL.JollyCoop.JollyCustom.WriteToLog += replaceLogPathHook_JollyCoop;
 
                 //Config processing hooks
                 On.OptionInterface.ConfigHolder.Save += ConfigSaveHook;
@@ -39,18 +33,11 @@ namespace LogManager
 
         internal void RemoveHooks()
         {
-            IL.RainWorld.HandleLog -= RainWorld_HandleLog;
             On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
             On.RainWorld.Update -= RainWorld_Update;
             On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
             On.Menu.Remix.MenuModList._ToggleMod -= MenuModList_ToggleMod;
             On.Menu.ModdingMenu.ShutDownProcess -= ModdingMenu_ShutDownProcess;
-            IL.Expedition.ExpLog.Log -= replaceLogPathHook_Expedition;
-            IL.Expedition.ExpLog.LogOnce -= replaceLogPathHook_Expedition;
-            IL.Expedition.ExpLog.ClearLog -= replaceLogPathHook_Expedition;
-            IL.JollyCoop.JollyCustom.CreateJollyLog -= replaceLogPathHook_JollyCoop;
-            IL.JollyCoop.JollyCustom.Log -= replaceLogPathHook_JollyCoop;
-            IL.JollyCoop.JollyCustom.WriteToLog -= replaceLogPathHook_JollyCoop;
 
             //Config processing hooks
             On.OptionInterface.ConfigHolder.Save -= ConfigSaveHook;
@@ -218,66 +205,6 @@ namespace LogManager
 
             if (btn.itf.mod.id == PLUGIN_GUID)
                 shouldCleanUpOnDisable = !btn.selectEnabled;
-        }
-
-        private void RainWorld_HandleLog(ILContext il)
-        {
-            ILCursor cursor = new ILCursor(il);
-
-            //Replace all instances of exceptionLog.txt with a full path version
-            int entriesToFind = 2;
-            while (entriesToFind > 0 && cursor.TryGotoNext(MoveType.After, x => x.MatchLdstr("exceptionLog.txt")))
-            {
-                cursor.Emit(OpCodes.Pop);
-                cursor.Emit(OpCodes.Ldstr, "exception.log");
-                cursor.Emit(OpCodes.Ldc_I4_1); //Push a true value on the stack to satisfy second argument
-                cursor.EmitDelegate(LogManager.Logger.ApplyLogPathToFilename);
-                entriesToFind--;
-            }
-
-            if (entriesToFind > 0)
-                Logger.LogError("IL hook couldn't find exceptionLog.txt");
-
-            //Replace a single instance of consoleLog.txt with a full path version
-            if (cursor.TryGotoNext(MoveType.After, x => x.MatchLdstr("consoleLog.txt")))
-            {
-                cursor.Emit(OpCodes.Pop);
-                cursor.Emit(OpCodes.Ldstr, "console.log");
-                cursor.Emit(OpCodes.Ldc_I4_1); //Push a true value on the stack to satisfy second argument
-                cursor.EmitDelegate(LogManager.Logger.ApplyLogPathToFilename);
-            }
-            else
-            {
-                Logger.LogError("IL hook couldn't find consoleLog.txt");
-            }
-        }
-
-        private void replaceLogPathHook_Expedition(ILContext il)
-        {
-            replaceLogPath(il, "expedition.log");
-        }
-
-        private void replaceLogPathHook_JollyCoop(ILContext il)
-        {
-            replaceLogPath(il, "jolly.log");
-        }
-
-        private void replaceLogPath(ILContext il, string newFilename)
-        {
-            ILCursor cursor = new ILCursor(il);
-
-            if (cursor.TryGotoNext(MoveType.After, x => x.MatchCall(typeof(RWCustom.Custom).GetMethod("RootFolderDirectory"))))
-            {
-                cursor.Emit(OpCodes.Pop); //Get method return value off the stack
-                cursor.Emit(OpCodes.Ldsfld, typeof(Logger).GetField("BaseDirectory")); //Load new path onto stack
-                cursor.GotoNext(MoveType.After, x => x.Match(OpCodes.Ldstr));
-                cursor.Emit(OpCodes.Pop); //Replace filename extension with new one
-                cursor.Emit(OpCodes.Ldstr, newFilename);
-            }
-            else
-            {
-                Logger.LogError("Expected directory IL could not be found");
-            }
         }
     }
 }
