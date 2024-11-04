@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using Debug = UnityEngine.Debug;
 using LogManager.Helpers;
+using LogUtils.Helpers;
 
 namespace LogManager.Listeners
 {
@@ -94,8 +95,8 @@ namespace LogManager.Listeners
                 filename = string.Empty; //This would interfere with Path.Combine
             }
 
-            return directoryName != Logger.LOGS_FOLDER_NAME ?
-                Path.Combine(directoryWithoutFilename, Logger.LOGS_FOLDER_NAME, filename) : path;
+            return directoryName != LogsFolder.LOGS_FOLDER_NAME ?
+                Path.Combine(directoryWithoutFilename, LogsFolder.LOGS_FOLDER_NAME, filename) : path;
         }
 
         private void ensureFolderStructureExists(string path)
@@ -194,7 +195,7 @@ namespace LogManager.Listeners
             {
                 string currentPath = Path.GetDirectoryName(LogFullPath); //Strips the log filename from the path
 
-                if (LogPath.ComparePaths(currentPath, rootPath))
+                if (PathUtils.PathsAreEqual(currentPath, rootPath))
                 {
                     ensureFolderStructureExists(LogFullPath); //Check just in case something happened to the directory
                     return;
@@ -207,7 +208,7 @@ namespace LogManager.Listeners
 
             moveExistingDirectory(rootPath);
 
-            if (!LogPath.ComparePaths(LogFullPath, oldLogPath)) //Only open a new filestream if move was successful
+            if (!PathUtils.PathsAreEqual(LogFullPath, oldLogPath)) //Only open a new filestream if move was successful
             {
                 OpenFileStream(false);
                 Plugin.Logger.LogInfo("Logging path change complete");
@@ -222,7 +223,7 @@ namespace LogManager.Listeners
             {
                 string currentPath = Path.GetDirectoryName(LogFullPath); //Strips the log filename from the path
 
-                if (LogPath.ComparePaths(currentPath, rootPath))
+                if (PathUtils.PathsAreEqual(currentPath, rootPath))
                 {
                     ensureFolderStructureExists(LogFullPath); //Check just in case something happened to the directory
                     return;
@@ -235,7 +236,7 @@ namespace LogManager.Listeners
 
             copyExistingDirectory(rootPath);
 
-            if (!LogPath.ComparePaths(LogFullPath, oldLogPath)) //Only open a new filestream if move was successful
+            if (!PathUtils.PathsAreEqual(LogFullPath, oldLogPath)) //Only open a new filestream if move was successful
             {
                 OpenFileStream(false);
                 Plugin.Logger.LogInfo("Logging path change complete");

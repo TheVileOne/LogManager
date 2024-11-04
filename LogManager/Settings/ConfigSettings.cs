@@ -1,4 +1,5 @@
 ﻿using LogManager.Helpers;
+using LogUtils.Enums;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -132,7 +133,7 @@ namespace LogManager.Settings
             return ConfigReader.ReadFromDisk(Plugin.ConfigFilePath, settingName, expectedDefault);
         }
 
-        public static List<(string, bool)> GetBackupEnabledChanges()
+        public static List<(LogID, bool)> GetBackupEnabledChanges()
         {
             int backupEntryCount = Plugin.BackupManager.BackupEntries.Count;
             int configEntryCount = cfgBackupEntries.Count;
@@ -144,10 +145,10 @@ namespace LogManager.Settings
 
                 //This shouldn't log under normal circumstances
                 Plugin.Logger.LogWarning("Backup entry count detected does not match managed entry count");
-                return new List<(string, bool)>();
+                return new List<(LogID, bool)>();
             }
 
-            List<(string, bool)> detectedChanges = new List<(string, bool)>();
+            List<(LogID, bool)> detectedChanges = new List<(LogID, bool)>();
 
             //Cycle through both lists until one of the entries doesn't match. The list order should be the same here.
             for (int i = 0; i < backupEntryCount; i++)
@@ -174,7 +175,7 @@ namespace LogManager.Settings
                 }
                 else //Until config entries are processed once, we shouldn't run this code yet
                 {
-                    List<(string, bool)> detectedChanges = GetBackupEnabledChanges();
+                    List<(LogID, bool)> detectedChanges = GetBackupEnabledChanges();
 
                     if (detectedChanges.Count > 0)
                     {

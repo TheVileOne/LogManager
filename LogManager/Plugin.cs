@@ -1,11 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using LogManager.Backup;
+using LogManager.Components;
 using LogManager.Helpers;
 using LogManager.Interface;
 using LogManager.Listeners;
 using LogManager.Settings;
 using LogUtils;
+using LogUtils.Helpers;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
@@ -46,11 +47,13 @@ namespace LogManager
         /// </summary>
         public static CustomizableDiskLogListener Listener;
 
+        public static Components.LogManager LogManager;
+        public static BackupController BackupManager => LogManager.BackupManager;
+
         /// <summary>
         /// This is the primary method individual log files are moved
         /// </summary>
         public static LogFileSwitcher FileSwitcher;
-        public static BackupController BackupManager;
         public static LoggerOptionInterface OptionInterface;
 
         public void Awake()
@@ -64,7 +67,7 @@ namespace LogManager
             {
                 ConfigSettings.Load();
 
-                InitializeLogger();
+                InitializeLogManager();
                 InitializeFileSwitcher();
 
                 //This needs to be handled very early
@@ -141,7 +144,7 @@ namespace LogManager
 
                 try
                 {
-                    ManageExistingBackups();
+                    RefreshBackupController();
                     ConfigSettings.HandleBackupEnabledChanges();
                 }
                 catch (Exception ex)
@@ -279,14 +282,14 @@ namespace LogManager
 
                 RestoreManagedLogs();
 
-                string deletePath1 = LogManager.Logger.DefaultLogPath;
-                string deletePath2 = LogManager.Logger.AlternativeLogPath;
+                string deletePath1 = LogsFolder.DefaultPath;
+                string deletePath2 = LogsFolder.AlternativePath;
 
 
-                if (Path.GetFileName(deletePath1) == LogManager.Logger.LOGS_FOLDER_NAME)
+                if (Path.GetFileName(deletePath1) == LogsFolder.LOGS_FOLDER_NAME)
                     FileSystemUtils.SafeDeleteDirectory(deletePath1, true);
 
-                if (Path.GetFileName(deletePath2) == LogManager.Logger.LOGS_FOLDER_NAME)
+                if (Path.GetFileName(deletePath2) == LogsFolder.LOGS_FOLDER_NAME)
                     FileSystemUtils.SafeDeleteDirectory(deletePath2, true);
             }
 
@@ -335,19 +338,42 @@ namespace LogManager
             }
         }
 
-        public void InitializeLogger()
+        public void InitializeLogManager()
         {
             Logger = base.Logger;
+            LogManager = new Components.LogManager();
 
-            LogManager.Logger.InitializeLogDirectory();
-
-            ManageExistingLogs();
+            RefreshBackupController();
+            LogManager.ProcessFiles();
+            return;
 
             //This code must be after log directory is established, and before listener is created, or data copy will fail
             transferBepInExLogData();
 
-            Listener = new CustomizableDiskLogListener(LogManager.Logger.BaseDirectory, LogManager.Logger.OUTPUT_NAME, false);
+            Listener = new CustomizableDiskLogListener(LogsFolder.Path, UtilityConsts.LogNames.BepInEx, false);
             BepInEx.Logging.Logger.Listeners.Add(Listener);
+        }
+
+        /// <summary>
+        /// Manages the process of clearing existing backup entry lists, and then updating them with new backup information from file
+        /// </summary>
+        public static void RefreshBackupController()
+        {
+            RefreshBackupSettings();
+            RefreshBackupEntries();
+        }
+
+        public static void RefreshBackupSettings()
+        {
+            BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
+            BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
+            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), 2);
+        }
+
+        public static void RefreshBackupEntries()
+        {
+            BackupManager.PopulateLists();
+            BackupManager.ProcessNewEntries();
         }
 
         /// <summary>
@@ -368,11 +394,11 @@ namespace LogManager
             BepInExListener?.LogWriter.Flush();
 
             //Handle file copy actions
-            FileInfo BepInExLogFile = new FileInfo(Path.Combine(Paths.BepInExRootPath, "LogOutput.log"));
+            FileInfo BepInExLogFile = new FileInfo(Path.Combine(BepInEx.Paths.BepInExRootPath, UtilityConsts.LogNames.BepInEx + ".log"));
 
             if (BepInExLogFile.Exists)
             {
-                string destPath = LogManager.Logger.ApplyLogPathToFilename(LogManager.Logger.OUTPUT_NAME);
+                string destPath = LogManager.Logger.ApplyLogPathToFilename(UtilityConsts.LogNames.BepInEx);
 
                 try
                 {
@@ -443,7 +469,7 @@ namespace LogManager
         /// </summary>
         private static string[] getStreamingAssetsLogPathsCurrent()
         {
-            string rootDir = LogManager.Logger.FindExistingLogsDirectory();
+            string rootDir = LogsFolder.FindExistingLogsDirectory();
 
             string expLog = Path.Combine(rootDir, "expedition.log");
             string jollyLog = Path.Combine(rootDir, "jolly.log");
@@ -477,7 +503,7 @@ namespace LogManager
         /// </summary>
         private static string[] getRainWorldRootLogPathsCurrent()
         {
-            string rootDir = LogManager.Logger.FindExistingLogsDirectory();
+            string rootDir = LogsFolder.FindExistingLogsDirectory();
 
             string consoleLog = Path.Combine(rootDir, "console.log");
             string exceptionLog = Path.Combine(rootDir, "exception.log");
@@ -487,42 +513,6 @@ namespace LogManager
                 consoleLog,
                 exceptionLog,
             };
-        }
-
-        /// <summary>
-        /// Handles existing logs on startup
-        /// </summary>
-        public void ManageExistingLogs()
-        {
-            string existingLogsDirectory = LogManager.Logger.BaseDirectory;
-
-            BackupManager = new BackupController(existingLogsDirectory, "Backup");
-
-            ManageExistingBackups();
-            DeleteExistingLogs();
-        }
-
-        /// <summary>
-        /// Manages the process of clearing existing backup entry lists, and then updating them with new backup information from file
-        /// </summary>
-        public void ManageExistingBackups()
-        {
-            BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
-            BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
-            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), 2);
-
-            BackupManager.PopulateLists();
-
-            string targetPath = LogManager.Logger.BaseDirectory;
-
-            //The first time BackupManager is run, we either store a copy of the backups, or not. Internally
-            //BackupInFolder() invokes ProcessFolder() either way. It is required in order for the Remix menu
-            //to know which enable options to show. That process requires the Logs directory to be analyzed
-            //whether or not Backups are enabled
-            if (!BackupManager.HasRunOnce)
-                BackupManager.BackupFromFolder(targetPath);
-            else
-                BackupManager.ProcessFolder(targetPath, false);
         }
 
         /// <summary>
@@ -543,7 +533,7 @@ namespace LogManager
             FileSystemUtils.SafeDeleteFile(existingExpLog, deleteFailureMsg);
             FileSystemUtils.SafeDeleteFile(existingJollyLog, deleteFailureMsg);
 
-            string existingLogsDirectory = LogManager.Logger.FindExistingLogsDirectory();
+            string existingLogsDirectory = LogsFolder.FindExistingLogsDirectory();
 
             if (existingLogsDirectory != null)
             {
@@ -569,7 +559,7 @@ namespace LogManager
         /// </summary>
         public void RestoreManagedLogs()
         {
-            string logPath = LogManager.Logger.BaseDirectory;
+            string logPath = LogsFolder.Path;
 
             if (Directory.Exists(logPath))
             {
@@ -609,7 +599,7 @@ namespace LogManager
 
                         moveAttempts = 0;
 
-                        LogManager.Logger.BaseDirectory = PendingLogPath;//Path.GetDirectoryName(Listener.LogFullPath);
+                        LogsFolder.Path = PendingLogPath;//Path.GetDirectoryName(Listener.LogFullPath);
                         FileSwitcher.UpdateTogglePath(PendingLogPath);
 
                         Listener.Signal("MoveComplete", PendingLogPath);
@@ -624,8 +614,8 @@ namespace LogManager
                 {
                     Logger.LogInfo("Move attempt failed");
 
-                    Logger.LogInfo("Default Directory exists: " + Directory.Exists(LogManager.Logger.DefaultLogPath));
-                    Logger.LogInfo("Alternative Directory exists: " + Directory.Exists(LogManager.Logger.AlternativeLogPath));
+                    Logger.LogInfo("Default Directory exists: " + Directory.Exists(LogsFolder.DefaultPath));
+                    Logger.LogInfo("Alternative Directory exists: " + Directory.Exists(LogsFolder.AlternativePath));
                     Logger.LogInfo("Current Directory exists: " + Directory.Exists(Listener.LogFullPath));
 
                     Listener.OpenFileStream(false);
@@ -651,8 +641,8 @@ namespace LogManager
         {
             if (Listener.LogFullPath == null) return; //Something happened while handling Logs directory.
 
-            string defaultLogPath = LogManager.Logger.DefaultLogPath;
-            string alternativeLogPath = LogManager.Logger.AlternativeLogPath;
+            string defaultLogPath = LogsFolder.DefaultPath;
+            string alternativeLogPath = LogsFolder.AlternativePath;
 
             if (Listener.LogFullPath == alternativeLogPath)
                 alternativeLogPath = defaultLogPath;
@@ -677,7 +667,7 @@ namespace LogManager
         private static void ensureLogsFolderExists()
         {
             return;
-            string baseDirectory = LogManager.Logger.BaseDirectory;
+            string baseDirectory = LogsFolder.Path;
 
             string path = Path.HasExtension(baseDirectory) ? Path.GetDirectoryName(baseDirectory) : baseDirectory;
 
@@ -718,8 +708,7 @@ namespace LogManager
 
             logDirectoryExistence(currentBasePath, pendingBasePath);
 
-            //Check if paths are the same
-            if (LogPath.ComparePaths(currentBasePath, pendingBasePath))
+            if (PathUtils.PathsAreEqual(currentBasePath, pendingBasePath))
             {
                 Directory.CreateDirectory(pendingBasePath);
                 Logger.LogInfo("Path hasn't changed");
@@ -770,8 +759,8 @@ namespace LogManager
 
         private static string getLogPathFromConfig()
         {
-            string defaultLogPath = LogManager.Logger.DefaultLogPath;
-            string alternativeLogPath = LogManager.Logger.AlternativeLogPath;
+            string defaultLogPath = LogsFolder.DefaultPath;
+            string alternativeLogPath = LogsFolder.AlternativePath;
 
             return ConfigSettings.cfgUseAlternativeDirectory.Value ? alternativeLogPath : defaultLogPath;
         }

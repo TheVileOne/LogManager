@@ -169,7 +169,7 @@ namespace LogManager.Helpers
             return false;
         }
 
-        public static void SafeWriteToFile(string filePath, List<string> values)
+        public static void SafeWriteToFile(string filePath, IEnumerable<string> values)
         {
             bool fileWriteSuccess = false;
             Exception fileWriteError = null;

@@ -1,18 +1,28 @@
 ﻿using LogManager.Helpers;
+using LogUtils.Enums;
+using LogUtils.Helpers;
+using LogUtils.Helpers.Comparers;
+using LogUtils.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LogManager.Backup
+namespace LogManager.Components
 {
     public class BackupController
     {
         public int AllowedBackupsPerFile = 5;
 
-        public bool IsManagingLogFiles = true;
+        /// <summary>
+        /// All detected backup entries, and their enabled status
+        /// </summary>
+        public List<(LogID, bool)> BackupEntries = new List<(LogID, bool)>();
+
+        /// <summary>
+        /// A cache for filepaths pertaining to log backup files
+        /// </summary>
+        protected IEnumerable<string> BackupFilesTemp;
 
         /// <summary>
         /// The path containing backup files
@@ -26,17 +36,17 @@ namespace LogManager.Backup
         /// </summary>
         public bool Enabled;
 
-        public List<string> EnabledList = new List<string>();
-        public List<string> DisabledList = new List<string>();
+        public List<LogID> EnabledList = new List<LogID>();
+        public List<LogID> DisabledList = new List<LogID>();
 
         /// <summary>
         /// These logs default to being enabled except when the user adds them to the disabled list
         /// </summary>
-        public string[] EnabledByDefault = new string[]
+        public LogID[] EnabledByDefault = new LogID[]
         {
-            "console",
-            "exception",
-            "mods",
+            LogID.Unity,
+            LogID.Exception,
+            LogID.BepInEx,
         };
 
         /// <summary>
@@ -45,105 +55,71 @@ namespace LogManager.Backup
         /// </summary>
         public bool ProgressiveEnableMode;
 
-        /// <summary>
-        /// All detected backup entries, and their enabled status
-        /// </summary>
-        public List<(string, bool)> BackupEntries = new List<(string, bool)>();
-
-        protected string[] BackupFilesTemp;
-
         public BackupController(string containingFolderPath, string backupFolderName)
         {
             BackupPath = Path.Combine(containingFolderPath, backupFolderName);
             Directory.CreateDirectory(BackupPath);
         }
 
-        public void BackupFromFolder(string targetPath)
+        /// <summary>
+        /// Updates the file cache
+        /// </summary>
+        public void BuildFileCache()
         {
-            ProcessFolder(targetPath, Enabled);
-            HasRunOnce = true;
+            BackupFilesTemp = GetBackupFiles();
+        }
+
+        public FileStatus CreateBackupCopy(LogID logFile)
+        {
+            string sourcePath, destPath;
+
+            sourcePath = getBackupSource(logFile.Properties);
+
+            //There is no file to be copied
+            if (sourcePath == null)
+                return FileStatus.NoActionRequired;
+
+            manageExistingBackups(logFile.Properties.CurrentFilenameWithExtension);
+
+            destPath = Path.Combine(BackupPath, logFile.Properties.CurrentFilename + "_bkp" + logFile.Properties.PreferredFileExt);
+
+            if (!FileSystemUtils.SafeCopyFile(sourcePath, destPath))
+                return FileStatus.Error;
+            return FileStatus.CopyComplete;
         }
 
         /// <summary>
-        /// Logic necessary for storing backup file data
+        /// Retrieves all filenames (including the path) in the Backups directory containing a supported log file extension
         /// </summary>
-        public void BackupFile(string backupSourcePath)
+        public IEnumerable<string> GetBackupFiles()
         {
-            if (BackupFilesTemp == null)
-                BackupFilesTemp = Directory.GetFiles(BackupPath);
-
-            string sourceFilename = Path.GetFileName(backupSourcePath);
-            string backupTargetPath = formatBackupPath(sourceFilename, 1); //Formats the path that backup file will be copied to 
-
-            //After this runs, if there are no issues, the target path will be free
-            manageExistingBackups(sourceFilename);
-
-            //Create backup file
-            FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
+            return FileUtils.SupportedExtensions.SelectMany(x => Directory.EnumerateFiles(BackupPath, x));
         }
 
-        public void ProcessFolder(string targetPath, bool backupFiles)
+        private string getBackupSource(LogProperties properties)
         {
-            BackupEntries.Clear();
+            string sourcePath = properties.ReplacementFilePath;
 
-            List<string> enabledList = new List<string>(EnabledList);
-            List<string> disabledList = new List<string>(DisabledList);
+            if (File.Exists(sourcePath))
+                return sourcePath;
 
-            foreach (string file in Directory.GetFiles(targetPath))
+            if (properties.FileExists)
             {
-                bool backupEnabled, backupDisabled;
-
-                string backupFileEntry = Path.GetFileNameWithoutExtension(file);
-
-                backupEnabled = enabledList.Contains(backupFileEntry);
-                backupDisabled = !backupEnabled;
-
-                if (!backupEnabled)
-                {
-                    backupDisabled = disabledList.Contains(backupFileEntry) || !ProgressiveEnableMode;
-
-                    if (!backupDisabled) //ProgressiveEnableMode acts like an enable all, except if user disabled function
-                    {
-                        EnabledList.Add(backupFileEntry);
-                        backupEnabled = true;
-                    }
-                }
-
-                Plugin.Logger.LogInfo("Target " + backupFileEntry);
-
-                if (backupEnabled) //Only allowed files will be available for backup
-                {
-                    enabledList.Remove(backupFileEntry);
-                    BackupEntries.Add((backupFileEntry, true));
-
-                    if (backupFiles)
-                        BackupFile(file);
-                }
-                else if (backupDisabled)
-                {
-                    disabledList.Remove(backupFileEntry);
-                    BackupEntries.Add((backupFileEntry, false));
-                }
-                else
-                    throw new InvalidStateException("Backup entry must be enabled or disabled");
+                sourcePath = properties.CurrentFilePath;
+                return sourcePath;
             }
-
-            //Include the remaining objects in both lists. These entries are not contained within the target path, but have been recorded to file
-            BackupEntries.AddRange(enabledList.Select<string, (string, bool)>(entry => (entry, true)));
-            BackupEntries.AddRange(disabledList.Select<string, (string, bool)>(entry => (entry, false)));
-
-            Finish();
+            return null;
         }
 
         /// <summary>
-        /// Finds all existing backups with valid backup formatting for a given file, either deleting, or moving the file to a higher backup number
+        /// Ensures there is space for a new backup by moving, or deleting existing backups for the specified log file
         /// </summary>
-        /// <param name="sourceFilename">The filename (with extension) of the source file containing backups</param>
-        private void manageExistingBackups(string sourceFilename)
+        /// <param name="backupFilename">The filename (with extension) to compare against to find backup matches</param>
+        private void manageExistingBackups(string backupFilename)
         {
-            List<string> existingBackups = FindExistingBackups(Path.GetFileNameWithoutExtension(sourceFilename));
+            List<string> existingBackups = FindExistingBackups(backupFilename);
 
-            Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups for {sourceFilename} detected");
+            Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups for {backupFilename} detected");
 
             //Handle existing backups
             if (existingBackups.Count > 0)
@@ -162,7 +138,7 @@ namespace LogManager.Backup
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 1), 3);
+                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(backupFilename, i + 1), 3);
                     else
                         FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
                 }
@@ -177,14 +153,33 @@ namespace LogManager.Backup
             return Path.Combine(BackupPath, $"{Path.GetFileNameWithoutExtension(filenameBase)}_bkp[{backupNumber}]{Path.GetExtension(filenameBase)}");
         }
 
+        /// <summary>
+        /// Find backups associated with a LogID
+        /// </summary>
+        public List<string> FindExistingBackups(LogID logFile)
+        {
+            return FindExistingBackups(logFile.Properties.CurrentFilename);
+        }
+
+        /// <summary>
+        /// Find backups associated with a filename
+        /// </summary>
+        /// <param name="backupName">
+        /// A filename (without path) </br>
+        /// File extension will be removed if present
+        /// </param>
         public List<string> FindExistingBackups(string backupName)
         {
+            if (BackupFilesTemp == null)
+                BuildFileCache();
+
+            backupName = Path.GetFileNameWithoutExtension(backupName);
+
             List<string> existingBackups = new List<string>(AllowedBackupsPerFile);
             List<int> existingBackupIndexes = new List<int>(AllowedBackupsPerFile);
 
-            for (int i = 0; i < BackupFilesTemp.Length; i++)
+            foreach (string backupPath in BackupFilesTemp)
             {
-                string backupPath = BackupFilesTemp[i];
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
 
                 if (backupFile.StartsWith(backupName + "_bkp")) //Look for the format '<file>_<number>'
@@ -232,31 +227,47 @@ namespace LogManager.Backup
             return existingBackups;
         }
 
+        private int parseBackupNumber(string backupFilename)
+        {
+            int parseIndexStart = backupFilename.LastIndexOf('[');
+            int parseIndexEnd = 1;//backupFilename.LastIndexOf(']');
+
+            if (parseIndexStart < 0)
+                return -1;
+
+            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd);
+
+            int foundIndex;
+            if (int.TryParse(parseSubstring, out foundIndex))
+                return foundIndex;
+            return -1;
+        }
+
         /// <summary>
         /// Updates all lists with new enabled state values
         /// </summary>
-        public void ProcessChanges(List<(string, bool)> changedEntries)
+        public void ProcessChanges(List<(LogID, bool)> changedEntries)
         {
             bool shouldSort = false;
             foreach (var backupEntry in changedEntries)
             {
-                string backupName = backupEntry.Item1;
+                LogID backupID = backupEntry.Item1;
                 bool backupEnabled = backupEntry.Item2;
 
-                Plugin.Logger.LogInfo("Processing entry: " + backupName);
+                Plugin.Logger.LogInfo("Processing entry: " + backupID);
                 Plugin.Logger.LogInfo("Enabled: " + backupEnabled);
 
                 //A changed entry means that the entry has been changed from enabled to disabled, or vice versa,
                 //or a new entry has been detected that is not part of any of the lists
                 if (backupEnabled)
                 {
-                    if (DisabledList.Remove(backupName))
-                        EnabledList.Add(backupName);
-                    else if (!EnabledList.Contains(backupName)) //Maybe, it is a new entry 
+                    if (DisabledList.Remove(backupID))
+                        EnabledList.Add(backupID);
+                    else if (!EnabledList.Contains(backupID)) //Maybe it is a new entry 
                     {
-                        EnabledList.Add(backupName);
+                        EnabledList.Add(backupID);
 
-                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupName);
+                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupID);
                         if (entryIndex != -1) //Replace original backup entry with changed one
                             BackupEntries[entryIndex] = backupEntry;
                         else
@@ -268,13 +279,13 @@ namespace LogManager.Backup
                 }
                 else
                 {
-                    if (EnabledList.Remove(backupName))
-                        DisabledList.Add(backupName);
-                    else if (!DisabledList.Contains(backupName)) //Maybe, it is a new entry 
+                    if (EnabledList.Remove(backupID))
+                        DisabledList.Add(backupID);
+                    else if (!DisabledList.Contains(backupID)) //Maybe it is a new entry 
                     {
-                        DisabledList.Add(backupName);
+                        DisabledList.Add(backupID);
 
-                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupName);
+                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupID);
                         if (entryIndex != -1) //Replace original backup entry with changed one
                             BackupEntries[entryIndex] = backupEntry;
                         else
@@ -315,10 +326,11 @@ namespace LogManager.Backup
                 if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
                     continue;
 
-                entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
+                LogID logID = LogID.Find(entry);
+                //entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
 
-                if (!DisabledList.Contains(entry))
-                    EnabledList.Add(entry);
+                if (logID != null && !DisabledList.Contains(logID))
+                    EnabledList.Add(logID);
             }
         }
 
@@ -339,11 +351,63 @@ namespace LogManager.Backup
                 if (entry.StartsWith("//") || entry.StartsWith("#") || entry == string.Empty) //Comment symbols
                     continue;
 
-                entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
+                LogID logID = LogID.Find(entry);
+                //entry = Path.GetFileNameWithoutExtension(entry); //Ensure string comparison is more reliable
 
-                EnabledList.Remove(entry);
-                DisabledList.Add(entry);
+                if (logID != null)
+                {
+                    EnabledList.Remove(logID);
+                    DisabledList.Add(logID);
+                }
             }
+        }
+
+        public void ProcessNewEntries()
+        {
+            BackupEntries.Clear();
+
+            List<LogID> enabledList = new List<LogID>(EnabledList);
+            List<LogID> disabledList = new List<LogID>(DisabledList);
+
+            foreach (LogID logID in LogProperties.PropertyManager.Properties.Select(p => p.ID))
+            {
+                bool backupEnabled, backupDisabled;
+
+                backupEnabled = enabledList.Contains(logID);
+                backupDisabled = !backupEnabled;
+
+                if (!backupEnabled)
+                {
+                    backupDisabled = disabledList.Contains(logID) || !ProgressiveEnableMode;
+
+                    if (!backupDisabled) //ProgressiveEnableMode acts like an enable all, except if user disabled function
+                    {
+                        EnabledList.Add(logID);
+                        backupEnabled = true;
+                    }
+                }
+
+                Plugin.Logger.LogInfo("Target " + logID);
+
+                if (backupEnabled) //Only allowed files will be available for backup
+                {
+                    enabledList.Remove(logID);
+                    BackupEntries.Add((logID, true));
+                }
+                else if (backupDisabled)
+                {
+                    disabledList.Remove(logID);
+                    BackupEntries.Add((logID, false));
+                }
+                else
+                    throw new InvalidStateException("Backup entry must be enabled or disabled");
+            }
+
+            //Include the remaining objects in both lists. These entries are not contained within the target path, but have been recorded to file
+            BackupEntries.AddRange(enabledList.Select<LogID, (LogID, bool)>(entry => (entry, true)));
+            BackupEntries.AddRange(disabledList.Select<LogID, (LogID, bool)>(entry => (entry, false)));
+
+            Finish();
         }
 
         /// <summary>
@@ -351,7 +415,7 @@ namespace LogManager.Backup
         /// </summary>
         private void applyEnabledDefaults()
         {
-            foreach (string defaultEntry in EnabledByDefault)
+            foreach (LogID defaultEntry in EnabledByDefault)
             {
                 if (!EnabledList.Contains(defaultEntry) && !DisabledList.Contains(defaultEntry))
                     EnabledList.Add(defaultEntry);
@@ -359,7 +423,7 @@ namespace LogManager.Backup
         }
 
         /// <summary>
-        /// Creates blacklist, and whitelist txt files based on current lists
+        /// Creates blacklist, and whitelist text files based on current lists
         /// </summary>
         public void SaveListsToFile()
         {
@@ -371,24 +435,8 @@ namespace LogManager.Backup
             whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
-            FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList);
-            FileSystemUtils.SafeWriteToFile(whitelistPath, EnabledList);
-        }
-
-        private int parseBackupNumber(string backupFilename)
-        {
-            int parseIndexStart = backupFilename.LastIndexOf('[');
-            int parseIndexEnd = 1;//backupFilename.LastIndexOf(']');
-
-            if (parseIndexStart < 0)
-                return -1;
-
-            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd);
-
-            int foundIndex;
-            if (int.TryParse(parseSubstring, out foundIndex))
-                return foundIndex;
-            return -1;
+            FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.value));
+            FileSystemUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.value));
         }
 
         /// <summary>
@@ -396,18 +444,20 @@ namespace LogManager.Backup
         /// </summary>
         public void Finish()
         {
-            BackupEntries = BackupEntries.OrderBy(entry =>
-            {
-                return entry.Item1;
-            }).ToList();
-            BackupFilesTemp = null;
-        }
-    }
+            LogIDComparer idComparer = new LogIDComparer(CompareOptions.CurrentFilename);
 
-    class InvalidStateException : Exception
-    {
-        public InvalidStateException(string message) : base(message)
-        {
+            BackupEntries.Sort(compareEntriesByCurrentFilename);
+            BackupFilesTemp = null;
+
+            int compareEntriesByCurrentFilename((LogID, bool) entry, (LogID, bool) entryOther)
+            {
+                int compareValue = idComparer.Compare(entry.Item1, entryOther.Item1);
+
+                //Due to the way LogID are created, properties shouldn't be null here
+                if (compareValue == 0)
+                    compareValue = new FolderNameComparer().Compare(entry.Item1.Properties.CurrentFolderPath, entryOther.Item1.Properties.CurrentFolderPath);
+                return compareValue;
+            }
         }
     }
 }
