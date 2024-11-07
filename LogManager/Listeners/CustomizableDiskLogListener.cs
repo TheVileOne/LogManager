@@ -1,15 +1,11 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using LogUtils;
+using LogUtils.Helpers.FileHandling;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Debug = UnityEngine.Debug;
-using LogManager.Helpers;
-using LogUtils.Helpers;
 
 namespace LogManager.Listeners
 {
@@ -306,7 +302,7 @@ namespace LogManager.Listeners
                 }
 
                 if (LogFullPath != null)
-                    FileSystemUtils.CopyDirectory(Path.GetDirectoryName(LogFullPath), destPath, true);
+                    DirectoryUtils.Copy(Path.GetDirectoryName(LogFullPath), destPath, true);
 
                 validateFolderStructure(destPath);
 

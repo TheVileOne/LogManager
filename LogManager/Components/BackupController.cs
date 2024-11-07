@@ -1,8 +1,8 @@
 ﻿using LogManager.Helpers;
 using LogUtils;
 using LogUtils.Enums;
-using LogUtils.Helpers;
 using LogUtils.Helpers.Comparers;
+using LogUtils.Helpers.FileHandling;
 using LogUtils.Properties;
 using System;
 using System.Collections.Generic;
@@ -88,7 +88,7 @@ namespace LogManager.Components
 
             destPath = Path.Combine(BackupPath, logFile.Properties.CurrentFilename + "_bkp" + logFile.Properties.PreferredFileExt);
 
-            if (!FileSystemUtils.SafeCopyFile(sourcePath, destPath))
+            if (!FileUtils.SafeCopy(sourcePath, destPath))
                 return FileStatus.Error;
             return FileStatus.CopyComplete;
         }
@@ -137,15 +137,15 @@ namespace LogManager.Components
 
                     if (backupCountOverMaximum > 0)
                     {
-                        FileSystemUtils.SafeDeleteFile(backup);
+                        FileUtils.SafeDelete(backup);
                         backupCountOverMaximum--;
                         continue;
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(backupFilename, i + 1), 3);
+                        FileUtils.SafeMove(backup, formatBackupPath(backupFilename, i + 1), 3);
                     else
-                        FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
+                        FileUtils.SafeDelete(backup); //The backup at the max count simply gets removed
                 }
             }
         }
@@ -440,8 +440,8 @@ namespace LogManager.Components
             whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
-            FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.value));
-            FileSystemUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.value));
+            FileUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.value));
+            FileUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.value));
         }
 
         /// <summary>

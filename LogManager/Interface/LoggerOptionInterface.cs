@@ -1,6 +1,6 @@
-﻿using LogManager.Helpers;
-using LogManager.Settings;
+﻿using LogManager.Settings;
 using LogUtils;
+using LogUtils.Helpers.FileHandling;
 using Menu.Remix.MixedUI;
 using System.Collections.Generic;
 using System.IO;
@@ -129,7 +129,7 @@ namespace LogManager.Interface
         private void BackupDeleteButton_OnClick(UIfocusable trigger)
         {
             Plugin.Logger.LogInfo("Deleting backups");
-            FileSystemUtils.SafeDeleteDirectory(Path.Combine(LogsFolder.Path, "Backup"));
+            DirectoryUtils.SafeDelete(Path.Combine(LogsFolder.Path, "Backup"));
         }
 
         /// <summary>

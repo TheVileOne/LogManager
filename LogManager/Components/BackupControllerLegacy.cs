@@ -1,4 +1,4 @@
-﻿using LogManager.Helpers;
+﻿using LogUtils.Helpers.FileHandling;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -77,7 +77,7 @@ namespace LogManager.Components
             manageExistingBackups(sourceFilename);
 
             //Create backup file
-            FileSystemUtils.SafeCopyFile(backupSourcePath, backupTargetPath, 3);
+            FileUtils.SafeCopy(backupSourcePath, backupTargetPath, 3);
         }
 
         public void ProcessFolder(string targetPath, bool backupFiles)
@@ -154,15 +154,15 @@ namespace LogManager.Components
 
                     if (backupCountOverMaximum > 0)
                     {
-                        FileSystemUtils.SafeDeleteFile(backup);
+                        FileUtils.SafeDelete(backup);
                         backupCountOverMaximum--;
                         continue;
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileSystemUtils.SafeMoveFile(backup, formatBackupPath(sourceFilename, i + 1), 3);
+                        FileUtils.SafeMove(backup, formatBackupPath(sourceFilename, i + 1), 3);
                     else
-                        FileSystemUtils.SafeDeleteFile(backup); //The backup at the max count simply gets removed
+                        FileUtils.SafeDelete(backup); //The backup at the max count simply gets removed
                 }
             }
         }
@@ -369,8 +369,8 @@ namespace LogManager.Components
             whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
-            FileSystemUtils.SafeWriteToFile(blacklistPath, DisabledList);
-            FileSystemUtils.SafeWriteToFile(whitelistPath, EnabledList);
+            FileUtils.SafeWriteToFile(blacklistPath, DisabledList);
+            FileUtils.SafeWriteToFile(whitelistPath, EnabledList);
         }
 
         private int parseBackupNumber(string backupFilename)

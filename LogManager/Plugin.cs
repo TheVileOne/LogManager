@@ -1,14 +1,11 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using LogManager.Components;
-using LogManager.Helpers;
 using LogManager.Interface;
 using LogManager.Listeners;
 using LogManager.Settings;
 using LogUtils;
-using LogUtils.Helpers;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
+using LogUtils.Helpers.FileHandling;
 using System;
 using System.Collections;
 using System.IO;
@@ -104,10 +101,10 @@ namespace LogManager
 
 
                 if (Path.GetFileName(deletePath1) == LogsFolder.LOGS_FOLDER_NAME)
-                    FileSystemUtils.SafeDeleteDirectory(deletePath1, true);
+                    DirectoryUtils.SafeDelete(deletePath1, true);
 
                 if (Path.GetFileName(deletePath2) == LogsFolder.LOGS_FOLDER_NAME)
-                    FileSystemUtils.SafeDeleteDirectory(deletePath2, true);
+                    DirectoryUtils.SafeDelete(deletePath2, true);
             }
 
             RemoveHooks();
@@ -306,8 +303,8 @@ namespace LogManager
             string deleteFailureMsg = "Unable to delete existing log";
 
             //Clear old existing logs. Neither should contain any information not logged to the new directory
-            FileSystemUtils.SafeDeleteFile(existingExpLog, deleteFailureMsg);
-            FileSystemUtils.SafeDeleteFile(existingJollyLog, deleteFailureMsg);
+            FileManipulation.SafeDelete(existingExpLog, deleteFailureMsg);
+            FileManipulation.SafeDelete(existingJollyLog, deleteFailureMsg);
 
             string existingLogsDirectory = LogsFolder.FindExistingLogsDirectory();
 
