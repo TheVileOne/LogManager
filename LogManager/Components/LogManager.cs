@@ -10,7 +10,7 @@ namespace LogManager.Components
         public LogManager()
         {
             LogsFolder.Initialize();
-            BackupManager = new BackupController(LogsFolder.Path, "Backup");
+            BackupManager = new BackupController();
         }
 
         public void ProcessFiles()

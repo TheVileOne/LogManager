@@ -1,4 +1,5 @@
 ﻿using LogManager.Helpers;
+using LogUtils;
 using LogUtils.Enums;
 using LogUtils.Helpers;
 using LogUtils.Helpers.Comparers;
@@ -12,6 +13,11 @@ namespace LogManager.Components
 {
     public class BackupController
     {
+        /// <summary>
+        /// The folder that will store backup files
+        /// </summary>
+        public const string BACKUP_FOLDER_NAME = "Backup";
+
         public int AllowedBackupsPerFile = 5;
 
         /// <summary>
@@ -27,7 +33,7 @@ namespace LogManager.Components
         /// <summary>
         /// The path containing backup files
         /// </summary>
-        public string BackupPath;
+        public string BackupPath => Path.Combine(LogsFolder.InitialPath ?? LogsFolder.FindLogsDirectory(), BACKUP_FOLDER_NAME);
 
         public bool HasRunOnce;
 
@@ -55,9 +61,8 @@ namespace LogManager.Components
         /// </summary>
         public bool ProgressiveEnableMode;
 
-        public BackupController(string containingFolderPath, string backupFolderName)
+        public BackupController()
         {
-            BackupPath = Path.Combine(containingFolderPath, backupFolderName);
             Directory.CreateDirectory(BackupPath);
         }
 
