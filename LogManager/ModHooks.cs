@@ -150,8 +150,8 @@ namespace LogManager
 
                         moveAttempts = 0;
 
-                        LogsFolder.Path = PendingLogPath;//Path.GetDirectoryName(Listener.LogFullPath);
-                        FileSwitcher.UpdateTogglePath(PendingLogPath);
+                        LogsFolder.SetPath(PendingLogPath);
+                        //FileSwitcher.UpdateTogglePath(PendingLogPath);
 
                         Listener.Signal("MoveComplete", PendingLogPath);
                         PendingLogPath = null;

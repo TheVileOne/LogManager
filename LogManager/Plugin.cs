@@ -47,10 +47,6 @@ namespace LogManager
         public static Components.LogManager LogManager;
         public static BackupController BackupManager => LogManager.BackupManager;
 
-        /// <summary>
-        /// This is the primary method individual log files are moved
-        /// </summary>
-        public static LogFileSwitcher FileSwitcher;
         public static LoggerOptionInterface OptionInterface;
 
         public void Awake()
@@ -65,7 +61,6 @@ namespace LogManager
                 ConfigSettings.Load();
 
                 InitializeLogManager();
-                InitializeFileSwitcher();
             }
             catch (Exception ex)
             {
@@ -189,144 +184,6 @@ namespace LogManager
             }
         }
 
-        public void InitializeFileSwitcher()
-        {
-            FileSwitcher = new LogFileSwitcher(LogFileSwitcher.PathSwitchMode.Collective)
-            {
-                SwitchStartPosition = false
-            };
-
-            string[] logPathsOrig, logPathsCurrent;
-
-            logPathsOrig = getStreamingAssetsLogPathsOrig();
-            logPathsCurrent = getStreamingAssetsLogPathsCurrent();
-
-            string expLogOrig = logPathsOrig[0];
-            string expLogCurrent = logPathsCurrent[0];
-            string jollyLogOrig = logPathsOrig[1];
-            string jollyLogCurrent = logPathsCurrent[1];
-
-            logPathsOrig = getRainWorldRootLogPathsOrig();
-            logPathsCurrent = getRainWorldRootLogPathsCurrent();
-
-            string consoleLogOrig = logPathsOrig[0];
-            string consoleLogCurrent = logPathsCurrent[0];
-            string exceptionLogOrig = logPathsOrig[1];
-            string exceptionLogCurrent = logPathsCurrent[1];
-
-            FileSwitcher.AddPaths(expLogOrig, expLogCurrent);
-            FileSwitcher.AddPaths(jollyLogOrig, jollyLogCurrent);
-            FileSwitcher.AddPaths(consoleLogOrig, consoleLogCurrent);
-            FileSwitcher.AddPaths(exceptionLogOrig, exceptionLogCurrent);
-        }
-
-        /// <summary>
-        /// Retrieves standard log paths for logs that write to Rain World Streaming Assets folder as an array
-        /// </summary>
-        private static string[] getStreamingAssetsLogPathsOrig()
-        {
-            string rootDir = Application.streamingAssetsPath;
-
-            string expLog = Path.Combine(rootDir, "ExpLog.txt");
-            string jollyLog = Path.Combine(rootDir, "jollyLog.txt");
-
-            return new string[]
-            {
-                expLog,
-                jollyLog,
-            };
-        }
-
-        /// <summary>
-        /// Retrieves expected log paths for logs that write to Rain World Streaming Assets folder with LogManager active as an array
-        /// </summary>
-        private static string[] getStreamingAssetsLogPathsCurrent()
-        {
-            string rootDir = LogsFolder.FindExistingLogsDirectory();
-
-            string expLog = Path.Combine(rootDir, "expedition.log");
-            string jollyLog = Path.Combine(rootDir, "jolly.log");
-
-            return new string[]
-            {
-                expLog,
-                jollyLog,
-            };
-        }
-
-        /// <summary>
-        /// Retrieves standard log paths for logs that write to Rain World root folder as an array
-        /// </summary>
-        private static string[] getRainWorldRootLogPathsOrig()
-        {
-            string rootDir = Path.GetDirectoryName(Application.dataPath);
-
-            string consoleLog = Path.Combine(rootDir, "consoleLog.txt");
-            string exceptionLog = Path.Combine(rootDir, "exceptionLog.txt");
-
-            return new string[]
-            {
-                consoleLog,
-                exceptionLog,
-            };
-        }
-
-        /// <summary>
-        /// Retrieves expected log paths for logs that write to Rain World root folder with LogManager active as an array
-        /// </summary>
-        private static string[] getRainWorldRootLogPathsCurrent()
-        {
-            string rootDir = LogsFolder.FindExistingLogsDirectory();
-
-            string consoleLog = Path.Combine(rootDir, "console.log");
-            string exceptionLog = Path.Combine(rootDir, "exception.log");
-
-            return new string[]
-            {
-                consoleLog,
-                exceptionLog,
-            };
-        }
-
-        /// <summary>
-        /// Preexisting logs are deleted each, and every startup
-        /// </summary>
-        internal void DeleteExistingLogs()
-        {
-            DateTime deleteBeforeTime = File.GetLastAccessTime(ExecutingPath);
-
-            string[] logPaths = getStreamingAssetsLogPathsOrig();
-
-            string existingExpLog = logPaths[0];
-            string existingJollyLog = logPaths[1];
-
-            string deleteFailureMsg = "Unable to delete existing log";
-
-            //Clear old existing logs. Neither should contain any information not logged to the new directory
-            FileManipulation.SafeDelete(existingExpLog, deleteFailureMsg);
-            FileManipulation.SafeDelete(existingJollyLog, deleteFailureMsg);
-
-            string existingLogsDirectory = LogsFolder.FindExistingLogsDirectory();
-
-            if (existingLogsDirectory != null)
-            {
-                //This code targets files that existed before game was launched
-                foreach (string logFile in Directory.GetFiles(existingLogsDirectory))
-                {
-                    try
-                    {
-                        if (File.GetLastAccessTime(logFile).CompareTo(deleteBeforeTime) < 0)
-                            File.Delete(logFile);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError("Unable to delete log " + logFile);
-                        Logger.LogError(ex);
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Takes logs managed by LogManager and move them back to their original locations with their original names
         /// </summary>
@@ -336,25 +193,7 @@ namespace LogManager
 
             if (Directory.Exists(logPath))
             {
-                FileSwitcher.SwitchPaths();
-
-                /*string rootPath = Application.streamingAssetsPath;
-
-                //StreamingAssets logs
-                string expLog = Path.Combine(logPath, "expedition.log");
-                string jollyLog = Path.Combine(logPath, "jolly.log");
-
-                //Rain World root logs
-                string consoleLog = Path.Combine(logPath, "console.log");
-                string exceptionLog = Path.Combine(logPath, "exception.log");
-
-                LogManager.Logger.MoveLog(expLog, Path.Combine(rootPath, "ExpLog.txt"));
-                LogManager.Logger.MoveLog(jollyLog, Path.Combine(rootPath, "jollyLog.txt"));
-
-                rootPath = Path.GetDirectoryName(Application.dataPath);
-
-                LogManager.Logger.MoveLog(consoleLog, Path.Combine(rootPath, "consoleLog.txt"));
-                LogManager.Logger.MoveLog(exceptionLog, Path.Combine(rootPath, "exceptionLog.txt"));*/
+                //TODO: Implement
             }
         }
 
@@ -383,19 +222,6 @@ namespace LogManager
                 Logger.LogError("Unable to delete unused Logs directory");
                 Logger.LogError(ex);
             }
-        }
-
-        private static void ensureLogsFolderExists()
-        {
-            return;
-            string baseDirectory = LogsFolder.Path;
-
-            string path = Path.HasExtension(baseDirectory) ? Path.GetDirectoryName(baseDirectory) : baseDirectory;
-
-            if (Directory.Exists(path)) return;
-
-            Plugin.Logger.LogWarning("Logs folder doesn't exist. Creating folder");
-            Directory.CreateDirectory(path);
         }
 
         public static int moveAttempts = 0;
