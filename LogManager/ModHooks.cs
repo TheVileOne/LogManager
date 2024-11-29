@@ -1,10 +1,9 @@
 ﻿using LogManager.Interface;
 using LogManager.Settings;
 using LogUtils;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
+using LogUtils.Helpers;
 using System;
-using System.IO;
+using System.Collections.Generic;
 
 namespace LogManager
 {
@@ -15,7 +14,6 @@ namespace LogManager
             try
             {
                 On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-                On.RainWorld.Update += RainWorld_Update;
                 On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
                 On.Menu.Remix.MenuModList._ToggleMod += MenuModList_ToggleMod;
                 On.Menu.ModdingMenu.ShutDownProcess += ModdingMenu_ShutDownProcess;
@@ -34,7 +32,6 @@ namespace LogManager
         internal void RemoveHooks()
         {
             On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
-            On.RainWorld.Update -= RainWorld_Update;
             On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
             On.Menu.Remix.MenuModList._ToggleMod -= MenuModList_ToggleMod;
             On.Menu.ModdingMenu.ShutDownProcess -= ModdingMenu_ShutDownProcess;
@@ -136,62 +133,14 @@ namespace LogManager
             }
         }
 
-        private void RainWorld_Update(On.RainWorld.orig_Update orig, RainWorld self)
-        {
-            if (PendingMoveUpdate)
-            {
-                if (moveAttempts < moveAttemptsAllowed)
-                {
-                    bool attemptCopyMethod = moveAttempts >= 5;
-
-                    if (tryChangeDirectory(attemptCopyMethod))
-                    {
-                        Logger.LogInfo($"Move completed in {moveAttempts} attempts");
-
-                        moveAttempts = 0;
-
-                        LogsFolder.SetPath(PendingLogPath);
-                        //FileSwitcher.UpdateTogglePath(PendingLogPath);
-
-                        Listener.Signal("MoveComplete", PendingLogPath);
-                        PendingLogPath = null;
-                    }
-                    else
-                    {
-                        moveAttempts++;
-                    }
-                }
-                else //Nothing can be logged while a move is pending
-                {
-                    Logger.LogInfo("Move attempt failed");
-
-                    Logger.LogInfo("Default Directory exists: " + Directory.Exists(LogsFolder.DefaultPath));
-                    Logger.LogInfo("Alternative Directory exists: " + Directory.Exists(LogsFolder.AlternativePath));
-                    Logger.LogInfo("Current Directory exists: " + Directory.Exists(Listener.LogFullPath));
-
-                    Listener.OpenFileStream(false);
-                    Listener.Signal("MoveAborted");
-
-                    moveAttempts = 0;
-                    PendingLogPath = null;
-                }
-            }
-            else if (Listener.GetSignal() != "Signal.None")
-            {
-                Listener.Signal("None");
-            }
-
-            if (PendingDeleteUpdate) //Delete is already attempted during a move
-                ensureSingleLogsFolder();
-
-            //ensureLogsFolderExists();
-            orig(self);
-        }
-
         private void ModdingMenu_ShutDownProcess(On.Menu.ModdingMenu.orig_ShutDownProcess orig, Menu.ModdingMenu self)
         {
-            Listener.CloseWriter();
-            Listener.Signal("MovePending"); //No move will happen, but we need other mods to turn off their filestreams
+            //TODO: Investigate why FileStreams needed to be closed here under the legacy system
+            List<StreamResumer> resumeList = new List<StreamResumer>();
+            foreach (PersistentLogFileHandle handle in LogFile.GetPersistentLogFiles())
+                resumeList.Add(handle.InterruptStream());
+
+            resumeList.ForEach(stream => stream.Resume());
             orig(self);
         }
 

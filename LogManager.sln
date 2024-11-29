@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogManager", "LogManager\LogManager.csproj", "{46A9A04A-7A99-4A2B-8746-BD71F9B78C57}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogUtils", "..\RandomStartsFix\LogUtils\LogUtils.csproj", "{02D44A34-7BDA-4290-9811-46F292E4EC9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{46A9A04A-7A99-4A2B-8746-BD71F9B78C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46A9A04A-7A99-4A2B-8746-BD71F9B78C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46A9A04A-7A99-4A2B-8746-BD71F9B78C57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D44A34-7BDA-4290-9811-46F292E4EC9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D44A34-7BDA-4290-9811-46F292E4EC9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D44A34-7BDA-4290-9811-46F292E4EC9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D44A34-7BDA-4290-9811-46F292E4EC9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

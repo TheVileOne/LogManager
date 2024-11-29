@@ -30,3 +30,4 @@ C:\Users\Michael\source\repos\CustomLogger\LogManager\obj\Debug\net48\LogManager
 C:\Users\Michael\source\repos\CustomLogger\LogManager\obj\Debug\net48\LogManager.pdb
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\LogManager.dll
 C:\Users\Michael\source\repos\CustomLogger\LogManager\bin\Debug\net48\LogManager.pdb
+C:\Users\Michael\source\repos\CustomLogger\LogManager\obj\Debug\net48\LogManager.sourcelink.json

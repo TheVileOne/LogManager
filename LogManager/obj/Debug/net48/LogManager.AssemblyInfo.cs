@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LogManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0be2a54c4a33a8f073c316b90a7a5a48f4de4608")]
 [assembly: System.Reflection.AssemblyProductAttribute("LogManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LogManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

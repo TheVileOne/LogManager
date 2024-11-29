@@ -2,12 +2,10 @@
 using BepInEx.Logging;
 using LogManager.Components;
 using LogManager.Interface;
-using LogManager.Listeners;
 using LogManager.Settings;
 using LogUtils;
 using LogUtils.Helpers.FileHandling;
 using System;
-using System.Collections;
 using System.IO;
 using UnityEngine;
 
@@ -38,11 +36,6 @@ namespace LogManager
         /// The path that contains the mod-specific config settings managed by Remix menu
         /// </summary>
         public static string ConfigFilePath;
-
-        /// <summary>
-        /// This is used by BepInEx to log messages it receives to file
-        /// </summary>
-        public static CustomizableDiskLogListener Listener;
 
         public static Components.LogManager LogManager;
         public static BackupController BackupManager => LogManager.BackupManager;
@@ -81,19 +74,19 @@ namespace LogManager
         {
             if (!hasInitialized) return;
 
+            /*
+             * TODO: Code is bad - don't run
+             */
+
             //This code deletes the log directory on shutdown. It needs to only delete it if mod is disabled through options
             if (shouldCleanUpOnDisable)
             {
-                Listener.Signal("None");
-                Listener.Dispose();
-
-                BepInEx.Logging.Logger.Listeners.Remove(Listener);
-
-                RestoreManagedLogs();
+                //TODO: Implement
+                if (LogsFolder.IsLogsFolderPath(LogsFolder.Path))
+                    LogsFolder.Restore();
 
                 string deletePath1 = LogsFolder.DefaultPath;
                 string deletePath2 = LogsFolder.AlternativePath;
-
 
                 if (Path.GetFileName(deletePath1) == LogsFolder.LOGS_FOLDER_NAME)
                     DirectoryUtils.SafeDelete(deletePath1, true);
@@ -113,13 +106,6 @@ namespace LogManager
 
             RefreshBackupController();
             LogManager.ProcessFiles();
-            return;
-
-            //This code must be after log directory is established, and before listener is created, or data copy will fail
-            transferBepInExLogData();
-
-            Listener = new CustomizableDiskLogListener(LogsFolder.Path, UtilityConsts.LogNames.BepInEx, false);
-            BepInEx.Logging.Logger.Listeners.Add(Listener);
         }
 
         /// <summary>
@@ -144,78 +130,23 @@ namespace LogManager
             BackupManager.ProcessNewEntries();
         }
 
-        /// <summary>
-        /// Copies messages that were logged to LogOutput.log before LogManager was able to initialize to new log file
-        /// </summary>
-        private void transferBepInExLogData()
-        {
-            //Find the listener responsible for logging to LogOutput.log
-            DiskLogListener BepInExListener = null;
-            IEnumerator enumerator = BepInEx.Logging.Logger.Listeners.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                if ((BepInExListener = enumerator.Current as DiskLogListener) != null)
-                    break;
-            }
-
-            //Write messages from the buffer to file. Without this, an empty log will be copied
-            BepInExListener?.LogWriter.Flush();
-
-            //Handle file copy actions
-            FileInfo BepInExLogFile = new FileInfo(Path.Combine(BepInEx.Paths.BepInExRootPath, UtilityConsts.LogNames.BepInEx + ".log"));
-
-            if (BepInExLogFile.Exists)
-            {
-                string destPath = LogManager.Logger.ApplyLogPathToFilename(UtilityConsts.LogNames.BepInEx);
-
-                try
-                {
-                    File.Delete(destPath);
-                    BepInExLogFile.CopyTo(destPath);
-
-                    if (!File.Exists(destPath))
-                        throw new FileNotFoundException();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Unable to copy BepInEx log");
-                    Logger.LogError(ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Takes logs managed by LogManager and move them back to their original locations with their original names
-        /// </summary>
-        public void RestoreManagedLogs()
-        {
-            string logPath = LogsFolder.Path;
-
-            if (Directory.Exists(logPath))
-            {
-                //TODO: Implement
-            }
-        }
-
         private static void ensureSingleLogsFolder()
         {
-            if (Listener.LogFullPath == null) return; //Something happened while handling Logs directory.
+            if (LogsFolder.Path == null) return; //Something happened while handling Logs directory.
 
             string defaultLogPath = LogsFolder.DefaultPath;
             string alternativeLogPath = LogsFolder.AlternativePath;
 
-            if (Listener.LogFullPath == alternativeLogPath)
+            if (LogsFolder.Path == alternativeLogPath)
                 alternativeLogPath = defaultLogPath;
 
             try
             {
-                if (Directory.Exists(Listener.LogFullPath) && Directory.Exists(alternativeLogPath))
+                if (Directory.Exists(LogsFolder.Path) && Directory.Exists(alternativeLogPath))
                 {
                     Logger.LogInfo("More than one Logs folder exists. Removing one");
                     Directory.Delete(alternativeLogPath, true);
                 }
-
-                PendingDeleteUpdate = false;
             }
             catch (Exception ex)
             {
@@ -224,84 +155,16 @@ namespace LogManager
             }
         }
 
-        public static int moveAttempts = 0;
-        public static int moveAttemptsAllowed = 20;
-
-        /// <summary>
-        /// A path that will become the current logging path if a move attempt is successful
-        /// </summary>
-        public static string PendingLogPath = null;
-
-        /// <summary>
-        /// Tells the game to attempt to change the logging path on RainWorld.Update
-        /// </summary>
-        public static bool PendingMoveUpdate => PendingLogPath != null;
-
-        /// <summary>
-        /// A flag that runs after a successful move update to make sure that folders aren't left behind
-        /// </summary>
-        public static bool PendingDeleteUpdate;
-
         public static void UpdateLogDirectory()
         {
-            if (PendingMoveUpdate) return;
-
             Logger.LogInfo("Updating log directory");
 
-            //ensureLogsFolderExists();
-
-            string currentBasePath = Path.GetDirectoryName(Listener.LogFullPath); //= LogManager.Logger.BaseDirectory;
+            string currentBasePath = LogsFolder.Path;
             string pendingBasePath = getLogPathFromConfig();
 
             logDirectoryExistence(currentBasePath, pendingBasePath);
 
-            if (PathUtils.PathsAreEqual(currentBasePath, pendingBasePath))
-            {
-                Directory.CreateDirectory(pendingBasePath);
-                Logger.LogInfo("Path hasn't changed");
-                return;
-            }
-
-            //Make sure an existing Logs directory isn't deleted because it was unable to be move
-            //This code only logs now, because Directory.Exists is returning false even though the directory path seems to exist for some reason
-            if (!Directory.Exists(currentBasePath))
-            {
-                Logger.LogInfo("No directory to move");
-                //Directory.CreateDirectory(pendingBasePath);
-                //return;
-            }
-
-            //Logger.LogInfo("Path is dirty");
-
-            Listener.Signal("MovePending");
-
-            //Tell RainWorld.Update the logging path needs to change
-            //Note: The move is not handled here due to problems with the move being handled directly after the LogWriter is disposed.
-            // It needs at least an extra frame to release resources.
-            PendingLogPath = pendingBasePath;
-
-            //In order to change directory, all FileStreams attached to log files need to be closed.
-            Listener.CloseWriter();
-        }
-
-        private bool tryChangeDirectory(bool tryCopy)
-        {
-            try
-            {
-                if (tryCopy)
-                    Listener.ChangeDirectoryCopy(PendingLogPath);
-                else
-                    Listener.ChangeDirectory(PendingLogPath);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Unable to change log directory");
-                Logger.LogError(ex);
-                return false;
-            }
-
-            PendingDeleteUpdate = true;
-            return true;
+            LogManager.RequestPathChange(pendingBasePath);
         }
 
         private static string getLogPathFromConfig()
