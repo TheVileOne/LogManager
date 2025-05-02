@@ -28,7 +28,7 @@ namespace LogManager.Components
         /// <summary>
         /// A cache for filepaths pertaining to log backup files
         /// </summary>
-        protected IEnumerable<string> BackupFilesTemp;
+        protected List<string> BackupFilesTemp;
 
         /// <summary>
         /// The path containing backup files
@@ -71,7 +71,7 @@ namespace LogManager.Components
         /// </summary>
         public void BuildFileCache()
         {
-            BackupFilesTemp = GetBackupFiles();
+            BackupFilesTemp = GetBackupFiles().ToList();
         }
 
         public FileStatus CreateBackupCopy(LogID logFile)
