@@ -96,7 +96,7 @@ namespace LogManager.Interface
             {
                 description = Translate(ModConsts.Config.Descriptions.BACKUPS_PER_FILE),
             };
-            OpLabel backupLimitLabel = createOptionLabel(backupLimitUpDown, new Vector2(x_right_align - 80f, headerOffsetY - 35f));           
+            OpLabel backupLimitLabel = createOptionLabel(backupLimitUpDown, new Vector2(x_right_align - 80f, headerOffsetY - 35f));
 
             OpSimpleButton backupDeleteButton = new OpSimpleButton(new Vector2(x_right_align, headerOffsetY - 80f), new Vector2(120f, 30f), Translate(ModConsts.Config.OptionLabels.DELETE_OPTION))
             {
@@ -138,8 +138,9 @@ namespace LogManager.Interface
         public void ProcessBackupEnableOptions()
         {
             OpTab tab = backupElementsTab;
+            var configurables = ConfigSettings.ConfigData.configurables;
 
-            if (Plugin.BackupManager.HasRunOnce && BackupElements.Count > 0) //Sanity check
+            if (BackupElements.Count > 0) //Sanity check
             {
                 Plugin.Logger.LogInfo($"Replacing {BackupElements.Count} backup options");
 
@@ -150,7 +151,7 @@ namespace LogManager.Interface
                     var backupConfigurable = ConfigSettings.cfgBackupEntries[i];
 
                     tab.RemoveItems(backupElementTuple.Item1, backupElementTuple.Item2);
-                    ConfigSettings.ConfigData.configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
+                    configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
                 }
 
                 BackupElements.Clear();
@@ -165,7 +166,15 @@ namespace LogManager.Interface
                 var backupEntry = Plugin.BackupManager.BackupEntries[i];
                 bool backupEnabledByDefault = Plugin.BackupManager.ProgressiveEnableMode;
 
-                var backupConfigurable = ConfigSettings.ConfigData.Bind("bkp" + backupEntry.Item1, backupEnabledByDefault,
+                string entryKey = "bkp" + backupEntry.Item1;
+
+                if (configurables.ContainsKey(entryKey))
+                {
+                    Plugin.Logger.LogWarning($"Backup entry {entryKey} already exists");
+                    configurables.Remove(entryKey);
+                }
+
+                var backupConfigurable = ConfigSettings.ConfigData.Bind(entryKey, backupEnabledByDefault,
                     new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
                 {
                     backupEntry.Item1

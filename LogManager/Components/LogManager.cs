@@ -16,10 +16,6 @@ namespace LogManager.Components
 
         public void ProcessFiles()
         {
-            //TODO: This is a remnant of the old backup system
-            if (BackupManager.Enabled)
-                BackupManager.HasRunOnce = true;
-
             foreach (LogProperties properties in LogProperties.PropertyManager.Properties)
             {
             }

@@ -104,6 +104,8 @@ namespace LogManager
             Logger = base.Logger;
             LogManager = new Components.LogManager();
 
+            Logger.LogInfo("LogManager initialized");
+
             RefreshBackupController();
             LogManager.ProcessFiles();
         }
@@ -119,9 +121,13 @@ namespace LogManager
 
         public static void RefreshBackupSettings()
         {
+            Logger.LogInfo("Refreshing settings");
+
             BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
             BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
             BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), 2);
+
+            Logger.LogInfo(string.Format("Backup system {0}", BackupManager.Enabled ? "enabled" : "disabled"));
         }
 
         public static void RefreshBackupEntries()

@@ -35,8 +35,6 @@ namespace LogManager.Components
         /// </summary>
         public string BackupPath => Path.Combine(LogsFolder.InitialPath ?? LogsFolder.FindLogsDirectory(), BACKUP_FOLDER_NAME);
 
-        public bool HasRunOnce;
-
         /// <summary>
         /// A flag that controls whether backups may be processed
         /// </summary>
