@@ -14,11 +14,19 @@ namespace LogManager.Components
     public class BackupController
     {
         /// <summary>
+        /// The number of backups per file allowed by default 
+        /// </summary>
+        public const int ALLOWED_BACKUPS_PER_FILE = 2;
+
+        /// <summary>
         /// The folder that will store backup files
         /// </summary>
         public const string BACKUP_FOLDER_NAME = "Backup";
 
-        public int AllowedBackupsPerFile = 5;
+        /// <summary>
+        /// The current number of backups per file allowed
+        /// </summary>
+        public int AllowedBackupsPerFile = ALLOWED_BACKUPS_PER_FILE;
 
         /// <summary>
         /// All detected backup entries, and their enabled status
@@ -182,7 +190,7 @@ namespace LogManager.Components
                         continue;
                     }
 
-                    if (i <= AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
+                    if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
                         FileUtils.SafeMove(backup, formatBackupPath(backupFilename, i + 1), 3);
                     else
                         FileUtils.SafeDelete(backup); //The backup at the max count simply gets removed

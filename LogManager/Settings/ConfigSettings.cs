@@ -1,4 +1,5 @@
-﻿using LogManager.Helpers;
+﻿using LogManager.Components;
+using LogManager.Helpers;
 using LogUtils.Enums;
 using System;
 using System.Collections.Generic;
@@ -74,7 +75,7 @@ namespace LogManager.Settings
                 OptionLabels.PROGRESSIVE_BACKUPS_TOGGLE
             }));
 
-            cfgBackupsPerFile = ConfigData.Bind(nameof(cfgBackupsPerFile), 2, new ConfigAcceptableRange<int>(1, 5));
+            cfgBackupsPerFile = ConfigData.Bind(nameof(cfgBackupsPerFile), BackupController.ALLOWED_BACKUPS_PER_FILE, new ConfigAcceptableRange<int>(1, 5));
             cfgBackupsPerFile.info.Tags = new object[] { OptionLabels.BACKUPS_PER_FILE };
 
             cfgBackupEntries = new List<Configurable<bool>>();

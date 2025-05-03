@@ -125,7 +125,7 @@ namespace LogManager
 
             BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
             BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
-            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), 2);
+            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), BackupController.ALLOWED_BACKUPS_PER_FILE);
 
             Logger.LogInfo(string.Format("Backup system {0}", BackupManager.Enabled ? "enabled" : "disabled"));
         }
