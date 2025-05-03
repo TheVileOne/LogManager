@@ -55,6 +55,8 @@ namespace LogManager.Components
             LogID.BepInEx,
         };
 
+        private List<BackupListener.EventRecord> pendingBackups = new List<BackupListener.EventRecord>();
+
         /// <summary>
         /// When true, any backup candidate that hasn't been added to backup-blacklist.txt will be enabled by default.
         /// This feature only works when backups are enabled. This flag can still be true when Enabled is false.
@@ -64,6 +66,75 @@ namespace LogManager.Components
         public BackupController()
         {
             Directory.CreateDirectory(BackupPath);
+            BackupListener.Feed += createBackupEvent;
+        }
+
+        private void createBackupEvent(BackupListener.EventRecord backupEvent)
+        {
+            if (!Enabled || !IsBackupAllowed(backupEvent.LogFile))
+            {
+                //Check for an existing backup record - only one record should be stored per log file
+                int index = pendingBackups.FindIndex(r => r.LogFile.Equals(backupEvent.LogFile));
+
+                if (index != -1)
+                    pendingBackups.RemoveAt(index);
+
+                //We cannot handle backup events right now - it might be possible to handle them later
+                pendingBackups.Add(backupEvent);
+                return;
+            }
+            createBackup(backupEvent);
+        }
+
+        private void createBackup(BackupListener.EventRecord backupEvent)
+        {
+            string sourcePath = backupEvent.SourcePath;
+
+            //The file not existing will generally happen for two reasons:
+            // - Another mod may have moved the file
+            // - It is too late to recover this backup, and LogUtils has deleted it
+            if (!File.Exists(sourcePath))
+            {
+                //Check for a different source path where the path does exist
+                sourcePath = backupEvent.BackupPaths.FirstOrDefault(File.Exists);
+            }
+
+            if (sourcePath == null)
+            {
+                Plugin.Logger.LogInfo($"Unable to backup log file {backupEvent.LogFile}");
+                return;
+            }
+
+            string backupFilename = backupEvent.LogFile.Properties.CurrentFilenameWithExtension;
+
+            manageExistingBackups(backupFilename);
+
+            string destPath = Path.Combine(BackupPath, formatBackupPath(backupFilename, 1));
+
+            if (!FileUtils.SafeCopy(sourcePath, destPath))
+            {
+                Plugin.Logger.LogInfo($"Unable to backup log file {backupEvent.LogFile}");
+                return;
+            }
+
+            //Notify other mods that this extra backup source exists
+            backupEvent.BackupPaths.Add(destPath);
+        }
+
+        private void createBackupsFromPendingEntries()
+        {
+            foreach (var entry in BackupEntries)
+            {
+                if (!entry.Item2) continue; //Entry is disabled
+
+                var backupRecord = pendingBackups.Find(record => entry.Item1.Equals(record.LogFile));
+
+                if (backupRecord != null)
+                {
+                    createBackup(backupRecord);
+                    pendingBackups.Remove(backupRecord);
+                }
+            }
         }
 
         /// <summary>
@@ -74,46 +145,17 @@ namespace LogManager.Components
             BackupFilesTemp = GetBackupFiles().ToList();
         }
 
-        public FileStatus CreateBackupCopy(LogID logFile)
-        {
-            string sourcePath, destPath;
-
-            sourcePath = getBackupSource(logFile.Properties);
-
-            //There is no file to be copied
-            if (sourcePath == null)
-                return FileStatus.NoActionRequired;
-
-            manageExistingBackups(logFile.Properties.CurrentFilenameWithExtension);
-
-            destPath = Path.Combine(BackupPath, logFile.Properties.CurrentFilename + "_bkp" + logFile.Properties.PreferredFileExt);
-
-            if (!FileUtils.SafeCopy(sourcePath, destPath))
-                return FileStatus.Error;
-            return FileStatus.CopyComplete;
-        }
-
         /// <summary>
         /// Retrieves all filenames (including the path) in the Backups directory containing a supported log file extension
         /// </summary>
         public IEnumerable<string> GetBackupFiles()
         {
-            return FileUtils.SupportedExtensions.SelectMany(x => Directory.EnumerateFiles(BackupPath, x));
-        }
-
-        private string getBackupSource(LogProperties properties)
-        {
-            string sourcePath = properties.ReplacementFilePath;
-
-            if (File.Exists(sourcePath))
-                return sourcePath;
-
-            if (properties.FileExists)
+            foreach (string path in Directory.EnumerateFiles(BackupPath))
             {
-                sourcePath = properties.CurrentFilePath;
-                return sourcePath;
+                if (FileUtils.IsSupportedExtension(path))
+                    yield return path;
             }
-            return null;
+            yield break;
         }
 
         /// <summary>
@@ -142,7 +184,7 @@ namespace LogManager.Components
                         continue;
                     }
 
-                    if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
+                    if (i <= AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
                         FileUtils.SafeMove(backup, formatBackupPath(backupFilename, i + 1), 3);
                     else
                         FileUtils.SafeDelete(backup); //The backup at the max count simply gets removed
@@ -161,17 +203,18 @@ namespace LogManager.Components
         /// <summary>
         /// Find backups associated with a LogID
         /// </summary>
-        public List<string> FindExistingBackups(LogID logFile)
+        public List<string> FindExistingBackups(LogID logFile, out string backupFilename)
         {
-            return FindExistingBackups(logFile.Properties.CurrentFilename);
+            backupFilename = logFile.Properties.CurrentFilename;
+            return FindExistingBackups(backupFilename);
         }
 
         /// <summary>
         /// Find backups associated with a filename
         /// </summary>
         /// <param name="backupName">
-        /// A filename (without path) </br>
-        /// File extension will be removed if present
+        /// A filename (without path)
+        /// <br>File extension will be removed if present</br>
         /// </param>
         public List<string> FindExistingBackups(string backupName)
         {
@@ -230,6 +273,12 @@ namespace LogManager.Components
             }
 
             return existingBackups;
+        }
+
+        public bool IsBackupAllowed(LogID logFile)
+        {
+            var entry = BackupEntries.Find(entry => entry.Item1.Equals(logFile));
+            return entry.Item2;
         }
 
         private int parseBackupNumber(string backupFilename)
@@ -452,6 +501,8 @@ namespace LogManager.Components
             LogIDComparer idComparer = new LogIDComparer(CompareOptions.CurrentFilename);
 
             BackupEntries.Sort(compareEntriesByCurrentFilename);
+
+            createBackupsFromPendingEntries();
             BackupFilesTemp = null;
 
             int compareEntriesByCurrentFilename((LogID, bool) entry, (LogID, bool) entryOther)
@@ -462,6 +513,13 @@ namespace LogManager.Components
                 if (compareValue == 0)
                     compareValue = new FolderNameComparer().Compare(entry.Item1.Properties.CurrentFolderPath, entryOther.Item1.Properties.CurrentFolderPath);
                 return compareValue;
+            }
+        }
+
+        private class InvalidStateException : Exception
+        {
+            public InvalidStateException(string message) : base(message)
+            {
             }
         }
     }
