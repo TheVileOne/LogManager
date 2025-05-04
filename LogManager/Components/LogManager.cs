@@ -1,4 +1,7 @@
 ﻿using LogUtils;
+using LogUtils.Enums;
+using LogUtils.Helpers;
+using LogUtils.Helpers.FileHandling;
 using LogUtils.Properties;
 using System;
 
@@ -18,8 +21,26 @@ namespace LogManager.Components
         {
             foreach (LogProperties properties in LogProperties.PropertyManager.Properties)
             {
+                LogID logFile = properties.ID;
+
+                if (!properties.LogsFolderEligible)
+                {
+                    Plugin.Logger.LogInfo($"{logFile} is currently ineligible to be moved to Logs folder");
+                    continue;
+                }
+
+                if (isMoveRequired(properties.CurrentFolderPath))
+                {
+                    Plugin.Logger.LogInfo($"Moving {logFile} to Logs folder");
+                    LogFile.Move(logFile, LogsFolder.Path);
+                }
             }
-        } 
+
+            static bool isMoveRequired(string folderPath)
+            {
+                return PathUtils.PathsAreEqual(folderPath, LogsFolder.Path);
+            }
+        }
 
         public bool RequestPathChange(string path)
         {
@@ -29,21 +50,21 @@ namespace LogManager.Components
                 if (!LogsFolder.IsLogsFolderPath(path))
                     throw new NotSupportedException("LogManager does not support custom paths");
 
-                ChangePath(path);
+                UpdateLogsFolderPath(path);
                 return true;
             }
             catch (Exception ex)
             {
+                Plugin.Logger.LogError(ex);
                 return false;
             }
         }
 
-        public void ChangePath(string logPath)
+        public void UpdateLogsFolderPath(string newFolderPath)
         {
-            //Path change is unnecessary
-            if (LogsFolder.IsCurrentPath(logPath))
+            if (LogsFolder.IsCurrentPath(newFolderPath))
             {
-                //TODO: Log
+                Plugin.Logger.LogInfo("Folder path change not needed");
                 return;
             }
 
