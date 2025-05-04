@@ -23,15 +23,7 @@ namespace LogManager.Settings
         /// <summary>
         /// Contains config values that are managed by the OptionInterface. This should only be interacted with after RainWorld has initialized to avoid errors.
         /// </summary>
-        public static OptionInterface.ConfigHolder ConfigData
-        {
-            get
-            {
-                if (SafeToLoad)
-                    return Plugin.OptionInterface.config;
-                return null;
-            }
-        }
+        public static OptionInterface.ConfigHolder ConfigData => Plugin.OptionInterface?.config;
 
         /// <summary>
         /// Contains config values read directly from the mod config. This data may be accessed at any time in the mod load process.
@@ -53,7 +45,6 @@ namespace LogManager.Settings
 
         public static void Initialize()
         {
-            SafeToLoad = true;
             ConfigData.configurables.Clear();
 
             //Define config options
@@ -81,6 +72,24 @@ namespace LogManager.Settings
             cfgBackupEntries = new List<Configurable<bool>>();
 
             Plugin.OptionInterface.OnConfigChanged += OnConfigChanged;
+
+            RefreshValues();
+            SafeToLoad = true;
+        }
+
+        /// <summary>
+        /// Assigns converted raw data into the respective config entries
+        /// </summary>
+        public static void RefreshValues()
+        {
+            Plugin.Logger.LogInfo("Setting config values");
+            SetValue(cfgUseAlternativeDirectory);
+            SetValue(cfgAllowBackups);
+            SetValue(cfgAllowProgressiveBackups);
+            SetValue(cfgBackupsPerFile);
+
+            cfgBackupEntries.ForEach(SetValue);
+            Plugin.Logger.LogInfo("Setting complete");
         }
 
         public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible
@@ -105,6 +114,11 @@ namespace LogManager.Settings
                 Plugin.Logger.LogError(ex);
             }
             return expectedDefault;
+        }
+
+        public static void SetValue<T>(Configurable<T> configurable) where T : IConvertible
+        {
+            configurable.Value = GetValue(configurable.key, configurable.defaultValue.ConvertParse<T>());
         }
 
         /// <summary>
