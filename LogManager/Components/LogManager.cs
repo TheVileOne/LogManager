@@ -23,22 +23,25 @@ namespace LogManager.Components
             {
                 LogID logFile = properties.ID;
 
+                if (!properties.FileExists)
+                {
+                    properties.ChangePath(LogsFolder.Path);
+                    continue;
+                }
+
                 if (!properties.LogsFolderEligible)
                 {
                     Plugin.Logger.LogInfo($"{logFile} is currently ineligible to be moved to Logs folder");
                     continue;
                 }
 
-                if (isMoveRequired(properties.CurrentFolderPath))
+                bool isMoveRequired = !PathUtils.PathsAreEqual(properties.CurrentFolderPath, LogsFolder.Path);
+
+                if (isMoveRequired)
                 {
                     Plugin.Logger.LogInfo($"Moving {logFile} to Logs folder");
                     LogFile.Move(logFile, LogsFolder.Path);
                 }
-            }
-
-            static bool isMoveRequired(string folderPath)
-            {
-                return PathUtils.PathsAreEqual(folderPath, LogsFolder.Path);
             }
         }
 
