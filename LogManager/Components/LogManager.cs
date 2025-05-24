@@ -23,15 +23,15 @@ namespace LogManager.Components
             {
                 LogID logFile = properties.ID;
 
-                if (!properties.FileExists)
-                {
-                    properties.ChangePath(LogsFolder.Path);
-                    continue;
-                }
-
                 if (!properties.LogsFolderEligible)
                 {
                     Plugin.Logger.LogInfo($"{logFile} is currently ineligible to be moved to Logs folder");
+                    continue;
+                }
+
+                if (!properties.FileExists)
+                {
+                    properties.ChangePath(LogsFolder.Path);
                     continue;
                 }
 
