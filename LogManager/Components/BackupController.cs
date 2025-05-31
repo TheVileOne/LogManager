@@ -111,7 +111,7 @@ namespace LogManager.Components
                 return;
             }
 
-            string backupFilename = backupEvent.LogFile.Properties.CurrentFilenameWithExtension;
+            string backupFilename = backupEvent.LogFile.Properties.CurrentFilename.WithExtension();
 
             manageExistingBackups(backupFilename);
 
