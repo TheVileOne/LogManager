@@ -1,10 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using LogManager.Components;
+using LogManager.Controllers;
 using LogManager.Interface;
 using LogManager.Settings;
 using LogUtils;
-using LogUtils.Helpers.FileHandling;
 using System;
 using System.IO;
 using UnityEngine;
@@ -37,8 +36,8 @@ namespace LogManager
         /// </summary>
         public static string ConfigFilePath;
 
-        public static Components.LogManager LogManager;
-        public static BackupController BackupManager => LogManager.BackupManager;
+        public static LogsFolderController FolderController;
+        public static BackupController BackupController;
 
         public static LoggerOptionInterface OptionInterface;
 
@@ -52,8 +51,7 @@ namespace LogManager
             try
             {
                 ConfigSettings.Load();
-
-                InitializeLogManager();
+                Initialize();
             }
             catch (Exception ex)
             {
@@ -82,10 +80,11 @@ namespace LogManager
             hasInitialized = false;
         }
 
-        public void InitializeLogManager()
+        public void Initialize()
         {
             Logger = base.Logger;
-            LogManager = new Components.LogManager();
+            FolderController = new LogsFolderController();
+            BackupController = new BackupController(); 
 
             Logger.LogInfo("LogManager initialized");
 
@@ -106,17 +105,17 @@ namespace LogManager
         {
             Logger.LogInfo("Refreshing settings");
 
-            BackupManager.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
-            BackupManager.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
-            BackupManager.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), BackupController.ALLOWED_BACKUPS_PER_FILE);
+            BackupController.Enabled = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowBackups), false);
+            BackupController.ProgressiveEnableMode = ConfigSettings.GetValue(nameof(ConfigSettings.cfgAllowProgressiveBackups), false);
+            BackupController.AllowedBackupsPerFile = ConfigSettings.GetValue(nameof(ConfigSettings.cfgBackupsPerFile), BackupController.ALLOWED_BACKUPS_PER_FILE);
 
-            Logger.LogInfo(string.Format("Backup system {0}", BackupManager.Enabled ? "enabled" : "disabled"));
+            Logger.LogInfo(string.Format("Backup system {0}", BackupController.Enabled ? "enabled" : "disabled"));
         }
 
         public static void RefreshBackupEntries()
         {
-            BackupManager.PopulateLists();
-            BackupManager.ProcessNewEntries();
+            BackupController.PopulateLists();
+            BackupController.ProcessNewEntries();
         }
 
         private static void ensureSingleLogsFolder()
@@ -153,7 +152,7 @@ namespace LogManager
 
             logDirectoryExistence(currentBasePath, pendingBasePath);
 
-            LogManager.RequestPathChange(pendingBasePath);
+            FolderController.RequestPathChange(pendingBasePath);
         }
 
         private static string getLogPathFromConfig()

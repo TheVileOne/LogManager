@@ -58,7 +58,7 @@ namespace LogManager
                 if (ConfigSettings.SaveInProgress)
                 {
                     ConfigSettings.HandleBackupEnabledChanges();
-                    BackupManager.SaveListsToFile();
+                    BackupController.SaveListsToFile();
                 }
 
                 ConfigSettings.SaveInProgress = false;

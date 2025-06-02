@@ -1,4 +1,4 @@
-﻿using LogManager.Components;
+﻿using LogManager.Controllers;
 using LogManager.Helpers;
 using LogUtils.Enums;
 using System;
@@ -153,7 +153,7 @@ namespace LogManager.Settings
 
         public static List<(LogID, bool)> GetBackupEnabledChanges()
         {
-            int backupEntryCount = Plugin.BackupManager.BackupEntries.Count;
+            int backupEntryCount = Plugin.BackupController.BackupEntries.Count;
             int configEntryCount = cfgBackupEntries.Count;
 
             if (configEntryCount != backupEntryCount)
@@ -171,7 +171,7 @@ namespace LogManager.Settings
             //Cycle through both lists until one of the entries doesn't match. The list order should be the same here.
             for (int i = 0; i < backupEntryCount; i++)
             {
-                var backupEntry = Plugin.BackupManager.BackupEntries[i];
+                var backupEntry = Plugin.BackupController.BackupEntries[i];
                 var backupConfigurable = cfgBackupEntries[i];
 
                 //Check that enabled bool matches
@@ -198,7 +198,7 @@ namespace LogManager.Settings
                     if (detectedChanges.Count > 0)
                     {
                         Plugin.Logger.LogInfo("Backup enable state changes detected");
-                        Plugin.BackupManager.ProcessChanges(detectedChanges);
+                        Plugin.BackupController.ProcessChanges(detectedChanges);
                     }
                 }
             }
