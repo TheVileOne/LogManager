@@ -74,26 +74,9 @@ namespace LogManager
         {
             if (!hasInitialized) return;
 
-            /*
-             * TODO: Code is bad - don't run
-             */
-
             //This code deletes the log directory on shutdown. It needs to only delete it if mod is disabled through options
             if (shouldCleanUpOnDisable)
-            {
-                //TODO: Implement
-                if (LogsFolder.IsLogsFolderPath(LogsFolder.Path))
-                    LogsFolder.Restore();
-
-                string deletePath1 = LogsFolder.DefaultPath;
-                string deletePath2 = LogsFolder.AlternativePath;
-
-                if (Path.GetFileName(deletePath1) == LogsFolder.LOGS_FOLDER_NAME)
-                    DirectoryUtils.SafeDelete(deletePath1, true);
-
-                if (Path.GetFileName(deletePath2) == LogsFolder.LOGS_FOLDER_NAME)
-                    DirectoryUtils.SafeDelete(deletePath2, true);
-            }
+                LogsFolder.RestoreFiles();
 
             RemoveHooks();
             hasInitialized = false;
@@ -107,7 +90,7 @@ namespace LogManager
             Logger.LogInfo("LogManager initialized");
 
             RefreshBackupController();
-            LogManager.ProcessFiles();
+            LogsFolder.MoveFilesToFolder();
         }
 
         /// <summary>

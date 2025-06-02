@@ -1,8 +1,4 @@
 ﻿using LogUtils;
-using LogUtils.Enums;
-using LogUtils.Helpers;
-using LogUtils.Helpers.FileHandling;
-using LogUtils.Properties;
 using System;
 
 namespace LogManager.Components
@@ -15,34 +11,6 @@ namespace LogManager.Components
         {
             LogsFolder.Initialize();
             BackupManager = new BackupController();
-        }
-
-        public void ProcessFiles()
-        {
-            foreach (LogProperties properties in LogProperties.PropertyManager.Properties)
-            {
-                LogID logFile = properties.ID;
-
-                if (!properties.LogsFolderEligible)
-                {
-                    Plugin.Logger.LogInfo($"{logFile} is currently ineligible to be moved to Logs folder");
-                    continue;
-                }
-
-                if (!properties.FileExists)
-                {
-                    properties.ChangePath(LogsFolder.Path);
-                    continue;
-                }
-
-                bool isMoveRequired = !PathUtils.PathsAreEqual(properties.CurrentFolderPath, LogsFolder.Path);
-
-                if (isMoveRequired)
-                {
-                    Plugin.Logger.LogInfo($"Moving {logFile} to Logs folder");
-                    LogFile.Move(logFile, LogsFolder.Path);
-                }
-            }
         }
 
         public bool RequestPathChange(string path)
