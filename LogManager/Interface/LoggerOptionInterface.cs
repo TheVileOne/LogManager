@@ -1,4 +1,5 @@
 ﻿using LogManager.Settings;
+using LogUtils;
 using LogUtils.Helpers.FileHandling;
 using Menu.Remix.MixedUI;
 using System.Collections.Generic;
@@ -54,29 +55,38 @@ namespace LogManager.Interface
 
             OpTab tab = Tabs[0];
 
-            initializePrimaryOptions(tab);
-            initializeBackupOptions(tab);
+            List<UIelement> tabElements = new List<UIelement>();
+
+            initializePrimaryOptions(tabElements);
+            initializeBackupOptions(tabElements);
+
+            tabElements.Reverse(); //Reverse the drawing order of all elements - elements at top of page should draw over elements lower on the page
+            tab.AddItems(tabElements.ToArray());
+
             HasInitialized = true;
         }
 
-        private void initializePrimaryOptions(OpTab tab)
+        private void initializePrimaryOptions(List<UIelement> tabElements)
         {
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate(Headers.PRIMARY), FLabelAlignment.Center, true, null);
 
-            OpCheckBox directoryOptionToggle = createCheckBox(ConfigSettings.cfgUseAlternativeDirectory, new Vector2(x_left_align, y_offset - 90f));
-            OpLabel directoryOptionLabel = createOptionLabel(directoryOptionToggle);
+            ComboBox directoryOptionBox = new ComboBox(ConfigSettings.cfgDirectorySelectOptions, new Vector2(x_left_align, y_offset - 90f), 200f, createPathOptions())
+            {
+                description = Translate(ConfigSettings.GetDescription(ConfigSettings.cfgDirectorySelectOptions))
+            };
+            OpLabel directoryOptionLabel = createOptionLabel(directoryOptionBox, new Vector2(x_left_align, directoryOptionBox.ScreenPos.y + 30f));
 
             //Add elements to container
-            tab.AddItems(new UIelement[]
+            tabElements.AddRange(new UIelement[]
             {
                 tabHeader,
-                directoryOptionToggle,
+                directoryOptionBox,
                 directoryOptionLabel,
             });
         }
 
-        private void initializeBackupOptions(OpTab tab)
+        private void initializeBackupOptions(List<UIelement> tabElements)
         {
             float headerOffsetY = y_offset - 150f;
 
@@ -104,7 +114,7 @@ namespace LogManager.Interface
             backupDeleteButton.OnClick += BackupDeleteButton_OnClick;
 
             //Add elements to container
-            tab.AddItems(new UIelement[]
+            tabElements.AddRange(new UIelement[]
             {
                 backupsHeader,
                 enableBackupsToggle,
@@ -121,7 +131,7 @@ namespace LogManager.Interface
             //Lower left section
             backupsAllowedHeader = new OpLabel(new Vector2(x_left_align, headerOffsetY), new Vector2(300f, 30f), Translate(Headers.BACKUPS_ENABLED_LIST), FLabelAlignment.Left, true, null);
 
-            tab.AddItems(backupsAllowedHeader);
+            tabElements.Add(backupsAllowedHeader);
         }
 
         private void BackupDeleteButton_OnClick(UIfocusable trigger)
@@ -201,6 +211,18 @@ namespace LogManager.Interface
             {
                 description = Translate(ConfigSettings.GetDescription(configurable))
             };
+        }
+
+        private List<ListItem> createPathOptions()
+        {
+            List<ListItem> options = new List<ListItem>();
+
+            foreach (string path in LogsFolder.AvailablePaths)
+            {
+                string optionName = ConfigSettings.GetPathOptionName(path);
+                options.Add(new ListItem(optionName));
+            }
+            return options;
         }
 
         private OpLabel createOptionLabel(UIconfig owner)

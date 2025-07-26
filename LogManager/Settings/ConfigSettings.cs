@@ -1,5 +1,6 @@
 ﻿using LogManager.Controllers;
 using LogManager.Helpers;
+using LogUtils;
 using LogUtils.Enums;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace LogManager.Settings
         /// </summary>
         public static StringDictionary ConfigDataRaw;
 
-        public static Configurable<bool> cfgUseAlternativeDirectory;
+        public static Configurable<string> cfgDirectorySelectOptions;
         public static Configurable<bool> cfgAllowBackups;
         public static Configurable<bool> cfgAllowProgressiveBackups;
 
@@ -48,10 +49,11 @@ namespace LogManager.Settings
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgUseAlternativeDirectory = ConfigData.Bind(nameof(cfgUseAlternativeDirectory), false,
-                new ConfigInfo(Descriptions.ALT_DIRECTORY_TOGGLE, new object[]
+
+            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), GetPathOptionName(Path.GetDirectoryName(LogsFolder.CurrentPath)),
+                new ConfigInfo(Descriptions.DIRECTORY_SELECT, new object[]
             {
-                OptionLabels.ALT_DIRECTORY_TOGGLE
+                OptionLabels.DIRECTORY_SELECT
             }));
 
             cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false,
@@ -83,7 +85,7 @@ namespace LogManager.Settings
         public static void RefreshValues()
         {
             Plugin.Logger.LogInfo("Setting config values");
-            SetValue(cfgUseAlternativeDirectory);
+            SetValue(cfgDirectorySelectOptions);
             SetValue(cfgAllowBackups);
             SetValue(cfgAllowProgressiveBackups);
             SetValue(cfgBackupsPerFile);
@@ -119,6 +121,14 @@ namespace LogManager.Settings
         public static void SetValue<T>(Configurable<T> configurable) where T : IConvertible
         {
             configurable.Value = GetValue(configurable.key, configurable.defaultValue.ConvertParse<T>());
+        }
+
+        /// <summary>
+        /// Gets the string representing a path selection option
+        /// </summary>
+        public static string GetPathOptionName(string path)
+        {
+            return Path.GetFileName(path);
         }
 
         /// <summary>

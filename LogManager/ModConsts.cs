@@ -6,7 +6,7 @@
         {
             public static class Descriptions
             {
-                public const string ALT_DIRECTORY_TOGGLE = "Choose your Logs folder";
+                public const string DIRECTORY_SELECT = "Choose your Logs folder";
                 public const string ALLOW_BACKUPS_TOGGLE = "Allow log backups";
                 public const string PROGRESSIVE_BACKUPS_TOGGLE = "Enable backups for newly detected log files on startup";
                 public const string BACKUPS_PER_FILE = "Backups per file";
@@ -16,7 +16,7 @@
 
             public static class OptionLabels
             {
-                public const string ALT_DIRECTORY_TOGGLE = "Prefer StreamingAssets folder for Logs directory";
+                public const string DIRECTORY_SELECT = "Log directory path";
                 public const string ALLOW_BACKUPS_TOGGLE = "Backup log files when Rain World starts";
                 public const string PROGRESSIVE_BACKUPS_TOGGLE = "Automatically enable backups for newly detected log files";
                 public const string BACKUPS_PER_FILE = "Allowed backups per file";
