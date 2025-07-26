@@ -89,7 +89,27 @@ namespace LogManager
             Logger.LogInfo("LogManager initialized");
 
             RefreshBackupController();
-            LogsFolder.MoveFilesToFolder();
+
+            if (!LogsFolder.Exists)
+            {
+            retry:
+                try
+                {
+                    LogsFolder.Create();
+                    LogsFolder.MoveFilesToFolder();
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    //Current log directory is invalid - change it to a valid default path instead
+                    LogsFolder.SetContainingPath(LogsFolder.AvailablePaths[0]);
+                    goto retry;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Log directory failed to initialize");
+                    Logger.LogError(ex);
+                }
+            }
         }
 
         /// <summary>
