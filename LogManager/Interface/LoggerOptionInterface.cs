@@ -1,9 +1,7 @@
 ﻿using LogManager.Settings;
-using LogUtils;
 using LogUtils.Helpers.FileHandling;
 using Menu.Remix.MixedUI;
 using System.Collections.Generic;
-using System.IO;
 using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
 
@@ -129,7 +127,7 @@ namespace LogManager.Interface
         private void BackupDeleteButton_OnClick(UIfocusable trigger)
         {
             Plugin.Logger.LogInfo("Deleting backups");
-            DirectoryUtils.SafeDelete(Path.Combine(LogsFolder.Path, "Backup"));
+            DirectoryUtils.SafeDelete(Plugin.BackupController.BackupPath);
         }
 
         /// <summary>

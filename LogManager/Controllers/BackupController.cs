@@ -41,7 +41,7 @@ namespace LogManager.Controllers
         /// <summary>
         /// The path containing backup files
         /// </summary>
-        public string BackupPath => Path.Combine(LogsFolder.InitialPath ?? LogsFolder.FindLogsDirectory(), BACKUP_FOLDER_NAME);
+        public string BackupPath => Path.Combine(PathProvider.Invoke(), BACKUP_FOLDER_NAME);
 
         /// <summary>
         /// A flag that controls whether backups may be processed
@@ -69,8 +69,12 @@ namespace LogManager.Controllers
         /// </summary>
         public bool ProgressiveEnableMode;
 
-        public BackupController()
+        protected Func<string> PathProvider;
+
+        public BackupController(Func<string> pathProvider)
         {
+            PathProvider = pathProvider ?? throw new ArgumentNullException(nameof(pathProvider));
+
             Directory.CreateDirectory(BackupPath);
             BackupListener.Feed += createBackupEvent;
         }
@@ -495,8 +499,8 @@ namespace LogManager.Controllers
             whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
-            FileUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.value));
-            FileUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.value));
+            FileUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.Value));
+            FileUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.Value));
         }
 
         /// <summary>

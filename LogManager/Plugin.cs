@@ -83,8 +83,7 @@ namespace LogManager
         public void Initialize()
         {
             Logger = base.Logger;
-            FolderController = new LogsFolderController();
-            BackupController = new BackupController(); 
+            BackupController = new BackupController(() => LogsFolder.CurrentPath);
 
             Logger.LogInfo("LogManager initialized");
 
