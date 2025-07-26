@@ -36,7 +36,6 @@ namespace LogManager
         /// </summary>
         public static string ConfigFilePath;
 
-        public static LogsFolderController FolderController;
         public static BackupController BackupController;
 
         public static LoggerOptionInterface OptionInterface;
@@ -137,65 +136,10 @@ namespace LogManager
             BackupController.ProcessNewEntries();
         }
 
-        private static void ensureSingleLogsFolder()
-        {
-            if (LogsFolder.Path == null) return; //Something happened while handling Logs directory.
-
-            string defaultLogPath = LogsFolder.DefaultPath;
-            string alternativeLogPath = LogsFolder.AlternativePath;
-
-            if (LogsFolder.Path == alternativeLogPath)
-                alternativeLogPath = defaultLogPath;
-
-            try
-            {
-                if (Directory.Exists(LogsFolder.Path) && Directory.Exists(alternativeLogPath))
-                {
-                    Logger.LogInfo("More than one Logs folder exists. Removing one");
-                    Directory.Delete(alternativeLogPath, true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Unable to delete unused Logs directory");
-                Logger.LogError(ex);
-            }
-        }
-
         public static void UpdateLogDirectory()
         {
             Logger.LogInfo("Updating log directory");
-
-            string currentBasePath = LogsFolder.Path;
-            string pendingBasePath = getLogPathFromConfig();
-
-            logDirectoryExistence(currentBasePath, pendingBasePath);
-
-            FolderController.RequestPathChange(pendingBasePath);
-        }
-
-        private static string getLogPathFromConfig()
-        {
-            string defaultLogPath = LogsFolder.DefaultPath;
-            string alternativeLogPath = LogsFolder.AlternativePath;
-
-            return ConfigSettings.cfgUseAlternativeDirectory.Value ? alternativeLogPath : defaultLogPath;
-        }
-
-        /// <summary>
-        /// Log some debug info. Not very important
-        /// </summary>
-        private static void logDirectoryExistence(string currentPath, string pendingPath)
-        {
-            if (!Directory.Exists(currentPath) && !Directory.Exists(pendingPath))
-            {
-                Logger.LogWarning("No directory exists");
-            }
-            else
-            {
-                Logger.LogInfo("Current Directory exists: " + Directory.Exists(currentPath));
-                Logger.LogInfo("Pending Directory exists: " + Directory.Exists(pendingPath));
-            }
+            //TODO: Reimplement
         }
     }
 }
