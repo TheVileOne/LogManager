@@ -79,6 +79,13 @@ namespace LogManager.Interface
             };
             OpLabel directoryOptionLabel = createOptionLabel(directoryOptionBox, new Vector2(x_left_align, directoryOptionBox.ScreenPos.y + 30f));
 
+            directoryOptionBox.OnValueChanged += (UIconfig config, string value, string oldValue) =>
+            {
+                //Tell LogUtils we want to change the containing path of the log directory
+                if (!string.IsNullOrEmpty(value))
+                    LogsFolder.SetContainingPath(value);
+            };
+
             //Add elements to container
             tabElements.AddRange(new UIelement[]
             {

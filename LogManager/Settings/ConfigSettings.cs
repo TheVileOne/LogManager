@@ -63,8 +63,6 @@ namespace LogManager.Settings
 
             cfgBackupEntries = new List<Configurable<bool>>();
 
-            Plugin.OptionInterface.OnConfigChanged += OnConfigChanged;
-
             RefreshValues();
             SafeToLoad = true;
         }
@@ -207,11 +205,6 @@ namespace LogManager.Settings
                 Plugin.Logger.LogError("Error occurred while processing backup options");
                 Plugin.Logger.LogError(ex);
             }
-        }
-
-        private static void OnConfigChanged()
-        {
-            Plugin.UpdateLogDirectory();
         }
 
         public class ConfigInfo : ConfigurableInfo

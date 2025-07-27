@@ -135,11 +135,5 @@ namespace LogManager
             BackupController.PopulateLists();
             BackupController.ProcessNewEntries();
         }
-
-        public static void UpdateLogDirectory()
-        {
-            Logger.LogInfo("Updating log directory");
-            //TODO: Reimplement
-        }
     }
 }
