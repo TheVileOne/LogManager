@@ -2,8 +2,10 @@
 using LogManager.Settings;
 using LogUtils;
 using LogUtils.Helpers;
+using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace LogManager
 {
@@ -16,6 +18,7 @@ namespace LogManager
                 On.RainWorld.OnModsInit += RainWorld_OnModsInit;
                 On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
                 On.Menu.Remix.MenuModList._ToggleMod += MenuModList_ToggleMod;
+                On.Menu.Remix.MixedUI.UIconfig.ShowConfig += UIconfig_ShowConfig;
                 On.Menu.ModdingMenu.ShutDownProcess += ModdingMenu_ShutDownProcess;
 
                 //Config processing hooks
@@ -154,6 +157,19 @@ namespace LogManager
 
             if (btn.itf.mod.id == PLUGIN_GUID)
                 shouldCleanUpOnDisable = !btn.selectEnabled;
+        }
+
+        private void UIconfig_ShowConfig(On.Menu.Remix.MixedUI.UIconfig.orig_ShowConfig orig, UIconfig self)
+        {
+            orig(self);
+
+            //Each time we open the Remix menu, we want to refresh the value of this option
+            if (self.cfgEntry == ConfigSettings.cfgDirectorySelectOptions)
+            {
+                string selectedOptionName = ConfigSettings.GetPathOptionName(Path.GetDirectoryName(LogsFolder.CurrentPath));
+                self.ForceValue(selectedOptionName);
+                Logger.Log("Setting folder option " + selectedOptionName);
+            }
         }
     }
 }

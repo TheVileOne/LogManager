@@ -50,7 +50,7 @@ namespace LogManager.Settings
 
             //Define config options
 
-            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), GetPathOptionName(Path.GetDirectoryName(LogsFolder.CurrentPath)),
+            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), string.Empty,
                 new ConfigInfo(Descriptions.DIRECTORY_SELECT, new object[]
             {
                 OptionLabels.DIRECTORY_SELECT
