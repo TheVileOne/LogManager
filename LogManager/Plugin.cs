@@ -27,14 +27,19 @@ namespace LogManager
         public static string ExecutingPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
         /// <summary>
-        /// The path that contains and includes this mod's folder
-        /// </summary>
-        public static string ModPath;
-
-        /// <summary>
         /// The path that contains the mod-specific config settings managed by Remix menu
         /// </summary>
         public static string ConfigFilePath;
+
+        /// <summary>
+        /// The root path for Rain World
+        /// </summary>
+        public static string GameRootPath = Paths.GameRootPath;
+
+        /// <summary>
+        /// The path that contains and includes this mod's folder
+        /// </summary>
+        public static string ModPath;
 
         public static BackupController BackupController;
 

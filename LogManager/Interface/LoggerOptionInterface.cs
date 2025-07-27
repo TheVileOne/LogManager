@@ -2,9 +2,7 @@
 using LogUtils;
 using LogUtils.Helpers.FileHandling;
 using Menu.Remix.MixedUI;
-using RWCustom;
 using System.Collections.Generic;
-using System.Globalization;
 using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
 
@@ -226,18 +224,10 @@ namespace LogManager.Interface
         {
             List<ListItem> options = new List<ListItem>();
 
-            string rainWorldRootPath = Custom.LegacyRootFolderDirectory();
-
-            string displayName = null;
             foreach (string path in LogsFolder.AvailablePaths)
             {
-                string optionName = displayName = ConfigSettings.GetPathOptionName(path);
-                if (PathUtils.PathsAreEqual(path, rainWorldRootPath))
-                {
-                    TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-                    displayName = textInfo.ToTitleCase(UtilityConsts.PathKeywords.ROOT);
-                }
-                options.Add(new ListItem(optionName, displayName));
+                string sortKey = PathUtils.Normalize(path);
+                options.Add(new ListItem(sortKey, ConfigSettings.GetPathOptionName(path)));
             }
             return options;
         }

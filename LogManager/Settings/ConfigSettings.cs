@@ -1,9 +1,12 @@
 ﻿using LogManager.Controllers;
 using LogManager.Helpers;
+using LogUtils;
 using LogUtils.Enums;
+using LogUtils.Helpers.FileHandling;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using Descriptions = LogManager.ModConsts.Config.Descriptions;
 using OptionLabels = LogManager.ModConsts.Config.OptionLabels;
@@ -116,6 +119,12 @@ namespace LogManager.Settings
         /// </summary>
         public static string GetPathOptionName(string path)
         {
+            //The root path gets a more descriptive name
+            if (PathUtils.PathsAreEqual(path, Plugin.GameRootPath))
+            {
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                return textInfo.ToTitleCase(UtilityConsts.PathKeywords.ROOT);
+            }
             return Path.GetFileName(path);
         }
 
