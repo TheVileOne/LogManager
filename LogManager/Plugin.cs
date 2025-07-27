@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Logging;
 using LogManager.Controllers;
 using LogManager.Interface;
 using LogManager.Settings;
@@ -7,6 +6,7 @@ using LogUtils;
 using System;
 using System.IO;
 using UnityEngine;
+using Logger = LogUtils.Logger;
 
 namespace LogManager
 {
@@ -19,7 +19,7 @@ namespace LogManager
 
         private bool hasInitialized;
 
-        public static new ManualLogSource Logger;
+        public static new Logger Logger;
 
         /// <summary>
         /// The path of the mod's executing DLL file
@@ -81,7 +81,7 @@ namespace LogManager
 
         public void Initialize()
         {
-            Logger = base.Logger;
+            Logger = new Logger(base.Logger);
             BackupController = new BackupController(() => LogsFolder.CurrentPath);
 
             Logger.LogInfo("LogManager initialized");
