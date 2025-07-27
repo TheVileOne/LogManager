@@ -1,6 +1,5 @@
 ﻿using LogManager.Controllers;
 using LogManager.Helpers;
-using LogUtils;
 using LogUtils.Enums;
 using System;
 using System.Collections.Generic;
@@ -50,23 +49,14 @@ namespace LogManager.Settings
 
             //Define config options
 
-            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), string.Empty,
-                new ConfigInfo(Descriptions.DIRECTORY_SELECT, new object[]
-            {
-                OptionLabels.DIRECTORY_SELECT
-            }));
+            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), "_",
+                new ConfigInfo(Descriptions.DIRECTORY_SELECT, OptionLabels.DIRECTORY_SELECT));
 
             cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false,
-                new ConfigInfo(Descriptions.ALLOW_BACKUPS_TOGGLE, new object[]
-            {
-                OptionLabels.ALLOW_BACKUPS_TOGGLE
-            }));
+                new ConfigInfo(Descriptions.ALLOW_BACKUPS_TOGGLE, OptionLabels.ALLOW_BACKUPS_TOGGLE));
 
             cfgAllowProgressiveBackups = ConfigData.Bind(nameof(cfgAllowProgressiveBackups), false,
-                new ConfigInfo(Descriptions.PROGRESSIVE_BACKUPS_TOGGLE, new object[]
-            {
-                OptionLabels.PROGRESSIVE_BACKUPS_TOGGLE
-            }));
+                new ConfigInfo(Descriptions.PROGRESSIVE_BACKUPS_TOGGLE, OptionLabels.PROGRESSIVE_BACKUPS_TOGGLE));
 
             cfgBackupsPerFile = ConfigData.Bind(nameof(cfgBackupsPerFile), BackupController.ALLOWED_BACKUPS_PER_FILE, new ConfigAcceptableRange<int>(1, 5));
             cfgBackupsPerFile.info.Tags = new object[] { OptionLabels.BACKUPS_PER_FILE };
