@@ -28,6 +28,8 @@ namespace LogManager.Interface
         /// </summary>
         private const float x_right_align = 440f;
 
+        public bool AllowConfigHistoryUpdates = true;
+
         public List<(OpCheckBox, OpLabel)> BackupElements = new List<(OpCheckBox, OpLabel)>();
 
         /// <summary>
@@ -98,7 +100,6 @@ namespace LogManager.Interface
                 return;
             }
 
-            Plugin.Logger.LogDebug("Value: " + optionsBox.value + " Last Value: " + optionsBox.lastValue);
             ConfigConnector.CreateDialogBoxYesNo(
                 "Logs folder path will be changed.\n\n" +
                $"Selected Path: {selectedPath}.\n\n" +

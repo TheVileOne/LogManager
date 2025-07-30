@@ -2,6 +2,7 @@
 using LogManager.Settings;
 using LogUtils;
 using LogUtils.Helpers;
+using Menu.Remix;
 using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace LogManager
                 On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
                 On.Menu.Remix.MenuModList._ToggleMod += MenuModList_ToggleMod;
                 On.Menu.Remix.MixedUI.UIconfig.ShowConfig += UIconfig_ShowConfig;
+                On.Menu.Remix.ConfigContainer.NotifyConfigChange += ConfigContainer_NotifyConfigChange;
                 On.Menu.ModdingMenu.ShutDownProcess += ModdingMenu_ShutDownProcess;
 
                 //Config processing hooks
@@ -36,6 +38,8 @@ namespace LogManager
             On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
             On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
             On.Menu.Remix.MenuModList._ToggleMod -= MenuModList_ToggleMod;
+            On.Menu.Remix.MixedUI.UIconfig.ShowConfig -= UIconfig_ShowConfig;
+            On.Menu.Remix.ConfigContainer.NotifyConfigChange -= ConfigContainer_NotifyConfigChange;
             On.Menu.ModdingMenu.ShutDownProcess -= ModdingMenu_ShutDownProcess;
 
             //Config processing hooks
@@ -150,7 +154,7 @@ namespace LogManager
         /// A flag that indicates whether log files should be disposed of on mod disable/game shutdown
         /// </summary>
         private bool shouldCleanUpOnDisable = false;
-        private void MenuModList_ToggleMod(On.Menu.Remix.MenuModList.orig__ToggleMod orig, Menu.Remix.MenuModList self, Menu.Remix.MenuModList.ModButton btn)
+        private void MenuModList_ToggleMod(On.Menu.Remix.MenuModList.orig__ToggleMod orig, MenuModList self, MenuModList.ModButton btn)
         {
             orig(self, btn);
 
@@ -158,22 +162,51 @@ namespace LogManager
                 shouldCleanUpOnDisable = !btn.selectEnabled;
         }
 
+        private void ConfigContainer_NotifyConfigChange(On.Menu.Remix.ConfigContainer.orig_NotifyConfigChange orig, ConfigContainer self, UIconfig config, string oldValue, string value)
+        {
+            if (!OptionInterface.AllowConfigHistoryUpdates && config.cfgEntry.OI == OptionInterface)
+                return;
+
+            //Make this config option immune to premature history changes
+            if (config.cfgEntry == ConfigSettings.cfgLogsFolderPath)
+            {
+                var history = self._history;
+                history.Push(new ConfigContainer.ConfigHistory
+                {
+                    config = config,
+                    origValue = oldValue
+                });
+                return;
+            }
+
+            orig(self, config, oldValue, value);
+        }
+
         private void UIconfig_ShowConfig(On.Menu.Remix.MixedUI.UIconfig.orig_ShowConfig orig, UIconfig self)
         {
             if (self.cfgEntry == ConfigSettings.cfgLogsFolderPath)
+            {
                 self.OnValueChanged -= LoggerOptionInterface.ConfirmPathChange;
+                OptionInterface.AllowConfigHistoryUpdates = false;
+            }
 
             orig(self);
 
             if (self.cfgEntry == ConfigSettings.cfgLogsFolderPath)
             {
                 self.OnValueChanged += LoggerOptionInterface.ConfirmPathChange;
+                OptionInterface.AllowConfigHistoryUpdates = true;
 
-                //Each time we open the Remix menu, we want to refresh the value of this option
-                string selectedOptionName = ConfigSettings.GetPathOptionName(LogsFolder.ContainingPath);
-                self.ForceValue(selectedOptionName);
-                self.lastValue = selectedOptionName;
-                Logger.Log("Setting folder option " + selectedOptionName);
+                OpComboBox optionsBox = (OpComboBox)self;
+
+                //Make sure that the option is listed in the item list
+                int optionIndex = optionsBox.GetIndex(LogsFolder.ContainingPath);
+
+                //Use the value used in the list when it exists, or create a display friendly name using the containing path when it doesn't
+                string selectedOption = optionIndex >= 0 ? optionsBox.GetItemList()[optionIndex].name : ConfigSettings.GetPathOptionName(LogsFolder.ContainingPath);
+
+                self.ForceValue(selectedOption);
+                self.lastValue = selectedOption;
             }
         }
     }
