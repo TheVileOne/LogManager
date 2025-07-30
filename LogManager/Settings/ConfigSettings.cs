@@ -33,7 +33,7 @@ namespace LogManager.Settings
         /// </summary>
         public static StringDictionary ConfigDataRaw;
 
-        public static Configurable<string> cfgDirectorySelectOptions;
+        public static Configurable<string> cfgLogsFolderPath;
         public static Configurable<bool> cfgAllowBackups;
         public static Configurable<bool> cfgAllowProgressiveBackups;
 
@@ -52,7 +52,7 @@ namespace LogManager.Settings
 
             //Define config options
 
-            cfgDirectorySelectOptions = ConfigData.Bind(nameof(cfgDirectorySelectOptions), "_",
+            cfgLogsFolderPath = ConfigData.Bind(nameof(cfgLogsFolderPath), LogsFolder.AvailablePaths[0],
                 new ConfigInfo(Descriptions.DIRECTORY_SELECT, OptionLabels.DIRECTORY_SELECT));
 
             cfgAllowBackups = ConfigData.Bind(nameof(cfgAllowBackups), false,
@@ -76,7 +76,7 @@ namespace LogManager.Settings
         public static void RefreshValues()
         {
             Plugin.Logger.LogInfo("Setting config values");
-            SetValue(cfgDirectorySelectOptions);
+            SetValue(cfgLogsFolderPath);
             SetValue(cfgAllowBackups);
             SetValue(cfgAllowProgressiveBackups);
             SetValue(cfgBackupsPerFile);

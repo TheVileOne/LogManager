@@ -1,6 +1,7 @@
 ﻿using LogManager.Settings;
 using LogUtils;
 using LogUtils.Helpers.FileHandling;
+using Menu.Remix;
 using Menu.Remix.MixedUI;
 using System.Collections.Generic;
 using Headers = LogManager.ModConsts.Config.Headers;
@@ -71,26 +72,57 @@ namespace LogManager.Interface
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate(Headers.PRIMARY), FLabelAlignment.Center, true, null);
 
-            ComboBox directoryOptionBox = new ComboBox(ConfigSettings.cfgDirectorySelectOptions, new Vector2(x_left_align, y_offset - 90f), 200f, createPathOptions())
+            OpComboBox logsFolderOptionsBox = new ComboBox(ConfigSettings.cfgLogsFolderPath, new Vector2(x_left_align, y_offset - 90f), 200f, createPathOptions())
             {
-                description = Translate(ConfigSettings.GetDescription(ConfigSettings.cfgDirectorySelectOptions))
+                description = Translate(ConfigSettings.GetDescription(ConfigSettings.cfgLogsFolderPath))
             };
-            OpLabel directoryOptionLabel = createOptionLabel(directoryOptionBox, new Vector2(x_left_align, directoryOptionBox.ScreenPos.y + 30f));
+            OpLabel directoryOptionLabel = createOptionLabel(logsFolderOptionsBox, new Vector2(x_left_align, logsFolderOptionsBox.ScreenPos.y + 30f));
 
-            directoryOptionBox.OnValueChanged += (UIconfig config, string value, string oldValue) =>
-            {
-                //Tell LogUtils we want to change the containing path of the log directory
-                if (!string.IsNullOrEmpty(value))
-                    LogsFolder.SetContainingPath(value);
-            };
+            logsFolderOptionsBox.OnValueChanged += ConfirmPathChange;
 
             //Add elements to container
             tabElements.AddRange(new UIelement[]
             {
                 tabHeader,
-                directoryOptionBox,
+                logsFolderOptionsBox,
                 directoryOptionLabel,
             });
+        }
+
+        internal static void ConfirmPathChange(UIconfig optionsBox, string selectedPath, string lastSelectedPath)
+        {
+            if (string.IsNullOrEmpty(selectedPath))
+            {
+                Plugin.Logger.LogWarning("Invalid path selected");
+                CancelPathChange();
+                return;
+            }
+
+            Plugin.Logger.LogDebug("Value: " + optionsBox.value + " Last Value: " + optionsBox.lastValue);
+            ConfigConnector.CreateDialogBoxYesNo(
+                "Logs folder path will be changed.\n\n" +
+               $"Selected Path: {selectedPath}.\n\n" +
+                "Do you accept this change?", AcceptPathChange, CancelPathChange);
+
+            void AcceptPathChange()
+            {
+                LogsFolder.SetContainingPath(selectedPath);
+
+                //Check that the path has actually changed, and if the process fails cancel the action
+                if (!PathUtils.PathsAreEqual(selectedPath, LogsFolder.ContainingPath))
+                {
+                    Plugin.Logger.LogWarning("Failed to change logs folder path");
+                    CancelPathChange();
+                }
+            }
+
+            void CancelPathChange()
+            {
+                Plugin.Logger.Log("Cancelling path change");
+                optionsBox.OnValueChanged -= ConfirmPathChange; //Undo will activate events, and we do not want to show the dialog a second time
+                undoLastChange();
+                optionsBox.OnValueChanged += ConfirmPathChange;
+            }
         }
 
         private void initializeBackupOptions(List<UIelement> tabElements)
@@ -244,6 +276,11 @@ namespace LogManager.Interface
                 bumpBehav = owner.bumpBehav,
                 description = owner.description
             };
+        }
+
+        private static void undoLastChange()
+        {
+            ConfigContainer.instance._UndoConfigChange();
         }
     }
 }

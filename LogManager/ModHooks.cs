@@ -5,7 +5,6 @@ using LogUtils.Helpers;
 using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace LogManager
 {
@@ -161,13 +160,19 @@ namespace LogManager
 
         private void UIconfig_ShowConfig(On.Menu.Remix.MixedUI.UIconfig.orig_ShowConfig orig, UIconfig self)
         {
+            if (self.cfgEntry == ConfigSettings.cfgLogsFolderPath)
+                self.OnValueChanged -= LoggerOptionInterface.ConfirmPathChange;
+
             orig(self);
 
-            //Each time we open the Remix menu, we want to refresh the value of this option
-            if (self.cfgEntry == ConfigSettings.cfgDirectorySelectOptions)
+            if (self.cfgEntry == ConfigSettings.cfgLogsFolderPath)
             {
-                string selectedOptionName = ConfigSettings.GetPathOptionName(Path.GetDirectoryName(LogsFolder.CurrentPath));
+                self.OnValueChanged += LoggerOptionInterface.ConfirmPathChange;
+
+                //Each time we open the Remix menu, we want to refresh the value of this option
+                string selectedOptionName = ConfigSettings.GetPathOptionName(LogsFolder.ContainingPath);
                 self.ForceValue(selectedOptionName);
+                self.lastValue = selectedOptionName;
                 Logger.Log("Setting folder option " + selectedOptionName);
             }
         }
