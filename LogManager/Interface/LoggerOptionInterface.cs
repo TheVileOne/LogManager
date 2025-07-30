@@ -78,7 +78,7 @@ namespace LogManager.Interface
             {
                 description = Translate(ConfigSettings.GetDescription(ConfigSettings.cfgLogsFolderPath))
             };
-            OpLabel directoryOptionLabel = createOptionLabel(logsFolderOptionsBox, new Vector2(x_left_align, logsFolderOptionsBox.ScreenPos.y + 30f));
+            OpLabel logsFolderOptionsLabel = createOptionLabel(logsFolderOptionsBox, new Vector2(x_left_align, logsFolderOptionsBox.ScreenPos.y + 30f));
 
             logsFolderOptionsBox.OnValueChanged += ConfirmPathChange;
 
@@ -87,7 +87,7 @@ namespace LogManager.Interface
             {
                 tabHeader,
                 logsFolderOptionsBox,
-                directoryOptionLabel,
+                logsFolderOptionsLabel,
             });
         }
 
