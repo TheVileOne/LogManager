@@ -100,9 +100,10 @@ namespace LogManager.Interface
                 return;
             }
 
+            string displayPath = PathUtils.GetRelativePath(selectedPath, Plugin.GameRootPath, true);
             ConfigConnector.CreateDialogBoxYesNo(
                 "Logs folder path will be changed.\n\n" +
-               $"Selected Path: {selectedPath}.\n\n" +
+               $"Selected Path: {displayPath}\n\n" +
                 "Do you accept this change?", AcceptPathChange, CancelPathChange);
 
             void AcceptPathChange()

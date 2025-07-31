@@ -4672,6 +4672,14 @@
             Finds a path string that two provided paths have in common
             </summary>
         </member>
+        <member name="M:LogUtils.Helpers.FileHandling.PathUtils.GetRelativePath(System.String,System.String,System.Boolean)">
+            <summary>
+            Takes two paths and determines how one of the paths relates to the other path
+            </summary>
+            <param name="targetPath">The path to evaluate</param>
+            <param name="relativeTo">The path to check against</param>
+            <param name="includeCommonDirectoryInResult">A flag indicating whether to include the most relevant directory in common between the given paths</param>
+        </member>
         <member name="M:LogUtils.Helpers.FileHandling.PathUtils.Normalize(System.String)">
             <summary>
             Replace all directory separator characters with the default platform-specific directory separator character 
@@ -4698,6 +4706,12 @@
             Returns a path string without the filename (filename must have an extension)
             </summary>
         </member>
+        <member name="M:LogUtils.Helpers.FileHandling.PathUtils.PrependWithSeparator(System.String)">
+            <summary>
+            Prepends a single directory separator character to a given path string
+            </summary>
+            <remarks>This method will remove any existing separator characters at the start of the path</remarks>
+        </member>
         <member name="M:LogUtils.Helpers.FileHandling.PathUtils.Separate(System.String)">
             <summary>
             Separates a path into its directory and/or file components
@@ -4706,6 +4720,11 @@
         <member name="M:LogUtils.Helpers.FileHandling.PathUtils.Unroot(System.String)">
             <summary>
             Check for a path root, and strip it from the path
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.PathUtils.IsAbsolute(System.String)">
+            <summary>
+            Checks that the path given is an absolute path
             </summary>
         </member>
         <member name="M:LogUtils.Helpers.FileHandling.PathUtils.PathsAreEqual(System.String,System.String)">
@@ -4982,6 +5001,11 @@
         <member name="F:LogUtils.LogFilename.Value">
             <summary>
             The value of the filename without extension
+            </summary>
+        </member>
+        <member name="F:LogUtils.LogFilename.IsValid">
+            <summary>
+            Does the value represent a valid filename
             </summary>
         </member>
         <member name="M:LogUtils.LogFilename.#ctor(System.String)">
