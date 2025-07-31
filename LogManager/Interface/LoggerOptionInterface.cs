@@ -152,7 +152,7 @@ namespace LogManager.Interface
                 description = Translate(ModConsts.Config.Descriptions.DELETE_OPTION)
             };
 
-            backupDeleteButton.OnClick += BackupDeleteButton_OnClick;
+            backupDeleteButton.OnClick += ConfirmBackupRemoval;
 
             //Add elements to container
             tabElements.AddRange(new UIelement[]
@@ -175,10 +175,22 @@ namespace LogManager.Interface
             tabElements.Add(backupsAllowedHeader);
         }
 
-        private void BackupDeleteButton_OnClick(UIfocusable trigger)
+        private void ConfirmBackupRemoval(UIfocusable trigger)
         {
-            Plugin.Logger.LogInfo("Deleting backups");
-            DirectoryUtils.SafeDelete(Plugin.BackupController.BackupPath);
+            ConfigConnector.CreateDialogBoxYesNo(
+                "Are you sure you want to permanently delete the Backup directory and its contents?",
+                RemoveBackups, Cancel);
+
+            void RemoveBackups()
+            {
+                Plugin.Logger.LogInfo("Removing all backups");
+                DirectoryUtils.SafeDelete(Plugin.BackupController.BackupPath);
+            }
+
+            void Cancel()
+            {
+                //Do nothing
+            }
         }
 
         /// <summary>
