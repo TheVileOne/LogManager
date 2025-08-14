@@ -162,7 +162,7 @@ namespace LogManager.Controllers
         {
             foreach (string path in Directory.EnumerateFiles(BackupPath))
             {
-                if (FileUtils.IsSupportedExtension(path))
+                if (FileExtension.IsSupported(path))
                     yield return path;
             }
             yield break;
