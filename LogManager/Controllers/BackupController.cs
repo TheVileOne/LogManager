@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BackupEntry = (LogUtils.Enums.LogID ID, bool Enabled);
 
 namespace LogManager.Controllers
 {
@@ -31,7 +32,7 @@ namespace LogManager.Controllers
         /// <summary>
         /// All detected backup entries, and their enabled status
         /// </summary>
-        public List<(LogID, bool)> BackupEntries = new List<(LogID, bool)>();
+        public List<BackupEntry> BackupEntries = new List<BackupEntry>();
 
         /// <summary>
         /// A cache for filepaths pertaining to log backup files
@@ -84,7 +85,7 @@ namespace LogManager.Controllers
             if (!Enabled || !IsBackupAllowed(backupEvent.LogFile))
             {
                 //Check for an existing backup record - only one record should be stored per log file
-                int index = pendingBackups.FindIndex(r => r.LogFile.Equals(backupEvent.LogFile));
+                int index = pendingBackups.FindIndex(record => record.LogFile.Equals(backupEvent.LogFile));
 
                 if (index != -1)
                     pendingBackups.RemoveAt(index);
@@ -135,9 +136,9 @@ namespace LogManager.Controllers
         {
             foreach (var entry in BackupEntries)
             {
-                if (!entry.Item2) continue; //Entry is disabled
+                if (!entry.Enabled) continue;
 
-                var backupRecord = pendingBackups.Find(record => entry.Item1.Equals(record.LogFile));
+                var backupRecord = pendingBackups.Find(record => entry.ID.Equals(record.LogFile));
 
                 if (backupRecord != null)
                 {
@@ -310,13 +311,13 @@ namespace LogManager.Controllers
         /// <summary>
         /// Updates all lists with new enabled state values
         /// </summary>
-        public void ProcessChanges(List<(LogID, bool)> changedEntries)
+        public void ProcessChanges(List<BackupEntry> changedEntries)
         {
             bool shouldSort = false;
             foreach (var backupEntry in changedEntries)
             {
-                LogID backupID = backupEntry.Item1;
-                bool backupEnabled = backupEntry.Item2;
+                LogID backupID = backupEntry.ID;
+                bool backupEnabled = backupEntry.Enabled;
 
                 Plugin.Logger.LogInfo("Processing entry: " + backupID);
                 Plugin.Logger.LogInfo("Enabled: " + backupEnabled);
@@ -331,7 +332,7 @@ namespace LogManager.Controllers
                     {
                         EnabledList.Add(backupID);
 
-                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupID);
+                        int entryIndex = BackupEntries.FindIndex(entry => entry.ID == backupID);
                         if (entryIndex != -1) //Replace original backup entry with changed one
                             BackupEntries[entryIndex] = backupEntry;
                         else
@@ -349,7 +350,7 @@ namespace LogManager.Controllers
                     {
                         DisabledList.Add(backupID);
 
-                        int entryIndex = BackupEntries.FindIndex(b => b.Item1 == backupID);
+                        int entryIndex = BackupEntries.FindIndex(entry => entry.ID == backupID);
                         if (entryIndex != -1) //Replace original backup entry with changed one
                             BackupEntries[entryIndex] = backupEntry;
                         else
@@ -456,20 +457,20 @@ namespace LogManager.Controllers
                 if (backupEnabled) //Only allowed files will be available for backup
                 {
                     enabledList.Remove(logID);
-                    BackupEntries.Add((logID, true));
+                    BackupEntries.Add(new BackupEntry(logID, true));
                 }
                 else if (backupDisabled)
                 {
                     disabledList.Remove(logID);
-                    BackupEntries.Add((logID, false));
+                    BackupEntries.Add(new BackupEntry(logID, false));
                 }
                 else
                     throw new InvalidStateException("Backup entry must be enabled or disabled");
             }
 
             //Include the remaining objects in both lists. These entries are not contained within the target path, but have been recorded to file
-            BackupEntries.AddRange(enabledList.Select<LogID, (LogID, bool)>(entry => (entry, true)));
-            BackupEntries.AddRange(disabledList.Select<LogID, (LogID, bool)>(entry => (entry, false)));
+            BackupEntries.AddRange(enabledList.Select(entry => new BackupEntry(entry, true)));
+            BackupEntries.AddRange(disabledList.Select(entry => new BackupEntry(entry, false)));
 
             Finish();
         }
@@ -515,13 +516,13 @@ namespace LogManager.Controllers
             createBackupsFromPendingEntries();
             BackupFilesTemp = null;
 
-            int compareEntriesByCurrentFilename((LogID, bool) entry, (LogID, bool) entryOther)
+            int compareEntriesByCurrentFilename(BackupEntry entry, BackupEntry entryOther)
             {
-                int compareValue = idComparer.Compare(entry.Item1, entryOther.Item1);
+                int compareValue = idComparer.Compare(entry.ID, entryOther.ID);
 
-                //Due to the way LogID are created, properties shouldn't be null here
+                //Due to the way LogIDs are created, properties shouldn't be null here
                 if (compareValue == 0)
-                    compareValue = new FolderNameComparer().Compare(entry.Item1.Properties.CurrentFolderPath, entryOther.Item1.Properties.CurrentFolderPath);
+                    compareValue = new FolderNameComparer().Compare(entry.ID.Properties.CurrentFolderPath, entryOther.ID.Properties.CurrentFolderPath);
                 return compareValue;
             }
         }

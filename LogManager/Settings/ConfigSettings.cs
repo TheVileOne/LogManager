@@ -10,6 +10,7 @@ using System.Globalization;
 using System.IO;
 using Descriptions = LogManager.ModConsts.Config.Descriptions;
 using OptionLabels = LogManager.ModConsts.Config.OptionLabels;
+using BackupEntry = (LogUtils.Enums.LogID ID, bool Enabled);
 
 namespace LogManager.Settings
 {
@@ -170,10 +171,10 @@ namespace LogManager.Settings
 
                 //This shouldn't log under normal circumstances
                 Plugin.Logger.LogWarning("Backup entry count detected does not match managed entry count");
-                return new List<(LogID, bool)>();
+                return new List<BackupEntry>();
             }
 
-            List<(LogID, bool)> detectedChanges = new List<(LogID, bool)>();
+            List<BackupEntry> detectedChanges = new List<BackupEntry>();
 
             //Cycle through both lists until one of the entries doesn't match. The list order should be the same here.
             for (int i = 0; i < backupEntryCount; i++)
@@ -182,8 +183,8 @@ namespace LogManager.Settings
                 var backupConfigurable = cfgBackupEntries[i];
 
                 //Check that enabled bool matches
-                if (backupConfigurable.Value != backupEntry.Item2)
-                    detectedChanges.Add((backupEntry.Item1, !SaveInProgress ? backupEntry.Item2 : backupConfigurable.Value));
+                if (backupConfigurable.Value != backupEntry.Enabled)
+                    detectedChanges.Add((backupEntry.ID, !SaveInProgress ? backupEntry.Enabled : backupConfigurable.Value));
             }
             return detectedChanges;
         }
@@ -200,7 +201,7 @@ namespace LogManager.Settings
                 }
                 else //Until config entries are processed once, we shouldn't run this code yet
                 {
-                    List<(LogID, bool)> detectedChanges = GetBackupEnabledChanges();
+                    List<BackupEntry> detectedChanges = GetBackupEnabledChanges();
 
                     if (detectedChanges.Count > 0)
                     {

@@ -227,7 +227,7 @@ namespace LogManager.Interface
                 var backupEntry = Plugin.BackupController.BackupEntries[i];
                 bool backupEnabledByDefault = Plugin.BackupController.ProgressiveEnableMode;
 
-                string entryKey = "bkp" + backupEntry.Item1;
+                string entryKey = "bkp" + backupEntry.ID;
 
                 if (configurables.ContainsKey(entryKey))
                 {
@@ -238,10 +238,10 @@ namespace LogManager.Interface
                 var backupConfigurable = ConfigSettings.ConfigData.Bind(entryKey, backupEnabledByDefault,
                     new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
                 {
-                    backupEntry.Item1
+                    backupEntry.ID,
                 }));
 
-                backupConfigurable.Value = backupEntry.Item2;
+                backupConfigurable.Value = backupEntry.Enabled;
 
                 ConfigSettings.cfgBackupEntries.Add(backupConfigurable);
 
