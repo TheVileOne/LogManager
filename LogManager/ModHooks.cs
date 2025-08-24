@@ -1,12 +1,10 @@
 ﻿using LogManager.Interface;
 using LogManager.Settings;
 using LogUtils;
-using LogUtils.Helpers;
 using Menu.Remix;
 using Menu.Remix.MixedUI;
 using MonoMod.RuntimeDetour;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using ConfigHolder = OptionInterface.ConfigHolder;
 
@@ -25,7 +23,6 @@ namespace LogManager
                 On.Menu.Remix.MenuModList._ToggleMod += MenuModList_ToggleMod;
                 On.Menu.Remix.MixedUI.UIconfig.ShowConfig += UIconfig_ShowConfig;
                 On.Menu.Remix.ConfigContainer.NotifyConfigChange += ConfigContainer_NotifyConfigChange;
-                On.Menu.ModdingMenu.ShutDownProcess += ModdingMenu_ShutDownProcess;
 
                 //Config processing hooks
                 On.OptionInterface.ConfigHolder.Save += ConfigSaveHook;
@@ -58,7 +55,6 @@ namespace LogManager
             On.Menu.Remix.MenuModList._ToggleMod -= MenuModList_ToggleMod;
             On.Menu.Remix.MixedUI.UIconfig.ShowConfig -= UIconfig_ShowConfig;
             On.Menu.Remix.ConfigContainer.NotifyConfigChange -= ConfigContainer_NotifyConfigChange;
-            On.Menu.ModdingMenu.ShutDownProcess -= ModdingMenu_ShutDownProcess;
 
             //Config processing hooks
             On.OptionInterface.ConfigHolder.Save -= ConfigSaveHook;
@@ -157,17 +153,6 @@ namespace LogManager
                 Logger.LogError("Config did not initialize properly");
                 Logger.LogError(ex);
             }
-        }
-
-        private void ModdingMenu_ShutDownProcess(On.Menu.ModdingMenu.orig_ShutDownProcess orig, Menu.ModdingMenu self)
-        {
-            //TODO: Investigate why FileStreams needed to be closed here under the legacy system
-            List<StreamResumer> resumeList = new List<StreamResumer>();
-            foreach (PersistentLogFileHandle handle in LogFile.GetPersistentLogFiles())
-                resumeList.Add(handle.InterruptStream());
-
-            resumeList.ForEach(stream => stream.Resume());
-            orig(self);
         }
 
         /// <summary>
