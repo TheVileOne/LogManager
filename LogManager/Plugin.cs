@@ -22,11 +22,6 @@ namespace LogManager
         public static new Logger Logger;
 
         /// <summary>
-        /// The path of the mod's executing DLL file
-        /// </summary>
-        public static string ExecutingPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-        /// <summary>
         /// The path that contains the mod-specific config settings managed by Remix menu
         /// </summary>
         public static string ConfigFilePath;
@@ -37,7 +32,7 @@ namespace LogManager
         public static string GameRootPath = Paths.GameRootPath;
 
         /// <summary>
-        /// The path that contains and includes this mod's folder
+        /// The path that contains and includes this mod's root folder
         /// </summary>
         public static string ModPath;
 
@@ -47,9 +42,8 @@ namespace LogManager
 
         public void Awake()
         {
-            //Store path values that the mod uses
-            int pluginDirIndex = ExecutingPath.LastIndexOf("plugin", StringComparison.InvariantCultureIgnoreCase);
-            ModPath = Path.GetDirectoryName(ExecutingPath.Remove(pluginDirIndex, ExecutingPath.Length - pluginDirIndex));
+            string executingPath = Path.GetDirectoryName(Info.Location);
+            ModPath = BepInEx.MultiFolderLoader.ModManager.Mods.Find(mod => mod.PluginsPath == executingPath).ModDir;
             ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
             try
