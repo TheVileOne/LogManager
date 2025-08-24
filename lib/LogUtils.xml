@@ -29,210 +29,308 @@
             A list of source paths for log backups created by other mods (use in case the file is no longer at the primary source path)
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.Capacity">
+        <member name="F:LogUtils.ChangeState.FieldState">
+            <summary>
+            The value of the field when the state was created
+            </summary>
+        </member>
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.Capacity">
             <summary>
             The amount of nodes managed by the node leaser
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.Count">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.Count">
             <inheritdoc/>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.First">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.First">
             <inheritdoc cref="P:System.Collections.Generic.LinkedList`1.First"/>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.Last">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.Last">
             <inheritdoc cref="P:System.Collections.Generic.LinkedList`1.Last"/>
         </member>
-        <member name="F:LogUtils.BufferedLinkedList`1.AllowModificationsDuringIteration">
+        <member name="F:LogUtils.Collections.BufferedLinkedList`1.AllowModificationsDuringIteration">
             <summary>
             Enable or disable collection modification protection
             </summary>
             <remarks>This is essentially deprecated</remarks>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.IsReadOnly">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.IsReadOnly">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.#ctor(System.Int32)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.#ctor(System.Int32)">
             <summary>
             Construct a BufferedLinkedList object
             </summary>
             <param name="capacity">The amount of nodes to maintain in the leaser by default</param>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.EnsureCapacity">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.EnsureCapacity">
             <summary>
             Ensure that there are always nodes available in the node leaser
             </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Add(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Add(`0)">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.AddFirst(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.AddFirst(`0)">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.AddFirst(`0)"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.AddLast(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.AddLast(`0)">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.AddLast(`0)"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.AddBefore(System.Collections.Generic.LinkedListNode{`0},`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.AddBefore(System.Collections.Generic.LinkedListNode{`0},`0)">
             <summary>
             Adds the specified value to a new node before the specified existing node
             </summary>
             <returns>The node storing the specified value</returns>
             <exception cref="T:System.ArgumentNullException"></exception>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.AddAfter(System.Collections.Generic.LinkedListNode{`0},`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.AddAfter(System.Collections.Generic.LinkedListNode{`0},`0)">
             <summary>
             Adds the specified value to a new node after the specified existing node
             </summary>
             <returns>The node storing the specified value</returns>
             <exception cref="T:System.ArgumentNullException"></exception>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Contains(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Contains(`0)">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.CopyTo(`0[],System.Int32)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.CopyTo(`0[],System.Int32)">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Find(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Find(`0)">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.Find(`0)"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.FindLast(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.FindLast(`0)">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.FindLast(`0)"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Remove(`0)">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Remove(`0)">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Remove(System.Collections.Generic.LinkedListNode{`0})">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Remove(System.Collections.Generic.LinkedListNode{`0})">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.Remove(System.Collections.Generic.LinkedListNode{`0})"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.RemoveFirst">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.RemoveFirst">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.RemoveFirst"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.RemoveLast">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.RemoveLast">
             <inheritdoc cref="M:System.Collections.Generic.LinkedList`1.RemoveLast"/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Clear">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Clear">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Where(System.Func{`0,System.Boolean})">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Where(System.Func{`0,System.Boolean})">
             <summary>
             Performs a Where query using the given predicate
             </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.GetEnumerator">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.GetEnumerator">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.GetLinkedListEnumerator">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.GetLinkedListEnumerator">
             <summary>
             Returns an enumerator specially designed to enumerate through this collection
             </summary>
         </member>
-        <member name="T:LogUtils.BufferedLinkedList`1.Enumerator">
+        <member name="T:LogUtils.Collections.BufferedLinkedList`1.Enumerator">
             <summary>
             The specialized enumerator for BufferedLinkedList
             </summary>
         </member>
-        <member name="F:LogUtils.BufferedLinkedList`1.Enumerator.refNode">
+        <member name="F:LogUtils.Collections.BufferedLinkedList`1.Enumerator.refNode">
             <summary>
             This is the node that controls the reference to the Current node
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.Enumerator.CurrentNode">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.Enumerator.CurrentNode">
             <summary>
             The LinkedListNode associated with Current
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.Enumerator.Current">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.Enumerator.Current">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Enumerator.#ctor(LogUtils.BufferedLinkedList{`0})">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Enumerator.#ctor(LogUtils.Collections.BufferedLinkedList{`0})">
             <summary>
             Constructs an Enumerator struct
             </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Enumerator.Dispose">
-            <inheritdoc/>
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Enumerator.Dispose">
+            <summary>
+            Resets enumerator to a default state
+            </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Enumerator.MoveNext">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Enumerator.MoveNext">
             <summary>
             Advances the enumerator to the next element of the collection
             </summary>
             <returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.Enumerator.Reset">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.Enumerator.Reset">
             <inheritdoc/>
         </member>
-        <member name="T:LogUtils.BufferedLinkedList`1.EnumeratorWrapper">
+        <member name="T:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper">
             <summary>
             A simple wrapper for handling an IEnumerable similarly to an ILinkedListEnumerable despite not having the same functionality as one
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.CurrentNode">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.CurrentNode">
             <summary>
             Not implemented by design - data is unavailable
             </summary>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.Current">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.Current">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.#ctor(System.Collections.Generic.IEnumerator{`0})">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.#ctor(System.Collections.Generic.IEnumerator{`0})">
             <summary>
             Constructs an EnumeratorWrapper struct
             </summary>
             <param name="enumerator">The enumerator that is intended to be wrapped</param>
             <exception cref="T:System.ArgumentNullException">Enumerator is null</exception>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.Dispose">
-            <inheritdoc/>
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.Dispose">
+            <summary>
+            Resets enumerator to a default state
+            </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.MoveNext">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.MoveNext">
             <summary>
             Advances the enumerator to the next element of the collection
             </summary>
             <returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.EnumeratorWrapper.Reset">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.EnumeratorWrapper.Reset">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerableWrapper.GetEnumerator">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerableWrapper.GetEnumerator">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerable.GetEnumerator">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerable.GetEnumerator">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerable.GetLinkedListEnumerator">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerable.GetLinkedListEnumerator">
             <inheritdoc/>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.WhereEnumerator.CurrentNode">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerator.CurrentNode">
             <inheritdoc/>
         </member>
-        <member name="P:LogUtils.BufferedLinkedList`1.WhereEnumerator.Current">
+        <member name="P:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerator.Current">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerator.Dispose">
-            <inheritdoc/>
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerator.Dispose">
+            <summary>
+            Resets enumerator to a default state
+            </summary>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerator.MoveNext">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerator.MoveNext">
             <summary>
             Advances the enumerator to the next element of the collection
             </summary>
             <returns>true if the enumerator was successfully advanced to the next element; false if the enumerator has passed the end of the collection.</returns>
         </member>
-        <member name="M:LogUtils.BufferedLinkedList`1.WhereEnumerator.Reset">
+        <member name="M:LogUtils.Collections.BufferedLinkedList`1.WhereEnumerator.Reset">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.ILinkedListEnumerable`1.GetLinkedListEnumerator">
+        <member name="M:LogUtils.Collections.ILinkedListEnumerable`1.GetLinkedListEnumerator">
             <summary>
             Returns an enumerator designed to iterate through a LinkedList
             </summary>
         </member>
-        <member name="P:LogUtils.ILinkedListEnumerator`1.CurrentNode">
+        <member name="P:LogUtils.Collections.ILinkedListEnumerator`1.CurrentNode">
             <summary>
             The LinkedListNode associated with Current
             </summary>
         </member>
-        <member name="F:LogUtils.ChangeState.FieldState">
+        <member name="T:LogUtils.Collections.ValueCollection`1">
             <summary>
-            The value of the field when the state was created
+            A hashset wrapper class with built-in ReadOnly support from a bindable source
+            </summary>
+            <remarks>Class is mainly designed to keep user changes to LogProperties safe from modification </remarks>
+        </member>
+        <member name="P:LogUtils.Collections.ValueCollection`1.Count">
+            <inheritdoc/>
+        </member>
+        <member name="P:LogUtils.Collections.ValueCollection`1.IsReadOnly">
+            <inheritdoc/>
+        </member>
+        <member name="F:LogUtils.Collections.ValueCollection`1.Values">
+            <summary>
+            The underlying dataset
+            </summary>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.#ctor(LogUtils.Collections.ReadOnlyProvider)">
+            <summary>
+            Creates a new <see cref="T:LogUtils.Collections.ValueCollection`1"/> instance
+            </summary>
+            <param name="readOnlySource">The binding source for determining the ReadOnly state of the collection</param>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.Add(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.Remove(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.Contains(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.CopyTo(`0[],System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.Reset">
+            <summary>
+            Changes collection back to its initial state
+            </summary>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.UnionWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.IntersectWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.ExceptWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.SymmetricExceptWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.IsSubsetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.IsSupersetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.IsProperSupersetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.IsProperSubsetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.Overlaps(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.SetEquals(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.ValueCollection`1.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.WeakReferenceCollection`1.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Collections.WeakReferenceCollection`1.Add(`0)">
+            <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Add(`0)"/>
+        </member>
+        <member name="M:LogUtils.Collections.WeakReferenceCollection`1.Remove(`0)">
+            <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Remove(`0)"/>
+        </member>
+        <member name="M:LogUtils.Collections.WeakReferenceCollection`1.RemoveCollectedEntries">
+            <summary>
+            Remove entries that have been collected by the Garbage Collector
+            </summary>
+        </member>
+        <member name="M:LogUtils.Collections.WeakReferenceCollection`1.UnsafeCount">
+            <summary>
+            Returns the count of all entries in the collection, reference collected, or otherwise
             </summary>
         </member>
         <member name="M:LogUtils.Compatibility.AdapterServices.Convert(BepInEx.Logging.ManualLogSource)">
@@ -397,8 +495,17 @@
             Stores LogUtils requests until they are able to be handled
             </summary>
         </member>
+        <member name="M:LogUtils.Compatibility.BepInEx.Listeners.DiskLogListener.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.Compatibility.BepInEx.Listeners.DiskLogListener"/>
+            </summary>
+            <param name="disposing">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
         <member name="M:LogUtils.Compatibility.BepInEx.Listeners.DiskLogListener.Dispose">
-            <inheritdoc/>
+            <inheritdoc cref="M:LogUtils.Compatibility.BepInEx.Listeners.DiskLogListener.Dispose(System.Boolean)"/>
+        </member>
+        <member name="M:LogUtils.Compatibility.BepInEx.Listeners.DiskLogListener.Finalize">
+            <summary/>
         </member>
         <member name="T:LogUtils.Compatibility.BepInEx.ManualLogSourceWrapper">
             <summary>
@@ -524,7 +631,7 @@
             Allows you to log messages to file, or a console using the write implementation of your choosing
             </summary>
         </member>
-        <member name="M:LogUtils.Logger.LogData(UnityEngine.LogType,System.String,System.Object,UnityEngine.Object)">
+        <member name="M:LogUtils.Logger.LogBase(UnityEngine.LogType,System.String,System.Object,UnityEngine.Object)">
             <summary>
             This method receives all log API calls that make use of Unity specific logging arguments for this logger
             </summary>
@@ -560,6 +667,11 @@
         <member name="P:LogUtils.Logger.LogSource">
             <summary>
             A log source that will be applied by default to log requests that require such information
+            </summary>
+        </member>
+        <member name="F:LogUtils.Logger.IsThreadSafe">
+            <summary>
+            A flag that indicates whether this logger should take a conservative approach to thread safety when handling new log requests
             </summary>
         </member>
         <member name="F:LogUtils.Logger.RestorePoint">
@@ -626,6 +738,20 @@
             <param name="allowLogging">Whether logger accepts logs by default, or has to be enabled first</param>
             <param name="presets">Include any LogIDs, or ConsoleIDs that this logger targets, or handles on request</param>
         </member>
+        <member name="M:LogUtils.Logger.LogUnresolvedTarget(LogUtils.Enums.ILogTarget,LogUtils.Enums.LogCategory,System.Object,System.Boolean,LogUtils.Requests.LogRequest.Factory.Callback)">
+            <summary>
+            Log targets that may be composite need to be resolved before logging can occur
+            </summary>
+        </member>
+        <member name="M:LogUtils.Logger.LogUnresolvedTarget(LogUtils.Enums.ILogTarget,LogUtils.Enums.LogCategory,System.Object,System.Boolean,UnityEngine.Color)">
+            <inheritdoc cref="M:LogUtils.Logger.LogUnresolvedTarget(LogUtils.Enums.ILogTarget,LogUtils.Enums.LogCategory,System.Object,System.Boolean,LogUtils.Requests.LogRequest.Factory.Callback)"/>
+        </member>
+        <member name="M:LogUtils.Logger.LogBase(LogUtils.Requests.LogRequest)">
+            <summary>
+            Passes a log request to a writer, or request handler
+            </summary>
+            <remarks>Through normal code paths, this code may receive already submitted requests, but these requests should always be local</remarks>
+        </member>
         <member name="M:LogUtils.Logger.CanHandle(LogUtils.Enums.LogID,LogUtils.Requests.RequestType)">
             <summary>
             Determines if the specified LogID can be handled by this logger with the specified RequestType
@@ -634,8 +760,20 @@
         <member name="M:LogUtils.Logger.HandleRequest(LogUtils.Requests.LogRequest)">
             <inheritdoc/>
         </member>
+        <member name="F:LogUtils.Logger.IsDisposed">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.Logger.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.Logger"/>
+            </summary>
+            <param name="disposing">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
         <member name="M:LogUtils.Logger.Dispose">
-            <inheritdoc/>
+            <inheritdoc cref="M:LogUtils.Logger.Dispose(System.Boolean)"/>
+        </member>
+        <member name="M:LogUtils.Logger.Finalize">
+            <summary/>
         </member>
         <member name="T:LogUtils.Logger.LogRestorePoint">
             <summary>
@@ -1077,6 +1215,16 @@
         <member name="M:LogUtils.Logger.LogOnce(System.Collections.Generic.IEnumerable{LogUtils.Enums.ILogTarget},LogUtils.Enums.LogCategory,System.Object,System.ConsoleColor)">
             <inheritdoc cref="M:LogUtils.Documentation.LoggerDocumentation.Standard.LogOnce(System.Collections.Generic.IEnumerable{LogUtils.Enums.ILogTarget},LogUtils.Enums.LogCategory,System.Object,UnityEngine.Color)"/>
         </member>
+        <member name="M:LogUtils.Logger.ProcessBatch(LogUtils.Requests.LogRequest)">
+            <summary>
+            Processes and logs a previously initiated batch of log reqeusts
+            </summary>
+        </member>
+        <member name="F:LogUtils.Logger.LogProcessor._logHandler">
+            <summary>
+            The handler that is responsible for handling processed log requests
+            </summary>
+        </member>
         <member name="M:LogUtils.Logger.OnRegister">
             <summary>
             Event is invoked when the logger is registered
@@ -1125,11 +1273,6 @@
         <member name="F:LogUtils.Console.AnsiColorConverter.AnsiReset">
             <summary>
             ANSI reset code to restore default console color.
-            </summary>
-        </member>
-        <member name="M:LogUtils.Console.AnsiColorConverter.TestColors">
-            <summary>
-            Sends color debug information to the console
             </summary>
         </member>
         <member name="T:LogUtils.Console.ConsoleColorMap">
@@ -1190,13 +1333,18 @@
             Collection of associated message format rules
             </summary>
         </member>
-        <member name="F:LogUtils.Console.ConsoleLogWriter.Stream">
+        <member name="P:LogUtils.Console.ConsoleLogWriter.Stream">
             <summary>
             The active write stream for writers that use one
             </summary>
         </member>
         <member name="M:LogUtils.Console.ConsoleLogWriter.ApplyRules(LogUtils.Events.LogRequestEventArgs)">
             <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Console.ConsoleLogWriter.AssignStreamWriter">
+            <summary>
+            Gets a valid stream writer instance
+            </summary>
         </member>
         <member name="M:LogUtils.Console.ConsoleLogWriter.SendToBuffer(LogUtils.Events.LogRequestEventArgs)">
             <inheritdoc/>
@@ -1217,9 +1365,9 @@
             Indicates whether the host machine supports ANSI color codes
             </summary>
         </member>
-        <member name="P:LogUtils.Console.LogConsole.InitializedWithErrors">
+        <member name="F:LogUtils.Console.LogConsole.WriteLock">
             <summary>
-            Initialization process was unable to complete. This is an indication that the state is invalid
+            This lock is used for interacting with BepInEx log console
             </summary>
         </member>
         <member name="M:LogUtils.Console.LogConsole.FindWriter(LogUtils.Enums.ConsoleID,System.Boolean)">
@@ -1232,6 +1380,11 @@
             Finds all writers associated with the given ConsoleIDs
             </summary>
         </member>
+        <member name="M:LogUtils.Console.LogConsole.AddWriter(LogUtils.Console.ConsoleLogWriter)">
+            <summary>
+            Registers a <see cref="T:LogUtils.Console.ConsoleLogWriter"/> instance
+            </summary>
+        </member>
         <member name="M:LogUtils.Console.LogConsole.SetConsoleColor(System.ConsoleColor)">
             <summary>
             Fallback method for adjusting text color in the console
@@ -1239,7 +1392,7 @@
         </member>
         <member name="M:LogUtils.Console.LogConsole.SetEnabledState(System.Boolean)">
             <summary>
-            Sets the enabled state for the BepInEx console (when it supported) 
+            Sets the enabled state for the BepInEx console (when it is supported) 
             </summary>
         </member>
         <member name="M:LogUtils.Console.LogConsole.WriteLine(LogUtils.Enums.LogCategory,System.String)">
@@ -1252,22 +1405,6 @@
         <member name="M:LogUtils.Console.LogConsole.WriteLine(System.String)">
             <inheritdoc cref="M:LogUtils.Console.LogConsole.WriteLine(LogUtils.Enums.LogCategory,System.String)"/>
         </member>
-        <member name="T:LogUtils.Console.ConsoleLoadException">
-            <summary>
-            Represents errors that occur while initializing the console
-            </summary>
-        </member>
-        <member name="M:LogUtils.Console.ConsoleLoadException.#ctor">
-            <summary>
-            Construct a new ConsoleLoadException instance
-            </summary>
-        </member>
-        <member name="M:LogUtils.Console.ConsoleLoadException.#ctor(System.String)">
-            <inheritdoc cref="M:LogUtils.Console.ConsoleLoadException.#ctor"/>
-        </member>
-        <member name="M:LogUtils.Console.ConsoleLoadException.#ctor(System.String,System.Exception)">
-            <inheritdoc cref="M:LogUtils.Console.ConsoleLoadException.#ctor"/>
-        </member>
         <member name="T:LogUtils.Diagnostics.AssertHandler">
             <summary>
             This type defines behavior for handling assert results 
@@ -1278,6 +1415,9 @@
             Default assert handling implementation
             </summary>
             <remarks>Possible to customize</remarks>
+        </member>
+        <member name="P:LogUtils.Diagnostics.AssertHandler.IsEnabled">
+            <summary/>
         </member>
         <member name="M:LogUtils.Diagnostics.AssertHandler.Handle(LogUtils.Diagnostics.Condition.Result)">
             <summary>
@@ -2510,6 +2650,11 @@
             Moves to next provided string, and attempts to log it
             </summary>
         </member>
+        <member name="M:LogUtils.Diagnostics.DebugLogger.Dispose">
+            <summary>
+            Resets enumerator to a default state
+            </summary>
+        </member>
         <member name="P:LogUtils.Diagnostics.DeferredAssertHandler.Current">
             <summary>
             Peeks at the current result in the result queue
@@ -2569,7 +2714,9 @@
             <param name="register">Whether or not instance should be added to the PropertyDataController</param>
         </member>
         <member name="M:LogUtils.Diagnostics.Tests.Components.LogPropertyFactory.Dispose">
-            <inheritdoc/>
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.Diagnostics.Tests.Components.LogPropertyFactory"/>
+            </summary>
         </member>
         <member name="T:LogUtils.Diagnostics.Tests.Components.TestEnum">
             <summary>
@@ -2616,6 +2763,9 @@
             A shared state that applies to the top level test case and all of its children
             </summary>
         </member>
+        <member name="P:LogUtils.Diagnostics.Tests.TestCase.IsEnabled">
+            <summary/>
+        </member>
         <member name="M:LogUtils.Diagnostics.Tests.TestCase.AssertThat``1(``0)">
             <summary>
             Creates a structure for asserting the state of a specified value
@@ -2627,6 +2777,11 @@
             Creates a structure for asserting the state of a specified value
             </summary>
             <param name="value">Value to be used as an assert target</param>
+        </member>
+        <member name="M:LogUtils.Diagnostics.Tests.TestCase.Dispose">
+            <summary>
+            Selects a new test case from the parent group
+            </summary>
         </member>
         <member name="M:LogUtils.Diagnostics.Tests.TestCase.HasFailed">
             <summary>
@@ -2652,6 +2807,12 @@
             <summary>
             Gets the test results for the test case and any children cases starting with the test group
             </summary>
+        </member>
+        <member name="P:LogUtils.Diagnostics.Tests.TestCaseGroup.Count">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Diagnostics.Tests.TestCaseGroup.GetEnumerator">
+            <inheritdoc/>
         </member>
         <member name="M:LogUtils.Diagnostics.Tests.TestCaseGroup.HasFailed">
             <summary>
@@ -2755,6 +2916,11 @@
         <member name="T:LogUtils.Diagnostics.Tests.Utility.LogCategoryTests.TransferMode">
             <summary>
             TransferMode is primarily useful for checking that registration status propagates correctly to all instances
+            </summary>
+        </member>
+        <member name="M:LogUtils.Diagnostics.Tests.Utility.LogConsoleTests.TestColors">
+            <summary>
+            Sends color debug information to the console
             </summary>
         </member>
         <member name="M:LogUtils.Diagnostics.Tests.Utility.LoggerTests.testConflictResolution">
@@ -3691,7 +3857,7 @@
         </member>
         <member name="F:LogUtils.Enums.LogID.Access">
             <summary>
-            Controls the handle limitations of this LogID for the local mod
+            Acts as a permission flag that affects the behavior of loggers, and the handling of logging requests targeting this LogID
             </summary>
         </member>
         <member name="P:LogUtils.Enums.LogID.HasLocalAccess">
@@ -3711,7 +3877,7 @@
         </member>
         <member name="F:LogUtils.Enums.LogID.IsGameControlled">
             <summary>
-            A flag that indicates that this represents a log file managed by the game
+            A flag that indicates that this represents an existing game-controlled log file
             </summary>
         </member>
         <member name="M:LogUtils.Enums.LogID.#ctor(System.String,LogUtils.Enums.LogAccess,System.Boolean)">
@@ -3730,6 +3896,7 @@
             An unregistered LogID will still get its own properties, those properties, and changes to those properties wont be saved to file
             DO NOT register a LogID that is temporary, and your mod is designated for public release
             </param>
+            <exception cref="T:System.ArgumentNullException">Filename provided is null</exception>
         </member>
         <member name="M:LogUtils.Enums.LogID.#ctor(System.String)">
             <summary>
@@ -3802,6 +3969,12 @@
         </member>
         <member name="M:LogUtils.Enums.LogID.GetHashCode">
             <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Enums.LogID.Sanitize(System.String)">
+            <summary>
+            Converts a filename input into a LogUtils supported filename
+            </summary>
+            <exception cref="T:System.ArgumentNullException">Filename provided is null</exception>
         </member>
         <member name="F:LogUtils.Enums.LogID.NotUsed">
             <summary>An unregistered LogID designed to be used as a throwaway parameter</summary>
@@ -4473,9 +4646,19 @@
             Returns an integer representation of the better candidate for remote logging
             </summary>
         </member>
+        <member name="M:LogUtils.Helpers.ExceptionUtils.ExtractAggregate(System.Exception)">
+            <summary>
+            Takes an exception as input, and returns all InnerExceptions from it when it is an AggregateException, otherwise returns empty set
+            </summary>
+        </member>
         <member name="T:LogUtils.Helpers.Extensions.ExtensionMethods">
             <summary>
             Class for miscellaneous extension methods
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.Extensions.ExtensionMethods.ContainsType``1(System.Collections.IEnumerable)">
+            <summary>
+            Extension method that checks if an enumerable contains an item of a specified type
             </summary>
         </member>
         <member name="M:LogUtils.Helpers.Extensions.ExtensionMethods.Normalize(System.Collections.Generic.HashSet{LogUtils.Enums.LogCategory})">
@@ -4557,6 +4740,14 @@
             <param name="values">The values to compare the string against</param>
             <returns>Whether a match was found</returns>
         </member>
+        <member name="M:LogUtils.Helpers.Extensions.ExtensionMethods.Bump(System.Version,LogUtils.Helpers.Extensions.VersionCode,System.Int32)">
+            <summary>
+            Bumps provided version to a specified value
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Increment value is negative</exception>
+            <exception cref="T:System.NotImplementedException">VersionCode is invalid</exception>
+            <exception cref="T:System.NotSupportedException">The Version object doesn't provide the requested version value</exception>
+        </member>
         <member name="M:LogUtils.Helpers.Extensions.ExtensionMethods.Add``1(System.Collections.Generic.ICollection{System.WeakReference{``0}},``0)">
             <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Add(`0)"/>
         </member>
@@ -4604,25 +4795,109 @@
             Determines if the given path has an existing parent directory
             </summary>
         </member>
+        <member name="T:LogUtils.Helpers.FileHandling.FileExtension">
+            <summary>
+            A helper class for manipulating file extension information
+            </summary>
+        </member>
+        <member name="F:LogUtils.Helpers.FileHandling.FileExtension.SupportedExtensions">
+            <summary>
+            Case insensitive file extensions that are supports by LogUtils for use in log filenames, or log backup filenames
+            </summary>
+        </member>
+        <member name="F:LogUtils.Helpers.FileHandling.FileExtension.LongExtensionSupport">
+            <summary>
+            The current standard applied to long file extension handling
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.IsSupported(System.String)">
+            <summary>
+            Returns true if string contains a file extension listed as a supported extension for the utility
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.Match(System.String,System.String)">
+            <summary>
+            Case insensitive comparison of the file extensions of two filenames
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.Remove(System.String)">
+            <inheritdoc cref="M:LogUtils.Helpers.FileHandling.FileExtension.Remove(System.String,System.String@)"/>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.Remove(System.String,System.String@)">
+            <summary>
+            Removes the file extension from the provided filename
+            </summary>
+            <param name="filename">The provided filename</param>
+            <param name="fileExt">File extension information (including the period), stores an empty string if filename is null, or does not contain a file extension</param>
+            <returns>The filename (or path) without the file extension</returns>
+            <remarks>Filenames with long extensions may be unaffected by this operation</remarks>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.Replace(System.String,System.String)">
+            <summary>
+            Replace the file extension of the provided filename with a provided file extension
+            </summary>
+            <param name="target">The provided filename</param>
+            <param name="fileExt">The file extension to use</param>
+            <returns>The filename (or path) with the provided file extension</returns>
+            <remarks>Filenames with long extensions may be unaffected by this operation</remarks>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileExtension.Transfer(System.String,System.String)">
+            <summary>
+            Takes the file extension from one filename and applies it to another filename
+            </summary>
+            <param name="transferFrom">The file extension source</param>
+            <param name="transferTo">The file extension replace target</param>
+            <returns>The filename (or path) with the applied file extension</returns>
+            <remarks>Filenames with long extensions may be unaffected by this operation</remarks>
+        </member>
+        <member name="T:LogUtils.Helpers.FileHandling.FileUtils">
+            <summary>
+            Helper class for interacting with the file system that is safe and supported by LogUtils
+            </summary>
+        </member>
         <member name="F:LogUtils.Helpers.FileHandling.FileUtils.BRACKET_FORMAT">
             <summary>
             Used to attach information to a filename
             </summary>
         </member>
-        <member name="F:LogUtils.Helpers.FileHandling.FileUtils.SupportedExtensions">
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.TryDelete(System.String,System.String)">
             <summary>
-            Case insensitive file extensions that are supports by LogUtils for use in log filenames, or log backup filenames
+            Attempts to delete a file at the specified path
             </summary>
         </member>
-        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.GetExtension(System.String,System.Boolean)">
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.TryCopy(System.String,System.String,System.Int32)">
             <summary>
-            Extracts the file extension from the filename. If there is no extension, this method returns null
+            Attempts to copy a file to a specified path 
             </summary>
+            <remarks>Any file at the destination path will be overwritten</remarks>
         </member>
-        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.IsSupportedExtension(System.String)">
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.TryMove(System.String,System.String,System.Int32)">
             <summary>
-            Returns true if string contains a file extension listed as a supported extension for the utility
+            Attempts to move a file to a specified path
             </summary>
+            <remarks>Any file at the destination path will be overwritten</remarks>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.TryWrite(System.String,System.String[])">
+            <summary>
+            Attempts to write one or more strings to file
+            </summary>
+            <remarks>File is created, its contents are overwritten if it already exists</remarks>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.TryWrite(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc cref="M:LogUtils.Helpers.FileHandling.FileUtils.TryWrite(System.String,System.String[])"/>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.AppendLine(System.String,System.String)">
+            <inheritdoc cref="M:System.IO.File.AppendAllText(System.String,System.String)"/>
+            <remarks>
+            - Appends a new line after specified string.<br/>
+            - Write lock is applied internally for thread safety, but is not safe to run from multiple processes.
+            </remarks>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FileUtils.AppendText(System.String,System.String)">
+            <inheritdoc cref="M:System.IO.File.AppendAllText(System.String,System.String)"/>
+            <remarks>
+            - Write lock is applied internally for thread safety, but is not safe to run from multiple processes.
+            </remarks>
         </member>
         <member name="T:LogUtils.Helpers.FileHandling.PathResolution">
             <summary>
@@ -4798,6 +5073,78 @@
         <member name="M:LogUtils.Helpers.LogFile.GetPersistentLogFiles">
             <summary>
             Retrieves all file handles for log files with at least one persistent FileStream open (file is currently in use), or temporarily closed
+            </summary>
+        </member>
+        <member name="F:LogUtils.FileExtensionInfo.MIN_LONG_EXTENSION_LENGTH">
+            <summary>
+            The minimum amount of characters (including the period) to satisfy the long file extension property
+            </summary>
+        </member>
+        <member name="F:LogUtils.FileExtensionInfo.IsEmpty">
+            <summary>
+            Is the file extension null, or empty
+            </summary>
+        </member>
+        <member name="F:LogUtils.FileExtensionInfo.IsNormalized">
+            <summary>
+            Is the file extension in a comparison neutral format (i.e. all lowercase)
+            </summary>
+        </member>
+        <member name="P:LogUtils.FileExtensionInfo.IsSupported">
+            <summary>
+            Is the file extension supported by LogUtils
+            </summary>
+        </member>
+        <member name="P:LogUtils.FileExtensionInfo.IsLong">
+            <summary>
+            Does the file extension exceed a set amount of characters determined by the utility
+            </summary>
+        </member>
+        <member name="F:LogUtils.FileExtensionInfo.Extension">
+            <summary>
+            The value of the file extension
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.#ctor">
+            <summary>
+            Creates a new <see cref="T:LogUtils.FileExtensionInfo"/> object with no extension information
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.Normalize">
+            <summary>
+            Converts the file extension into a comparison neutral format (i.e. all lowercase)
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.Equals(LogUtils.FileExtensionInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.FromFilename(System.String)">
+            <summary>
+            Creates a new <see cref="T:LogUtils.FileExtensionInfo"/> object from a filename or path containing a filename 
+            </summary>
+            <exception cref="T:System.ArgumentException">The provided filename contains invalid path characters</exception>
+        </member>
+        <member name="M:LogUtils.FileExtensionInfo.FromExtension(System.String)">
+            <summary>
+            Creates a new <see cref="T:LogUtils.FileExtensionInfo"/> object from a filename extension 
+            </summary>
+        </member>
+        <member name="F:LogUtils.LongExtensionSupport.Ignore">
+            <summary>
+            Long file extensions of any form should be ignored
+            </summary>
+        </member>
+        <member name="F:LogUtils.LongExtensionSupport.SupportedOnly">
+            <summary>
+            Long file extensions that are not listed as a supported file extension are ignored
+            </summary>
+        </member>
+        <member name="F:LogUtils.LongExtensionSupport.Full">
+            <summary>
+            Long file extensions of any form are allowed
             </summary>
         </member>
         <member name="M:LogUtils.IFlushable.Flush">
@@ -5169,6 +5516,11 @@
             The containing collection instance of a LogRule. Only one collection allowed per instance
             </summary>
         </member>
+        <member name="P:LogUtils.Properties.Formatting.LogRule.ReadOnly">
+            <summary>
+            Is persistent state protected from modifications
+            </summary>
+        </member>
         <member name="F:LogUtils.Properties.Formatting.LogRule.Name">
             <summary>
             An unique string that identifies a particular LogRule. LogRules with the same value in this field will be treated as interchangable within the LogRuleCollection class
@@ -5214,6 +5566,9 @@
         <member name="M:LogUtils.Properties.Formatting.LogRule.ToString">
             <inheritdoc/>
         </member>
+        <member name="M:LogUtils.Properties.Formatting.LogRule.Clone">
+            <inheritdoc/>
+        </member>
         <member name="T:LogUtils.Properties.Formatting.LogRule.ApplyDelegate">
             <summary>
             Delegate signature for applying a LogRule
@@ -5240,6 +5595,63 @@
         <member name="M:LogUtils.Properties.Formatting.ShowLineCountRule.GetPriority">
             <inheritdoc/>
         </member>
+        <member name="T:LogUtils.Properties.Formatting.LogRuleAttribute">
+            <summary>
+            An attribute that contains data necessary for LogUtils to construct a LogRule instance.
+            </summary>
+            <remarks>Methods that use this attribute must have the same signature as <see cref="T:LogUtils.Properties.Formatting.LogRule.ApplyDelegate"/>.</remarks>
+            <param name="RuleName">The name of the LogRule represented by this attribute</param>
+            <param name="EnabledByDefault">Indicates that the LogRule should start in an active, or inactive state</param>
+            <param name="Priority">The process order priority of the LogRule</param>
+        </member>
+        <member name="M:LogUtils.Properties.Formatting.LogRuleAttribute.#ctor(System.String,System.Boolean,System.Single)">
+            <summary>
+            An attribute that contains data necessary for LogUtils to construct a LogRule instance.
+            </summary>
+            <remarks>Methods that use this attribute must have the same signature as <see cref="T:LogUtils.Properties.Formatting.LogRule.ApplyDelegate"/>.</remarks>
+            <param name="RuleName">The name of the LogRule represented by this attribute</param>
+            <param name="EnabledByDefault">Indicates that the LogRule should start in an active, or inactive state</param>
+            <param name="Priority">The process order priority of the LogRule</param>
+        </member>
+        <member name="F:LogUtils.Properties.Formatting.LogRuleAttribute.RuleName">
+            <summary>
+            The name of the LogRule represented by this attribute
+            </summary>
+        </member>
+        <member name="F:LogUtils.Properties.Formatting.LogRuleAttribute.EnabledByDefault">
+            <summary>
+            Indicates that the LogRule should start in an active, or inactive state
+            </summary>
+        </member>
+        <member name="F:LogUtils.Properties.Formatting.LogRuleAttribute.Priority">
+            <summary>
+            The process order priority of the LogRule
+            </summary>
+        </member>
+        <member name="T:LogUtils.Properties.Formatting.LogRuleAssemblyAttribute">
+            <summary>
+            Indicate that assembly contains LogRule definitionx. LogUtils will attempt to activate any reflection loaded LogRules from your assembly.
+            </summary>
+            <param name="TypeHints">The array of types containing all reflection loaded LogRule members. When left empty, all assembly types will be checked.</param>
+        </member>
+        <member name="M:LogUtils.Properties.Formatting.LogRuleAssemblyAttribute.#ctor(System.Type[])">
+            <summary>
+            Indicate that assembly contains LogRule definitionx. LogUtils will attempt to activate any reflection loaded LogRules from your assembly.
+            </summary>
+            <param name="TypeHints">The array of types containing all reflection loaded LogRule members. When left empty, all assembly types will be checked.</param>
+        </member>
+        <member name="T:LogUtils.Properties.Formatting.ReflectionLoadedAttribute">
+            <summary>
+            Indicate that LogUtils should try to activate a LogRule with this attribute through reflection
+            </summary>
+            <remarks>
+            <para>Incorrectly configured attributes may throw a <see cref="T:LogUtils.MissingAttributeException"/>.</para>
+            <para>Usage:</para>
+            <para>Classes that use this attribute must inherit from <see cref="T:LogUtils.Properties.Formatting.LogRule"/>.</para>
+            <para>Methods that use this attribute must have the same signature as <see cref="T:LogUtils.Properties.Formatting.LogRule.ApplyDelegate"/>.</para>
+            <para>Methods that use this attribute must also have the <see cref="T:LogUtils.Properties.Formatting.LogRuleAttribute"/>.</para>
+            <para>Attribute does nothing without applying the <see cref="T:LogUtils.Properties.Formatting.LogRuleAssemblyAttribute"/> to the executing assembly.</para></remarks>
+        </member>
         <member name="F:LogUtils.Properties.Formatting.LogRuleCollection.ChangeRecord">
             <summary>
             Tracks LogRule state changes
@@ -5250,36 +5662,59 @@
             Enables/disables change state system
             </summary>
         </member>
+        <member name="P:LogUtils.Properties.Formatting.LogRuleCollection.IsReadOnly">
+            <inheritdoc/>
+        </member>
+        <member name="P:LogUtils.Properties.Formatting.LogRuleCollection.AllowRuleChanges">
+            <summary>
+            Gets a value indicating whether rules belonging to this collection should protect their persistent state
+            </summary>
+        </member>
+        <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.#ctor(LogUtils.Collections.ReadOnlyProvider)">
+            <summary>
+            Creates a new <see cref="T:LogUtils.Properties.Formatting.LogRuleCollection"/> instance
+            </summary>
+            <param name="logRuleReadOnlySource">The binding source for determining the ReadOnly state of  a <see cref="T:LogUtils.Properties.Formatting.LogRule"/> that belongs to this collection</param>
+        </member>
         <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.ChangeAlert">
             <summary>
-            An indicator that a LogRule field is about to be changed
+            Notify that <see cref="T:LogUtils.Properties.Formatting.LogRule"/> changes are ready to be tracked
             </summary>
         </member>
         <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.Add(LogUtils.Properties.Formatting.LogRule)">
             <summary>
             Adds a LogRule instance to the collection of Rules
-            Do not use this for temporary rule changes, use SetTemporaryRule instead 
             </summary>
+            <remarks>Do not use this for temporary rule changes, use <see cref="M:LogUtils.Properties.Formatting.LogRuleCollection.SetTemporaryRule(LogUtils.Properties.Formatting.LogRule)"/> instead</remarks>
         </member>
         <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.Replace(LogUtils.Properties.Formatting.LogRule)">
             <summary>
             Replaces an existing rule with another instance
-            Be warned, running this each time your mod runs will overwrite data being saved, and read from file
-            Do not replace existing property data values in a way that might break the parse logic
-            Consider using temporary rules instead, and handle saving of the property values through your mod
-            In either case, you may want to inherit from the existing property in case a user has changed the property through the file
             </summary>
+            <remarks>
+            <para>Be warned, running this each time your mod runs will overwrite data being saved, and read from file</para>
+            <para>Do not replace existing property data values in a way that might break the parse logic</para>
+            <para>Consider using temporary rules instead, and handle saving of the property values through your mod</para>
+            <para>In either case, you may want to inherit from the existing property in case a user has changed the property through the file</para>
+            </remarks>
         </member>
-        <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.Contains(LogUtils.Properties.Formatting.LogRule)">
-            <summary>
-            Determines whether the rule is part of the collection
-            </summary>
+        <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.Remove(LogUtils.Properties.Formatting.LogRule)">
+            <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Remove(`0)"/>
+        </member>
+        <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.Reset">
+            <inheritdoc/>
         </member>
         <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.CreateOrderedEnumerable``1(System.Func{LogUtils.Properties.Formatting.LogRule,``0},System.Collections.Generic.IComparer{``0},System.Boolean)">
             <inheritdoc/>
         </member>
         <member name="M:LogUtils.Properties.Formatting.LogRuleCollection.GetEnumerator">
             <inheritdoc/>
+        </member>
+        <member name="F:LogUtils.Properties.LogProperties.LatestVersion">
+            <summary>
+            The latest properties version recognized by LogUtils
+            </summary>
+            <remarks>Major&lt;Reserved for LogUtils&gt; Minor (or less)&lt;Reserved for mod usage&gt;</remarks>
         </member>
         <member name="F:LogUtils.Properties.LogProperties.Rules">
             <summary>
@@ -5439,9 +5874,14 @@
         </member>
         <member name="M:LogUtils.Properties.LogProperties.NotifyPendingMove(System.String)">
             <summary>
-            Triggers the UtilityEvents.OnMovePending event for this instance
+            Triggers the <see cref="F:LogUtils.Events.UtilityEvents.OnMovePending"/> event
             </summary>
             <param name="movePath">The pending log path for this instance (include filename with extension if filename has changed)</param>
+        </member>
+        <member name="M:LogUtils.Properties.LogProperties.NotifyPendingMoveAborted">
+            <summary>
+            Triggers the <see cref="F:LogUtils.Events.UtilityEvents.OnMoveAborted"/> event
+            </summary>
         </member>
         <member name="F:LogUtils.Properties.LogProperties.IDHash">
             <summary>
@@ -5461,6 +5901,9 @@
             </summary>
         </member>
         <member name="M:LogUtils.Properties.LogProperties.Equals(LogUtils.Properties.LogProperties)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Properties.LogProperties.GetHashCode">
             <inheritdoc/>
         </member>
         <member name="M:LogUtils.Properties.LogProperties.ToString">
@@ -5490,6 +5933,11 @@
         <member name="M:LogUtils.Properties.LogProperties.CreateIDHash(System.String,System.String)">
             <summary>
             Creates an identifiable hashcode representation of a filename, and path
+            </summary>
+        </member>
+        <member name="M:LogUtils.Properties.LogProperties.GetContainingPath(System.String)">
+            <summary>
+            Resolves a path, or path keyword into a usable log path
             </summary>
         </member>
         <member name="P:LogUtils.Properties.LogProperties.Filename">
@@ -5705,6 +6153,9 @@
             <summary>
             Returns an array of property instances that have data that needs to be written to file
             </summary>
+        </member>
+        <member name="M:LogUtils.Properties.PropertyDataController.GetFields">
+            <inheritdoc/>
         </member>
         <member name="T:LogUtils.Properties.Resources">
             <summary>
@@ -5945,6 +6396,27 @@
             When true, the buffer will be added to instead of writing to file on handling a write request
             </summary>
         </member>
+        <member name="T:LogUtils.MissingAttributeException">
+            <summary>
+            Exception is thrown when an required attribute is not found
+            </summary>
+        </member>
+        <member name="T:LogUtils.PatcherLogEventProcessor">
+            <summary>
+            Static class responsible for processing log event data stored by VersionLoader, and logging it to file
+            </summary>
+        </member>
+        <member name="M:LogUtils.PatcherLogEventProcessor.GetEventListener">
+            <summary>
+            Accesses and returns the event listener containing unhandled patcher log events
+            </summary>
+            <returns>Returns a found listener, otherwise null</returns>
+        </member>
+        <member name="M:LogUtils.PatcherLogEventProcessor.GetEvents(BepInEx.Logging.ILogListener)">
+            <summary>
+            Extracts log event data from event listener object
+            </summary>
+        </member>
         <member name="P:LogUtils.PersistenceManager.Tag">
             <inheritdoc/>
         </member>
@@ -5984,17 +6456,42 @@
             Closes the stream. Mod should resume stream when file operations are finished
             </summary>
         </member>
+        <member name="F:LogUtils.PersistentFileHandle.IsDisposed">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.PersistentFileHandle.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.PersistentFileHandle"/>
+            </summary>
+            <param name="disposeState">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
+        <member name="M:LogUtils.PersistentFileHandle.BeginDispose(System.Boolean)">
+            <summary>
+            Dispose logic that must run at the start of a dispose request
+            </summary>
+            <inheritdoc cref="M:LogUtils.PersistentFileHandle.Dispose(System.Boolean)" select="param"/>
+        </member>
+        <member name="M:LogUtils.PersistentFileHandle.EndDispose(System.Boolean)">
+            <summary>
+            Dispose logic that must run at the end of a dispose request
+            </summary>
+            <inheritdoc cref="M:LogUtils.PersistentFileHandle.Dispose(System.Boolean)" select="param"/>
+        </member>
         <member name="M:LogUtils.PersistentFileHandle.Dispose">
+            <inheritdoc cref="M:LogUtils.PersistentFileHandle.Dispose(System.Boolean)"/>
+        </member>
+        <member name="M:LogUtils.PersistentFileHandle.Finalize">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.PersistentLogFileHandle.BeginDispose(System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:LogUtils.PersistentFileHandle.OnDispose">
-            <summary>
-            Runs logic that should happen at the very start of a dispose request
-            </summary>
+        <member name="M:LogUtils.PersistentLogFileHandle.EndDispose(System.Boolean)">
+            <inheritdoc/>
         </member>
         <member name="M:LogUtils.PersistentLogFileWriter.Flush">
             <summary>
-            Writes the log buffer to file
+            Flushes the stream buffer to file
             </summary>
             <exception cref="T:System.ObjectDisposedException">The underlying stream element for this instance has been disposed of</exception>
         </member>
@@ -6002,6 +6499,77 @@
             <summary>
             Injects file handle stream into the base StreamWriter
             </summary>
+        </member>
+        <member name="F:LogUtils.PersistentLogFileWriter.IsDisposed">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.PersistentLogFileWriter.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.PersistentLogFileWriter"/>
+            </summary>
+            <param name="disposing">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
+        <member name="M:LogUtils.PersistentLogFileWriter.Finalize">
+            <summary/>
+        </member>
+        <member name="T:LogUtils.Policy.CachedConfigEntry`1">
+            <summary>
+            ConfigEntry wrapper class
+            </summary>
+            <remarks>Provides an extra class controlled place to store data values that wont be accessed, or modified upon a config save, or reload operation</remarks>
+        </member>
+        <member name="P:LogUtils.Policy.CachedConfigEntry`1.Config">
+            <summary>
+            The config instance that contains this entry
+            </summary>
+        </member>
+        <member name="E:LogUtils.Policy.CachedConfigEntry`1.ValueChanged">
+            <summary>
+            Event invoked when value has changed from its last set value
+            </summary>
+        </member>
+        <member name="P:LogUtils.Policy.CachedConfigEntry`1.Value">
+            <inheritdoc/>
+        </member>
+        <member name="P:LogUtils.Policy.CachedConfigEntry`1.BoxedValue">
+            <inheritdoc/>
+        </member>
+        <member name="P:LogUtils.Policy.CachedConfigEntry`1.IsMarked">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.#ctor(BepInEx.Configuration.ConfigEntry{`0})">
+            <summary>
+            Creates a new <see cref="T:LogUtils.Policy.CachedConfigEntry`1"/> instance
+            </summary>
+            <param name="baseEntry">The config entry to wrap around</param>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.Mark">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.Unmark">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.ResetToDefault(LogUtils.Policy.SaveOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.SetValue(`0,LogUtils.Policy.SaveOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.SetValueFromBase">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.SetValueSilently(`0,LogUtils.Policy.SaveOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LogUtils.Policy.CachedConfigEntry`1.UpdateBaseEntry">
+            <inheritdoc/>
+        </member>
+        <member name="T:LogUtils.Policy.CachedConfigEntry`1.ValueChangedEventHandler">
+            <summary>
+            Method signature for ValueChanged event
+            </summary>
+            <param name="entry">The changed entry</param>
+            <param name="oldValue">The last value of the entry</param>
         </member>
         <member name="P:LogUtils.Policy.DebugPolicy.DebugMode">
             <summary>
@@ -6018,12 +6586,70 @@
             Enables, or disables the LogUtils activity log file
             </summary>
         </member>
+        <member name="P:LogUtils.Policy.DebugPolicy.AssertsEnabled">
+            <summary>
+            Affects whether test cases apply, or LogUtils based assert statements have an effect
+            </summary>
+        </member>
         <member name="M:LogUtils.Policy.DebugPolicy.UpdateAllowConditions">
             <summary>
             Activate, or deactivate development build specific log files based on several criteria
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.LogRequestPolicy.ShowRejectionReasons">
+        <member name="T:LogUtils.Policy.IConfigEntry">
+            <summary>
+            Exposes members for setting, or updating a config value
+            </summary>
+        </member>
+        <member name="P:LogUtils.Policy.IConfigEntry.IsMarked">
+            <summary>
+            Indicates that an entry has been marked for special handling (such as during save operations)
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry.Mark">
+            <summary>
+            Marks an entry for special handling (such as during save operations)
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry.Unmark">
+            <summary>
+            Unmarks an entry for special handling (such as during save operations)
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry.ResetToDefault(LogUtils.Policy.SaveOption)">
+            <summary>
+            Assigns the default value to the value cache
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry.SetValueFromBase">
+            <summary>
+            Assigns value stored in the base config entry in the value cache
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry.UpdateBaseEntry">
+            <summary>
+            Updates config entry with cached data
+            </summary>
+        </member>
+        <member name="T:LogUtils.Policy.IConfigEntry`1">
+            <inheritdoc cref="T:LogUtils.Policy.IConfigEntry"/>
+        </member>
+        <member name="P:LogUtils.Policy.IConfigEntry`1.Value">
+            <summary>
+            The current config value
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry`1.SetValue(`0,LogUtils.Policy.SaveOption)">
+            <summary>
+            Assigns a new value to value cache
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.IConfigEntry`1.SetValueSilently(`0,LogUtils.Policy.SaveOption)">
+            <summary>
+            Assigns a new value to value cache without throwing a value changed event
+            </summary>
+        </member>
+        <member name="P:LogUtils.Policy.LogRequestPolicy.ShowRejectionReasons">
             <summary>
             A flag that affects whether RejectionReasons are logged to file when they occur
             </summary>
@@ -6033,37 +6659,78 @@
             Global LogUtils related setting flags pertaining to Patcher behavior
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.PatcherPolicy.HasAskedForPermission">
+        <member name="P:LogUtils.Policy.PatcherPolicy.HasAskedForPermission">
             <summary>
             Indicates whether the user should be prompted for permission to deploy the patcher
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.PatcherPolicy.ShouldDeploy">
+        <member name="P:LogUtils.Policy.PatcherPolicy.ShouldDeploy">
             <summary>
             Indicates that the patcher is able to be deployed
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.PatcherPolicy.ShowPatcherLog">
+        <member name="P:LogUtils.Policy.PatcherPolicy.ShowPatcherLog">
             <summary>
             Indicates that extra information should be provided in a separate log file
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.TestCasePolicy.PreferExpectationsAsFailures">
+        <member name="P:LogUtils.Policy.TestCasePolicy.PreferExpectationsAsFailures">
             <summary>
             A flag that affects whether failed expectations qualify as a failure result
-            Default: true
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.TestCasePolicy.FailuresAreAlwaysReported">
+        <member name="P:LogUtils.Policy.TestCasePolicy.FailuresAreAlwaysReported">
             <summary>
             A flag that affects whether all failure results are reported, or only the unexpected ones
-            Default: false
             </summary>
         </member>
-        <member name="F:LogUtils.Policy.TestCasePolicy.ReportVerbosity">
+        <member name="P:LogUtils.Policy.TestCasePolicy.ReportVerbosity">
             <summary>
             This field affects the level of detail revealed in the test case report
-            Default: Standard
+            </summary>
+        </member>
+        <member name="T:LogUtils.Policy.UtilityConfig">
+            <summary>
+            A container for utility settings, and user preferences
+            </summary>
+        </member>
+        <member name="F:LogUtils.Policy.UtilityConfig.CONFIG_PATH">
+            <summary>
+            Path to the LogUtils core config file
+            </summary>
+        </member>
+        <member name="P:LogUtils.Policy.UtilityConfig.Item(BepInEx.Configuration.ConfigDefinition)">
+            <summary>
+            Retrieves a cached config entry
+            </summary>
+        </member>
+        <member name="P:LogUtils.Policy.UtilityConfig.Item(System.String,System.String)">
+            <inheritdoc cref="P:LogUtils.Policy.UtilityConfig.Item(BepInEx.Configuration.ConfigDefinition)"/>
+        </member>
+        <member name="M:LogUtils.Policy.UtilityConfig.ReloadCache">
+            <summary>
+            Assigns values stored in the config to their associated policy
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.UtilityConfig.ResetToDefaults(LogUtils.Policy.SaveOption)">
+            <summary>
+            Assigns the default value for all config entries
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.UtilityConfig.TrySave">
+            <summary>
+            Process safe method of saving entry values to the config file
+            </summary>
+        </member>
+        <member name="M:LogUtils.Policy.UtilityConfig.TryReload">
+            <summary>
+            Process safe method of reading entry values from the config file
+            </summary>
+            <remarks>This method does not affect the value cache. To assign values to cache, also invoke <see cref="M:LogUtils.Policy.UtilityConfig.ReloadCache"/>.</remarks>
+        </member>
+        <member name="T:LogUtils.Policy.SaveOption">
+            <summary>
+            Represents options for saving config entries to file
             </summary>
         </member>
         <member name="T:LogUtils.QueueLogWriter">
@@ -6148,14 +6815,24 @@
             Request has been handled, and no more attempts to process the request should be made
             </summary>
         </member>
+        <member name="F:LogUtils.Requests.LogRequest.LogCallback">
+            <summary>
+            This field is primarily used by <see cref="T:LogUtils.Requests.LogRequestHandler"/> to communicate with unregistered loggers 
+            </summary>
+        </member>
         <member name="F:LogUtils.Requests.LogRequest.Sender">
             <summary>
-            The logger instance (if any) that was responsible for submitting the request
+            The log handler that was responsible for submitting the request
             </summary>
         </member>
         <member name="F:LogUtils.Requests.LogRequest.Submitted">
             <summary>
             Whether this request has once been submitted through the log request system
+            </summary>
+        </member>
+        <member name="P:LogUtils.Requests.LogRequest.IsFileRequest">
+            <summary>
+            A flag indicating whether the request targets a log file
             </summary>
         </member>
         <member name="P:LogUtils.Requests.LogRequest.IsTargetingConsole">
@@ -6367,7 +7044,6 @@
             <summary>
             Disables log handler communication with the log request system
             </summary>
-            <exception cref="T:System.InvalidOperationException">The logger is not allowed to be registered</exception>
         </member>
         <member name="M:LogUtils.Requests.LogRequestHandler.ProcessRequests(LogUtils.Enums.LogID)">
             <summary>
@@ -6551,6 +7227,9 @@
             <param name="data">The data to check for, or retrieve</param>
             <returns>The associated shared data object</returns>
         </member>
+        <member name="M:LogUtils.SharedDataHandler.GetFields">
+            <inheritdoc/>
+        </member>
         <member name="P:LogUtils.SharedField`1.Tag">
             <inheritdoc/>
         </member>
@@ -6602,6 +7281,11 @@
             Interface provides a safe boundary with and a compatible interface for a LogUtils logger instance
             </summary>
         </member>
+        <member name="P:LogUtils.Threading.FileLock.FileContext">
+            <summary>
+            The associated log file context
+            </summary>
+        </member>
         <member name="P:LogUtils.Threading.FileLock.LastActivity">
             <summary>
             The last known file change/access activity that resulted in acquiring the file lock  
@@ -6617,6 +7301,14 @@
             The number of acquired locks yet to be released
             </summary>
         </member>
+        <member name="P:LogUtils.Threading.Lock.Context">
+            <summary>
+            Information assigned to identify the lock instance
+            </summary>
+        </member>
+        <member name="P:LogUtils.Threading.Lock.IsAcquiredByCurrentThread">
+            <summary/>
+        </member>
         <member name="F:LogUtils.Threading.Lock.SuppressNextRelease">
             <summary>
             Suppresses the next Release attempt made on this lock 
@@ -6627,6 +7319,16 @@
             Releases a lock acquired by the calling thread
             </summary>
             <exception cref="T:System.Threading.SynchronizationLockException">The calling thread does not have any active locks to release</exception>
+        </member>
+        <member name="T:LogUtils.Threading.Lock.ContextProvider">
+            <summary>
+            A provided delegate used to provide a context on demand
+            </summary>
+        </member>
+        <member name="P:LogUtils.Threading.LogTasker.ThreadID">
+            <summary>
+            The managed thread ID of the LogTasker thread
+            </summary>
         </member>
         <member name="P:LogUtils.Threading.LogTasker.WaitingOnSignal">
             <summary>
@@ -6720,7 +7422,7 @@
             <summary>
             Runs the task a single time before terminating
             </summary>
-            <param name="force">Should this task bypass the scheduling process</param>
+            <param name="force">Should this task bypass the scheduling process (in the case of an unsubmitted task)</param>
             <exception cref="T:System.InvalidOperationException">The task is already completed, or canceled OR the task is running on another thread, and task concurrency is not allowed</exception>
             <exception cref="T:LogUtils.Threading.InvalidStateException">The state has failed, or has been marked as complete</exception>
         </member>
@@ -6785,7 +7487,9 @@
             </summary>
         </member>
         <member name="M:LogUtils.Threading.TaskHandle.Dispose">
-            <inheritdoc/>
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.Threading.TaskHandle"/>
+            </summary>
         </member>
         <member name="T:LogUtils.Threading.TaskNotFoundException">
             <summary>
@@ -6817,7 +7521,18 @@
         </member>
         <member name="M:LogUtils.TimedLogWriter.Flush">
             <summary>
-            Writes the log buffer to file for managed log files
+            Flushes the stream buffer to file
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The writer has been disposed</exception>
+        </member>
+        <member name="M:LogUtils.TimedLogWriter.ScheduleFlush">
+            <summary>
+            Attempts to flush the stream buffer to file on a .NET task thread
+            </summary>
+        </member>
+        <member name="M:LogUtils.TimedLogWriter.TryFlush">
+            <summary>
+            Attempts to flush the stream buffer to file
             </summary>
         </member>
         <member name="M:LogUtils.TimedLogWriter.WriteToFile(LogUtils.Requests.LogRequest)">
@@ -6826,8 +7541,20 @@
         <member name="M:LogUtils.TimedLogWriter.AssignWriter(LogUtils.Enums.LogID,System.IO.StreamWriter@)">
             <inheritdoc/>
         </member>
+        <member name="F:LogUtils.TimedLogWriter.IsDisposed">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.TimedLogWriter.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing a <see cref="T:LogUtils.TimedLogWriter"/>
+            </summary>
+            <param name="disposing">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
         <member name="M:LogUtils.TimedLogWriter.Dispose">
-            <inheritdoc/>
+            <inheritdoc cref="M:LogUtils.TimedLogWriter.Dispose(System.Boolean)"/>
+        </member>
+        <member name="M:LogUtils.TimedLogWriter.Finalize">
+            <summary/>
         </member>
         <member name="F:LogUtils.Timers.EventScheduler.scheduledEvents">
             <summary>
@@ -6868,8 +7595,17 @@
             <returns>An object containing the event state</returns>
             <exception cref="T:System.ArgumentOutOfRangeException">The frame interval is an invalid value</exception>
         </member>
+        <member name="F:LogUtils.Timers.EventScheduler.IsDisposed">
+            <summary/>
+        </member>
+        <member name="M:LogUtils.Timers.EventScheduler.Dispose(System.Boolean)">
+            <summary>
+            Performs tasks for disposing an <see cref="T:LogUtils.Timers.EventScheduler"/>
+            </summary>
+            <param name="disposing">Whether or not the dispose request is invoked by the application (true), or invoked by the destructor (false)</param>
+        </member>
         <member name="M:LogUtils.Timers.EventScheduler.Dispose">
-            <inheritdoc/>
+            <inheritdoc cref="M:LogUtils.Timers.EventScheduler.Dispose(System.Boolean)"/>
         </member>
         <member name="P:LogUtils.Timers.ScheduledEvent.InvokeCount">
             <summary>
@@ -7031,6 +7767,9 @@
             The initialization process is in progress for the current assembly
             </summary>
         </member>
+        <member name="F:LogUtils.UtilityCore.Config">
+            <inheritdoc cref="T:LogUtils.Policy.UtilityConfig"/>
+        </member>
         <member name="F:LogUtils.UtilityCore.DataHandler">
             <summary>
             Handles cross-mod data storage for the utility
@@ -7071,23 +7810,9 @@
             Creates a logger that LogUtils can use to log to files directly (without using LogIDs, or the log request system) - not intended for users of LogUtils
             </summary>
         </member>
-        <member name="M:LogUtils.WeakReferenceCollection`1.GetEnumerator">
-            <inheritdoc/>
-        </member>
-        <member name="M:LogUtils.WeakReferenceCollection`1.Add(`0)">
-            <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Add(`0)"/>
-        </member>
-        <member name="M:LogUtils.WeakReferenceCollection`1.Remove(`0)">
-            <inheritdoc cref="M:System.Collections.Generic.ICollection`1.Remove(`0)"/>
-        </member>
-        <member name="M:LogUtils.WeakReferenceCollection`1.RemoveCollectedEntries">
+        <member name="M:LogUtils.UtilityLogSource.Dispose">
             <summary>
-            Remove entries that have been collected by the Garbage Collector
-            </summary>
-        </member>
-        <member name="M:LogUtils.WeakReferenceCollection`1.UnsafeCount">
-            <summary>
-            Returns the count of all entries in the collection, reference collected, or otherwise
+            Performs tasks for disposing a <see cref="T:LogUtils.UtilityLogSource"/>
             </summary>
         </member>
         <member name="M:PathComparer.CompareFilenameAndPath(System.String,System.String,System.Boolean)">

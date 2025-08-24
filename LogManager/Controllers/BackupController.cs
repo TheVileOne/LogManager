@@ -122,7 +122,7 @@ namespace LogManager.Controllers
 
             string destPath = Path.Combine(BackupPath, formatBackupPath(backupFilename, 1));
 
-            if (!FileUtils.SafeCopy(sourcePath, destPath))
+            if (!FileUtils.TryCopy(sourcePath, destPath))
             {
                 Plugin.Logger.LogInfo($"Unable to backup log file {backupEvent.LogFile}");
                 return;
@@ -190,15 +190,15 @@ namespace LogManager.Controllers
 
                     if (backupCountOverMaximum > 0)
                     {
-                        FileUtils.SafeDelete(backup);
+                        FileUtils.TryDelete(backup);
                         backupCountOverMaximum--;
                         continue;
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileUtils.SafeMove(backup, formatBackupPath(backupFilename, i + 1), 3);
+                        FileUtils.TryMove(backup, formatBackupPath(backupFilename, i + 1), 3);
                     else
-                        FileUtils.SafeDelete(backup); //The backup at the max count simply gets removed
+                        FileUtils.TryDelete(backup); //The backup at the max count simply gets removed
                 }
             }
         }
@@ -500,8 +500,8 @@ namespace LogManager.Controllers
             whitelistPath = Path.Combine(Plugin.ModPath, ModConsts.Files.BACKUP_WHITELIST);
 
             //Create or overwrite existing files
-            FileUtils.SafeWriteToFile(blacklistPath, DisabledList.Select(logID => logID.Value));
-            FileUtils.SafeWriteToFile(whitelistPath, EnabledList.Select(logID => logID.Value));
+            FileUtils.TryWrite(blacklistPath, DisabledList.Select(logID => logID.Value));
+            FileUtils.TryWrite(whitelistPath, EnabledList.Select(logID => logID.Value));
         }
 
         /// <summary>
