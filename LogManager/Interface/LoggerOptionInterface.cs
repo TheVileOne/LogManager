@@ -238,13 +238,6 @@ namespace LogManager.Interface
                 }
 
                 Configurable<bool> backupConfigurable = createBackupConfigurable(entryKey, backupEntry);
-
-                if (backupConfigurable == null)
-                {
-                    Plugin.Logger.LogWarning($"Unable to create backup configurable for {backupEntry.ID}");
-                    continue;
-                }
-
                 ConfigSettings.cfgBackupEntries.Add(backupConfigurable);
 
                 OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, backupsAllowedHeader.PosY - (40f * (i + 1))));
@@ -270,16 +263,21 @@ namespace LogManager.Interface
             Configurable<bool> configEntry = null;
             ConfigurableInfo configInfo = new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, entryTags);
 
+            bool bindRequired;
             try
             {
                 configEntry = config.Bind(entryName, backupEnabledByDefault, configInfo);
-                configEntry.Value = backupEntry.Enabled;
+                bindRequired = false;
             }
             catch (ArgumentException) //Probably means we are dealing with a filename with characters not allowed as config entry key
             {
-                //Bind method cannot be used for this method. LogManager will handle binding this config entry instead.
                 configEntry = new Configurable<bool>(Plugin.OptionInterface, entryName, backupEnabledByDefault, configInfo);
+                bindRequired = true;
+            }
 
+            //This fallback process will be used to ensure config entry is bound to the config in the event the first attempt failed
+            if (bindRequired)
+            {
                 //Stray configurables is probably not applicable here
                 if (config.strayConfigurables.ContainsKey(entryName))
                 {
@@ -301,6 +299,9 @@ namespace LogManager.Interface
                 if (config.pendingReset)
                     configEntry.Value = ValueConverter.ConvertToValue<bool>(configEntry.defaultValue);
             }
+
+            if (!config.pendingReset)
+                configEntry.Value = backupEntry.Enabled;
             return configEntry;
         }
 
