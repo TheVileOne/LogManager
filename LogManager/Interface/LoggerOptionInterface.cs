@@ -3,7 +3,9 @@ using LogUtils;
 using LogUtils.Helpers.FileHandling;
 using Menu.Remix;
 using Menu.Remix.MixedUI;
+using System;
 using System.Collections.Generic;
+using BackupEntry = (LogUtils.Enums.LogID ID, bool Enabled);
 using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
 
@@ -212,7 +214,7 @@ namespace LogManager.Interface
                     var backupConfigurable = ConfigSettings.cfgBackupEntries[i];
 
                     tab.RemoveItems(backupElementTuple.Item1, backupElementTuple.Item2);
-                    configurables.Remove("bkp" + backupConfigurable.info.Tags[0]); //Recreates key from Tags
+                    configurables.Remove("bkp" + backupConfigurable.info.GetDataTag()); //Recreates key from Tags
                 }
 
                 BackupElements.Clear();
@@ -235,13 +237,13 @@ namespace LogManager.Interface
                     configurables.Remove(entryKey);
                 }
 
-                var backupConfigurable = ConfigSettings.ConfigData.Bind(entryKey, backupEnabledByDefault,
-                    new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, new object[]
-                {
-                    backupEntry.ID,
-                }));
+                Configurable<bool> backupConfigurable = createBackupConfigurable(entryKey, backupEntry);
 
-                backupConfigurable.Value = backupEntry.Enabled;
+                if (backupConfigurable == null)
+                {
+                    Plugin.Logger.LogWarning($"Unable to create backup configurable for {backupEntry.ID}");
+                    continue;
+                }
 
                 ConfigSettings.cfgBackupEntries.Add(backupConfigurable);
 
@@ -253,6 +255,53 @@ namespace LogManager.Interface
             }
 
             Plugin.Logger.LogInfo($"Processed {BackupElements.Count} backup options");
+        }
+
+        private static Configurable<bool> createBackupConfigurable(string entryName, BackupEntry backupEntry)
+        {
+            object[] entryTags =
+            {
+                backupEntry.ID,    //Tracks LogID
+                Plugin.PLUGIN_GUID //Tags mod identity
+            };
+            bool backupEnabledByDefault = Plugin.BackupController.ProgressiveEnableMode;
+
+            ConfigHolder config = ConfigSettings.ConfigData;
+            Configurable<bool> configEntry = null;
+            ConfigurableInfo configInfo = new ConfigSettings.ConfigInfo(ModConsts.Config.Descriptions.BACKUPS_ENABLED_LIST, entryTags);
+
+            try
+            {
+                configEntry = config.Bind(entryName, backupEnabledByDefault, configInfo);
+                configEntry.Value = backupEntry.Enabled;
+            }
+            catch (ArgumentException) //Probably means we are dealing with a filename with characters not allowed as config entry key
+            {
+                //Bind method cannot be used for this method. LogManager will handle binding this config entry instead.
+                configEntry = new Configurable<bool>(Plugin.OptionInterface, entryName, backupEnabledByDefault, configInfo);
+
+                //Stray configurables is probably not applicable here
+                if (config.strayConfigurables.ContainsKey(entryName))
+                {
+                    try
+                    {
+                        configEntry.Value = ValueConverter.ConvertToValue<bool>(config.strayConfigurables[entryName]);
+                    }
+                    catch (Exception ex)
+                    {
+                        MachineConnector.LogWarning(string.Format("[{0}] Failed to parse \"{1}\" in {2}! Using default value.",
+                                entryName, config.strayConfigurables[entryName], configEntry.settingType));
+                        MachineConnector.LogWarning(ex);
+                        configEntry.Value = ValueConverter.ConvertToValue<bool>(configEntry.defaultValue);
+                    }
+                    config.strayConfigurables.Remove(entryName);
+                }
+                config.configurables.Add(entryName, configEntry);
+
+                if (config.pendingReset)
+                    configEntry.Value = ValueConverter.ConvertToValue<bool>(configEntry.defaultValue);
+            }
+            return configEntry;
         }
 
         /// <summary>

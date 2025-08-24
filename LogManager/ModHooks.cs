@@ -4,13 +4,18 @@ using LogUtils;
 using LogUtils.Helpers;
 using Menu.Remix;
 using Menu.Remix.MixedUI;
+using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using ConfigHolder = OptionInterface.ConfigHolder;
 
 namespace LogManager
 {
     public partial class Plugin
     {
+        private static Hook cosmeticFlagHook;
+
         internal void ApplyHooks()
         {
             try
@@ -25,6 +30,19 @@ namespace LogManager
                 //Config processing hooks
                 On.OptionInterface.ConfigHolder.Save += ConfigSaveHook;
                 On.OptionInterface.ConfigHolder.Reload += ConfigLoadHook;
+
+                MethodInfo method = typeof(ConfigurableBase).GetProperty(nameof(ConfigurableBase.IsCosmetic)).GetGetMethod();
+                cosmeticFlagHook = new Hook(method, ignoreCosmeticFlag);
+                cosmeticFlagHook.Apply();
+
+                static bool ignoreCosmeticFlag(Func<ConfigurableBase, bool> orig, ConfigurableBase self)
+                {
+                    //LogManager doesn't use cosmetic configurables. Ignore any naming conventions forcing an unwanted cosmetic status
+                    if (self.info.ContainsTag(PLUGIN_GUID))
+                        return false;
+
+                    return orig(self);
+                }
             }
             catch (Exception ex)
             {
@@ -45,9 +63,11 @@ namespace LogManager
             //Config processing hooks
             On.OptionInterface.ConfigHolder.Save -= ConfigSaveHook;
             On.OptionInterface.ConfigHolder.Reload -= ConfigLoadHook;
+
+            cosmeticFlagHook.Free();
         }
 
-        private void ConfigSaveHook(On.OptionInterface.ConfigHolder.orig_Save orig, OptionInterface.ConfigHolder self)
+        private void ConfigSaveHook(On.OptionInterface.ConfigHolder.orig_Save orig, ConfigHolder self)
         {
             if (hasInitialized && self.owner == OptionInterface)
             {

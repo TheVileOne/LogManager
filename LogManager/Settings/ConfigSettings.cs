@@ -142,10 +142,8 @@ namespace LogManager.Settings
         /// </summary>
         public static string GetOptionLabel(ConfigurableBase option)
         {
-            if (option.info.Tags.Length == 0)
-                return string.Empty;
-
-            return option.info.Tags[0]?.ToString() ?? string.Empty;
+            object optionTag = option.info.GetDataTag();
+            return optionTag != null ? optionTag.ToString() : string.Empty;
         }
 
         /// <summary>
