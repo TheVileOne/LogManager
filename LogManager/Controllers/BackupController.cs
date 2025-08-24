@@ -509,14 +509,14 @@ namespace LogManager.Controllers
         /// </summary>
         public void Finish()
         {
-            LogIDComparer idComparer = new LogIDComparer(CompareOptions.CurrentFilename);
+            LogIDComparer idComparer = new LogIDComparer(CompareOptions.Filename);
 
-            BackupEntries.Sort(compareEntriesByCurrentFilename);
+            BackupEntries.Sort(compareEntriesByFilename);
 
             createBackupsFromPendingEntries();
             BackupFilesTemp = null;
 
-            int compareEntriesByCurrentFilename(BackupEntry entry, BackupEntry entryOther)
+            int compareEntriesByFilename(BackupEntry entry, BackupEntry entryOther)
             {
                 int compareValue = idComparer.Compare(entry.ID, entryOther.ID);
 
