@@ -5,6 +5,7 @@ using Menu.Remix;
 using Menu.Remix.MixedUI;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using BackupEntry = (LogUtils.Enums.LogID ID, bool Enabled);
 using Headers = LogManager.ModConsts.Config.Headers;
 using Vector2 = UnityEngine.Vector2;
@@ -223,6 +224,13 @@ namespace LogManager.Interface
             else
                 Plugin.Logger.LogInfo($"Initilizing backup options");
 
+            const int elements_per_column = 4;
+            const float element_height = 40f;
+            const float element_width = 200f;
+
+            //Adjusts the amount of entries per column to ensure that when there is enough room to show all of the entries on the page
+            int elementsPerColumn = Math.Max(elements_per_column, (int)Mathf.Ceil(Plugin.BackupController.BackupEntries.Count / 3));
+
             //Create a backup element option for each backup entry
             for (int i = 0; i < Plugin.BackupController.BackupEntries.Count; i++)
             {
@@ -240,7 +248,14 @@ namespace LogManager.Interface
                 Configurable<bool> backupConfigurable = createBackupConfigurable(entryKey, backupEntry);
                 ConfigSettings.cfgBackupEntries.Add(backupConfigurable);
 
-                OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align, backupsAllowedHeader.PosY - (40f * (i + 1))));
+                //Position checkboxes according to a specified number of elements per column
+                int columnIndex = (int)Mathf.Floor(i / elementsPerColumn);
+                int rowIndex = i - (columnIndex * elementsPerColumn);
+
+                float xOffset = element_width * columnIndex;
+                float yOffset = element_height * (rowIndex + 1);
+
+                OpCheckBox checkBox = createCheckBox(backupConfigurable, new Vector2(x_left_align + xOffset, backupsAllowedHeader.PosY - yOffset));
                 OpLabel optionLabel = createOptionLabel(checkBox);
 
                 tab.AddItems(checkBox, optionLabel);
@@ -330,7 +345,7 @@ namespace LogManager.Interface
 
         private OpLabel createOptionLabel(UIconfig owner)
         {
-            return createOptionLabel(owner, new Vector2(60f, owner.ScreenPos.y));
+            return createOptionLabel(owner, new Vector2(owner.ScreenPos.x + 40f, owner.ScreenPos.y));
         }
 
         private OpLabel createOptionLabel(UIconfig owner, Vector2 pos)
