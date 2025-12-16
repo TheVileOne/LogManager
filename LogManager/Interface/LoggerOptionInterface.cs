@@ -103,7 +103,7 @@ namespace LogManager.Interface
                 return;
             }
 
-            string displayPath = PathUtils.GetRelativePath(selectedPath, Plugin.GameRootPath, true);
+            string displayPath = PathUtils.ResolvePath(selectedPath);
             ConfigConnector.CreateDialogBoxYesNo(
                 "Logs folder path will be changed.\n\n" +
                $"Selected Path: {displayPath}\n\n" +
@@ -187,7 +187,7 @@ namespace LogManager.Interface
             void RemoveBackups()
             {
                 Plugin.Logger.LogInfo("Removing all backups");
-                DirectoryUtils.SafeDelete(Plugin.BackupController.BackupPath);
+                DirectoryUtils.DeletePermanently(Plugin.BackupController.BackupPath);
             }
 
             void Cancel()
