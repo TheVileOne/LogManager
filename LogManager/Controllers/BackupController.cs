@@ -198,12 +198,20 @@ namespace LogManager.Controllers
         /// </summary>
         public IEnumerable<string> GetBackupFiles(string backupPath)
         {
-            foreach (string path in Directory.EnumerateFiles(backupPath, "*", SearchOption.AllDirectories))
+            if (BackupFilesTemp == null)
+                return getFiles();
+
+            return BackupFilesTemp.Where(path => PathUtils.PathsAreEqual(path, backupPath));
+
+            IEnumerable<string> getFiles()
             {
-                if (FileExtension.IsSupported(path))
-                    yield return path;
+                foreach (string path in Directory.EnumerateFiles(backupPath, "*", SearchOption.AllDirectories))
+                {
+                    if (FileExtension.IsSupported(path))
+                        yield return path;
+                }
+                yield break;
             }
-            yield break;
         }
 
         /// <summary>
@@ -271,7 +279,7 @@ namespace LogManager.Controllers
             List<string> existingBackups = new List<string>(AllowedBackupsPerFile);
             List<int> existingBackupIndexes = new List<int>(AllowedBackupsPerFile);
 
-            foreach (string backupPath in BackupFilesTemp)
+            foreach (string backupPath in GetBackupFiles(backupFolderPath))
             {
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
 
@@ -315,7 +323,6 @@ namespace LogManager.Controllers
                     }
                 }
             }
-
             return existingBackups;
         }
 
