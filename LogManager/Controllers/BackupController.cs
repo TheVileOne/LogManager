@@ -44,6 +44,8 @@ namespace LogManager.Controllers
         /// </summary>
         public string BackupPath => Path.Combine(PathProvider.Invoke(), BACKUP_FOLDER_NAME);
 
+        protected FolderPathMapper BackupPathMapper;
+
         /// <summary>
         /// A flag that controls whether backups may be processed
         /// </summary>
@@ -75,6 +77,7 @@ namespace LogManager.Controllers
         public BackupController(Func<string> pathProvider)
         {
             PathProvider = pathProvider ?? throw new ArgumentNullException(nameof(pathProvider));
+            BackupPathMapper = new FolderPathMapper(BackupPath);
 
             Directory.CreateDirectory(BackupPath);
             BackupListener.Feed += createBackupEvent;
@@ -116,11 +119,37 @@ namespace LogManager.Controllers
                 return;
             }
 
-            string backupFilename = backupEvent.LogFile.Properties.CurrentFilename.WithExtension();
+            LogFilename backupFilename = backupEvent.LogFile.Properties.CurrentFilename;
+            string backupFolderPath = BackupPath;
 
-            manageExistingBackups(backupFilename);
+            bool pathChanged = PathUtils.PathsAreEqual(backupFolderPath, BackupPathMapper.PathMap.CurrentPath);
+            if (pathChanged)
+            {
+                Plugin.Logger.LogInfo("Backup files have changed to a new location");
+                //TODO: Update paths here
+            }
 
-            string destPath = Path.Combine(BackupPath, formatBackupPath(backupFilename, 1));
+            bool isGroupFile = backupEvent.LogFile.Properties.Group != null;
+            if (isGroupFile)
+            {
+                LogGroupProperties groupProperties = backupEvent.LogFile.Properties.Group.Properties;
+
+                /*
+                 * Group members that support path mapping must be associated with a group path, and not be registered.
+                 * Registered files are excluded, because of concerns that the backup files will get orphaned if the group path is changed by the user.
+                 */
+                bool shouldUsePathMap = groupProperties.IsFolderGroup && !backupEvent.LogFile.Registered;
+                if (shouldUsePathMap)
+                {
+                    //Build up a path for the group folder targeting the backup path
+                    backupFolderPath = BackupPathMapper.Resolve(sourcePath).CurrentPath;
+                    Directory.CreateDirectory(backupFolderPath);
+                }
+            }
+
+            manageExistingBackups(backupFilename, backupFolderPath);
+
+            string destPath = Path.Combine(backupFolderPath, formatBackupFilename(backupFilename, 1));
 
             if (!FileUtils.TryCopy(sourcePath, destPath))
             {
@@ -161,7 +190,15 @@ namespace LogManager.Controllers
         /// </summary>
         public IEnumerable<string> GetBackupFiles()
         {
-            foreach (string path in Directory.EnumerateFiles(BackupPath))
+            return GetBackupFiles(BackupPath);
+        }
+
+        /// <summary>
+        /// Retrieves all filenames (including the path) in a specified Backups directory containing a supported log file extension
+        /// </summary>
+        public IEnumerable<string> GetBackupFiles(string backupPath)
+        {
+            foreach (string path in Directory.EnumerateFiles(backupPath, "*", SearchOption.AllDirectories))
             {
                 if (FileExtension.IsSupported(path))
                     yield return path;
@@ -173,9 +210,9 @@ namespace LogManager.Controllers
         /// Ensures there is space for a new backup by moving, or deleting existing backups for the specified log file
         /// </summary>
         /// <param name="backupFilename">The filename (with extension) to compare against to find backup matches</param>
-        private void manageExistingBackups(string backupFilename)
+        private void manageExistingBackups(LogFilename backupFilename, string backupFolderPath)
         {
-            List<string> existingBackups = FindExistingBackups(backupFilename);
+            List<string> existingBackups = FindExistingBackups(backupFilename, backupFolderPath);
 
             Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups for {backupFilename} detected");
 
@@ -196,7 +233,7 @@ namespace LogManager.Controllers
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileUtils.TryMove(backup, formatBackupPath(backupFilename, i + 1), 3);
+                        FileUtils.TryMove(backup, Path.Combine(backupFolderPath, formatBackupFilename(backupFilename, i + 1)), 3);
                     else
                         FileUtils.TryDelete(backup); //The backup at the max count simply gets removed
                 }
@@ -204,20 +241,19 @@ namespace LogManager.Controllers
         }
 
         /// <summary>
-        /// Formats a valid backup path using a base with file extension as a reference
+        /// Formats a valid backup path using a <see cref="LogFilename"/> as a reference
         /// </summary>
-        private string formatBackupPath(string filenameBase, int backupNumber)
+        private string formatBackupFilename(LogFilename filenameBase, int backupNumber)
         {
-            return Path.Combine(BackupPath, $"{Path.GetFileNameWithoutExtension(filenameBase)}_bkp[{backupNumber}]{Path.GetExtension(filenameBase)}");
+            return $"{filenameBase}_bkp[{backupNumber}]{filenameBase.Extension}";
         }
 
         /// <summary>
         /// Find backups associated with a LogID
         /// </summary>
-        public List<string> FindExistingBackups(LogID logFile, out string backupFilename)
+        public List<string> FindExistingBackups(LogID logFile)
         {
-            backupFilename = logFile.Properties.CurrentFilename;
-            return FindExistingBackups(backupFilename);
+            return FindExistingBackups(logFile.Properties.CurrentFilename, BackupPath);
         }
 
         /// <summary>
@@ -227,12 +263,10 @@ namespace LogManager.Controllers
         /// A filename (without path)
         /// <br>File extension will be removed if present</br>
         /// </param>
-        public List<string> FindExistingBackups(string backupName)
+        public List<string> FindExistingBackups(LogFilename backupFilename, string backupFolderPath)
         {
             if (BackupFilesTemp == null)
                 BuildFileCache();
-
-            backupName = Path.GetFileNameWithoutExtension(backupName);
 
             List<string> existingBackups = new List<string>(AllowedBackupsPerFile);
             List<int> existingBackupIndexes = new List<int>(AllowedBackupsPerFile);
@@ -241,13 +275,12 @@ namespace LogManager.Controllers
             {
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
 
-                if (backupFile.StartsWith(backupName + "_bkp")) //Look for the format '<file>_<number>'
+                if (backupFile.StartsWith(backupFilename + "_bkp")) //Look for the format '<file>_<number>'
                 {
                     int backupNumber = parseBackupNumber(backupFile); //Not zero-based
                     if (backupNumber != -1) //Leave malformatted backups alone
                     {
                         //Sort the list by backupNumber
-
                         //First, check if backup is the highest recorded value
                         if (existingBackups.Count == 0 || backupNumber > existingBackupIndexes[existingBackupIndexes.Count - 1])
                         {
