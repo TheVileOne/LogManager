@@ -187,8 +187,11 @@ namespace LogManager.Controllers
 
         private void createBackupEvent(BackupListener.EventRecord backupEvent)
         {
+            Plugin.Logger.LogInfo($"Received backup event {backupEvent.LogFile}");
+
             if (!Enabled || !IsBackupAllowed(backupEvent.LogFile))
             {
+                Plugin.Logger.LogDebug("File not eligible for backup");
                 //Check for an existing backup record - only one record should be stored per log file
                 int index = pendingBackups.FindIndex(record => record.LogFile.Equals(backupEvent.LogFile));
 
@@ -264,7 +267,7 @@ namespace LogManager.Controllers
             {
                 if (!entry.Enabled) continue;
 
-                var backupRecord = pendingBackups.Find(record => entry.ID.Equals(record.LogFile));
+                var backupRecord = pendingBackups.Find(record => entry.ID.Equals(record.LogFile) || (entry.ID is LogGroupID group && group.Properties.Members.Contains(record.LogFile)));
 
                 if (backupRecord != null)
                 {
@@ -471,7 +474,7 @@ namespace LogManager.Controllers
 
         public bool IsBackupAllowed(LogID logFile)
         {
-            var entry = BackupEntries.Find(entry => entry.ID.Equals(logFile));
+            var entry = BackupEntries.Find(entry => entry.ID.Equals(logFile) || (entry.ID is LogGroupID group && group.Properties.Members.Contains(logFile)));
             return entry.Enabled;
         }
 
@@ -616,7 +619,7 @@ namespace LogManager.Controllers
             List<LogID> enabledList = new List<LogID>(EnabledList);
             List<LogID> disabledList = new List<LogID>(DisabledList);
 
-            foreach (LogID logID in LogProperties.PropertyManager.Properties.Select(p => p.ID))
+            foreach (LogID logID in LogProperties.PropertyManager.AllProperties.Select(p => p.ID))
             {
                 bool backupEnabled, backupDisabled;
 
