@@ -234,9 +234,7 @@ namespace LogManager.Interface
             //Create a backup element option for each backup entry
             for (int i = 0; i < Plugin.BackupController.BackupEntries.Count; i++)
             {
-                var backupEntry = Plugin.BackupController.BackupEntries[i];
-                bool backupEnabledByDefault = Plugin.BackupController.ProgressiveEnableMode;
-
+                BackupEntry backupEntry = Plugin.BackupController.BackupEntries[i];
                 string entryKey = "bkp" + backupEntry.ID;
 
                 if (configurables.ContainsKey(entryKey))

@@ -225,19 +225,6 @@ namespace LogManager.Controllers
             string backupHash = backupEvent.LogFile.Properties.GetHashCode().ToString();
             string backupFolderPath = BackupPath;
 
-            bool pathChanged = !PathUtils.PathsAreEqual(backupFolderPath, BackupPathMapper.PathMap.CurrentPath);
-            if (pathChanged)
-            {
-                bool backupPathOverride = Directory.Exists(BackupPathMapper.PathMap.CurrentPath);
-                if (backupPathOverride)
-                    backupFolderPath = BackupPathMapper.PathMap.CurrentPath;
-                else
-                {
-                    Plugin.Logger.LogInfo("Backup files have changed to a new location");
-                    //TODO: Update paths here
-                }
-            }
-
             bool isGroupFile = backupEvent.LogFile.Properties.Group != null;
             if (isGroupFile)
             {
@@ -484,8 +471,8 @@ namespace LogManager.Controllers
 
         public bool IsBackupAllowed(LogID logFile)
         {
-            var entry = BackupEntries.Find(entry => entry.Item1.Equals(logFile));
-            return entry.Item2;
+            var entry = BackupEntries.Find(entry => entry.ID.Equals(logFile));
+            return entry.Enabled;
         }
 
         private int parseBackupNumber(string backupFilename)
@@ -498,8 +485,7 @@ namespace LogManager.Controllers
 
             string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd);
 
-            int foundIndex;
-            if (int.TryParse(parseSubstring, out foundIndex))
+            if (int.TryParse(parseSubstring, out int foundIndex))
                 return foundIndex;
             return -1;
         }
