@@ -1,6 +1,7 @@
 ﻿using LogManager.Helpers;
 using LogUtils;
 using LogUtils.Enums;
+using LogUtils.Events;
 using LogUtils.Helpers.Comparers;
 using LogUtils.Helpers.FileHandling;
 using LogUtils.Properties;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using BackupEntry = (LogUtils.Enums.LogID ID, bool Enabled);
 
 namespace LogManager.Controllers
@@ -23,6 +25,8 @@ namespace LogManager.Controllers
         /// The folder that will store backup files
         /// </summary>
         public const string BACKUP_FOLDER_NAME = "Backup";
+
+        public const string BACKUP_FILE_MAP = BACKUP_FOLDER_NAME + ".map";
 
         /// <summary>
         /// The current number of backups per file allowed
@@ -74,13 +78,69 @@ namespace LogManager.Controllers
 
         protected Func<string> PathProvider;
 
+        protected Dictionary<string, string> BackupHistory;
+
         public BackupController(Func<string> pathProvider)
         {
             PathProvider = pathProvider ?? throw new ArgumentNullException(nameof(pathProvider));
             BackupPathMapper = new FolderPathMapper(BackupPath);
 
             Directory.CreateDirectory(BackupPath);
+
+            initializeBackupHistory();
+            UtilityEvents.OnProcessShutdown += saveBackupHistory;
             BackupListener.Feed += createBackupEvent;
+        }
+
+        private void initializeBackupHistory()
+        {
+            BackupHistory = new Dictionary<string, string>();
+            try
+            {
+                foreach (string line in File.ReadAllLines(Path.Combine(BackupPath, BACKUP_FILE_MAP)))
+                {
+                    int valueIndex = line.IndexOf(':');
+
+                    if (valueIndex == -1) continue;
+
+                    string backupHash = line.Substring(0, valueIndex);
+                    string lastKnownBackupPath = line.Substring(valueIndex + 1);
+
+                    if (PathUtils.IsEmpty(lastKnownBackupPath))
+                    {
+                        Plugin.Logger.LogWarning("Backup history has corrupted entries");
+                        continue;
+                    }
+                    BackupHistory[backupHash] = lastKnownBackupPath;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                //Ignore
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError("Unable to read backup history file");
+                Plugin.Logger.LogError(LogID.Exception | LogID.BepInEx, ex);
+            }
+        }
+
+        private void saveBackupHistory()
+        {
+            try
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (var entry in BackupHistory)
+                {
+                    builder.AppendLine(entry.Key + ':' + entry.Value);
+                }
+                File.WriteAllText(Path.Combine(BackupPath, BACKUP_FILE_MAP), builder.ToString());
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError("Unable to save backup history");
+                Plugin.Logger.LogError(LogID.Exception | LogID.BepInEx, ex);
+            }
         }
 
         private void createBackupEvent(BackupListener.EventRecord backupEvent)
@@ -120,9 +180,10 @@ namespace LogManager.Controllers
             }
 
             LogFilename backupFilename = backupEvent.LogFile.Properties.CurrentFilename;
+            string backupHash = backupEvent.LogFile.Properties.GetHashCode().ToString();
             string backupFolderPath = BackupPath;
 
-            bool pathChanged = PathUtils.PathsAreEqual(backupFolderPath, BackupPathMapper.PathMap.CurrentPath);
+            bool pathChanged = !PathUtils.PathsAreEqual(backupFolderPath, BackupPathMapper.PathMap.CurrentPath);
             if (pathChanged)
             {
                 Plugin.Logger.LogInfo("Backup files have changed to a new location");
@@ -147,7 +208,7 @@ namespace LogManager.Controllers
                 }
             }
 
-            manageExistingBackups(backupFilename, backupFolderPath);
+            manageExistingBackups(backupHash, backupFilename, backupFolderPath);
 
             string destPath = Path.Combine(backupFolderPath, formatBackupFilename(backupFilename, 1));
 
@@ -159,6 +220,7 @@ namespace LogManager.Controllers
 
             //Notify other mods that this extra backup source exists
             backupEvent.BackupPaths.Add(destPath);
+            addHistoryEntry(backupHash, destPath);
         }
 
         private void createBackupsFromPendingEntries()
@@ -175,6 +237,23 @@ namespace LogManager.Controllers
                     pendingBackups.Remove(backupRecord);
                 }
             }
+        }
+
+        private void addHistoryEntry(string backupHash, string backupPath)
+        {
+            int suffixIndex = backupPath.LastIndexOf("_bkp");
+
+            if (suffixIndex == -1)
+                throw new InvalidOperationException("Backup path is malformatted"); //Should not be possible
+
+            string firstPart, secondPart;
+
+            firstPart = backupPath.Substring(0, suffixIndex);
+            secondPart = backupPath.Substring(suffixIndex + "_bkp".Length);
+            backupPath = firstPart + secondPart;
+
+            //Excluded backup number, and base path information
+            BackupHistory[backupHash] = FileUtils.RemoveBracketInfo(PathUtils.TrimCommonRoot(backupPath, BackupPath));
         }
 
         /// <summary>
@@ -214,15 +293,43 @@ namespace LogManager.Controllers
             }
         }
 
+        private string getBackupPathFromHistory(string backupHash)
+        {
+            if (BackupHistory.TryGetValue(backupHash, out string backupLocation))
+                return Path.Combine(BackupPath, backupLocation);
+            return null;
+        }
+
         /// <summary>
         /// Ensures there is space for a new backup by moving, or deleting existing backups for the specified log file
         /// </summary>
         /// <param name="backupFilename">The filename (with extension) to compare against to find backup matches</param>
-        private void manageExistingBackups(LogFilename backupFilename, string backupFolderPath)
+        private void manageExistingBackups(string backupHash, LogFilename backupFilename, string currentBackupPath)
         {
-            List<string> existingBackups = FindExistingBackups(backupFilename, backupFolderPath);
+            Plugin.Logger.LogInfo("Getting backup history for " + backupFilename);
+            string lastBackupPath = getBackupPathFromHistory(backupHash);
 
-            Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups for {backupFilename} detected");
+            List<string> existingBackups;
+            if (PathUtils.IsEmpty(lastBackupPath))
+            {
+                Plugin.Logger.LogDebug("No backup history found - checking backup path");
+                existingBackups = FindExistingBackups(backupFilename, currentBackupPath);
+                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+            }
+            else
+            {
+                existingBackups = FindExistingBackups(backupFilename, lastBackupPath);
+                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+
+                if (!PathUtils.PathsAreEqual(currentBackupPath, lastBackupPath))
+                {
+                    Plugin.Logger.LogDebug("History entry does not match current path");
+                    foreach (string backup in existingBackups)
+                    {
+                        FileUtils.TryMove(backup, currentBackupPath);
+                    }
+                }
+            }
 
             //Handle existing backups
             if (existingBackups.Count > 0)
@@ -241,7 +348,7 @@ namespace LogManager.Controllers
                     }
 
                     if (i < AllowedBackupsPerFile) //Renames existing backup by changing its number by one 
-                        FileUtils.TryMove(backup, Path.Combine(backupFolderPath, formatBackupFilename(backupFilename, i + 1)), 3);
+                        FileUtils.TryMove(backup, Path.Combine(currentBackupPath, formatBackupFilename(backupFilename, i + 1)), 3);
                     else
                         FileUtils.TryDelete(backup); //The backup at the max count simply gets removed
                 }
@@ -279,11 +386,12 @@ namespace LogManager.Controllers
             List<string> existingBackups = new List<string>(AllowedBackupsPerFile);
             List<int> existingBackupIndexes = new List<int>(AllowedBackupsPerFile);
 
+            string filenamePattern = backupFilename + "_bkp";
             foreach (string backupPath in GetBackupFiles(backupFolderPath))
             {
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
 
-                if (backupFile.StartsWith(backupFilename + "_bkp")) //Look for the format '<file>_<number>'
+                if (backupFile.StartsWith(filenamePattern)) //Look for the format '<file>_<number>'
                 {
                     int backupNumber = parseBackupNumber(backupFile); //Not zero-based
                     if (backupNumber != -1) //Leave malformatted backups alone
