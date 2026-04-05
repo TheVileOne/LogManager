@@ -368,6 +368,7 @@ namespace LogManager.Controllers
                     {
                         FileUtils.TryMove(backup, Path.Combine(currentBackupPath, Path.GetFileName(backup)));
                     }
+                    DirectoryUtils.Delete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
                 }
             }
 
