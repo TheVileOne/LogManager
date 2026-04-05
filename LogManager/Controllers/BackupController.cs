@@ -231,6 +231,7 @@ namespace LogManager.Controllers
             bool isGroupFile = backupEvent.LogFile.Properties.Group != null;
             if (isGroupFile)
             {
+                Plugin.Logger.LogInfo("Group file detected");
                 LogGroupProperties groupProperties = backupEvent.LogFile.Properties.Group.Properties;
 
                 /*
@@ -240,6 +241,7 @@ namespace LogManager.Controllers
                 bool shouldUsePathMap = groupProperties.IsFolderGroup && !backupEvent.LogFile.Registered;
                 if (shouldUsePathMap)
                 {
+                    Plugin.Logger.LogInfo("Resolving path");
                     //Build up a path for the group folder targeting the backup path
                     backupFolderPath = BackupPathMapper.Resolve(sourcePath).CurrentPath;
                     Directory.CreateDirectory(backupFolderPath);
@@ -364,7 +366,7 @@ namespace LogManager.Controllers
                     Plugin.Logger.LogDebug("History entry does not match current path");
                     foreach (string backup in existingBackups)
                     {
-                        FileUtils.TryMove(backup, currentBackupPath);
+                        FileUtils.TryMove(backup, Path.Combine(currentBackupPath, Path.GetFileName(backup)));
                     }
                 }
             }

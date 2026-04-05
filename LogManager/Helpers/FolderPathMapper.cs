@@ -42,21 +42,33 @@ namespace LogManager.Helpers
         public FolderPathNode Resolve(string path)
         {
             path = Resolver.Resolve(PathUtils.PathWithoutFilename(path));
-            if (PathUtils.PathsAreEqual(PathMap.CurrentPath, path))
-                return PathMap;
 
-            FolderPathNode result = findChildMatch(PathMap, path);
-            if (result == null)
+            FolderPathNode result;
+            if (PathUtils.PathsAreEqual(PathMap.CurrentPath, path))
             {
                 result = PathMap;
             }
-            else if (!PathUtils.PathsAreEqual(result.CurrentPath, path)) //Node found was a parent directory to the searched path
+            else
             {
-                FolderPathNode parent = result,
-                               child = new FolderPathNode(path);
+                /*
+                 * There are three possible outcomes.
+                 * 
+                 * I.   No child of the root path is found, and we need to add a new child to the root.
+                 * II.  A child of the root, or one of its children is found that exactly matches the path.
+                 * III. A child of the root, or one of its children is found that does not exactly match the path.
+                 */
+                result = findChildMatch(PathMap, path);
 
-                moveChildrenToNewParent(parent, child, node => PathUtils.ContainsOtherPath(node.CurrentPath, path));
-                parent.Children.Add(child);
+                if (result == null || !PathUtils.PathsAreEqual(result.CurrentPath, path)) //Node found was a parent directory to the searched path
+                {
+                    FolderPathNode parent = result ?? PathMap,
+                                   child = new FolderPathNode(path);
+
+                    moveChildrenToNewParent(parent, child, node => PathUtils.ContainsOtherPath(node.CurrentPath, path));
+
+                    parent.Children.Add(child);
+                    result = child;
+                }
             }
             return result;
         }
