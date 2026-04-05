@@ -186,8 +186,14 @@ namespace LogManager.Controllers
             bool pathChanged = !PathUtils.PathsAreEqual(backupFolderPath, BackupPathMapper.PathMap.CurrentPath);
             if (pathChanged)
             {
-                Plugin.Logger.LogInfo("Backup files have changed to a new location");
-                //TODO: Update paths here
+                bool backupPathOverride = Directory.Exists(BackupPathMapper.PathMap.CurrentPath);
+                if (backupPathOverride)
+                    backupFolderPath = BackupPathMapper.PathMap.CurrentPath;
+                else
+                {
+                    Plugin.Logger.LogInfo("Backup files have changed to a new location");
+                    //TODO: Update paths here
+                }
             }
 
             bool isGroupFile = backupEvent.LogFile.Properties.Group != null;
