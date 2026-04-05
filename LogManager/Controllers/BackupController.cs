@@ -1,4 +1,5 @@
-﻿using LogManager.Helpers;
+﻿using LogManager.Events;
+using LogManager.Helpers;
 using LogUtils;
 using LogUtils.Enums;
 using LogUtils.Events;
@@ -43,10 +44,44 @@ namespace LogManager.Controllers
         /// </summary>
         protected List<string> BackupFilesTemp;
 
+        public event EventHandler<BackupPathChangedEventArgs> OnBackupPathChanged;
+
+        private object pathLock = new object();
+        private string backupBasePath;
         /// <summary>
         /// The path containing backup files
         /// </summary>
-        public string BackupPath => Path.Combine(PathProvider.Invoke(), BACKUP_FOLDER_NAME);
+        public string BackupPath
+        {
+            get
+            {
+                lock (pathLock)
+                {
+                    string basePath = PathProvider.Invoke();
+                    string currentPath = Path.Combine(basePath, BACKUP_FOLDER_NAME);
+
+                    if (backupBasePath == null)
+                    {
+                        backupBasePath = basePath;
+                        return currentPath;
+                    }
+
+                    if (!PathUtils.PathsAreEqual(basePath, backupBasePath))
+                    {
+                        string oldPath = Path.Combine(backupBasePath, BACKUP_FOLDER_NAME);
+                        if (!Directory.Exists(oldPath) || Directory.Exists(currentPath)) //Prefer the new path when it exists
+                        {
+                            Plugin.Logger.LogInfo("Backup files have changed to a new location");
+                            backupBasePath = basePath;
+                            OnBackupPathChanged?.Invoke(this, new BackupPathChangedEventArgs(backupBasePath));
+                            return currentPath;
+                        }
+                        return oldPath;
+                    }
+                    return currentPath;
+                }
+            }
+        }
 
         protected FolderPathMapper BackupPathMapper;
 
@@ -88,6 +123,8 @@ namespace LogManager.Controllers
             Directory.CreateDirectory(BackupPath);
 
             initializeBackupHistory();
+
+            OnBackupPathChanged += backupPathChanged;
             UtilityEvents.OnProcessShutdown += saveBackupHistory;
             BackupListener.Feed += createBackupEvent;
         }
@@ -123,6 +160,11 @@ namespace LogManager.Controllers
                 Plugin.Logger.LogError("Unable to read backup history file");
                 Plugin.Logger.LogError(LogID.Exception | LogID.BepInEx, ex);
             }
+        }
+
+        private void backupPathChanged(object sender, BackupPathChangedEventArgs e)
+        {
+            BackupPathMapper = new FolderPathMapper(BackupPath, BackupPathMapper.PathMap);
         }
 
         private void saveBackupHistory()

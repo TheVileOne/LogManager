@@ -1,9 +1,6 @@
 ﻿using LogUtils.Helpers.FileHandling;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LogManager.Helpers
 {
@@ -23,6 +20,23 @@ namespace LogManager.Helpers
         {
             PathMap = new FolderPathNode(folderPath);
             Resolver = new TempPathResolver(folderPath);
+        }
+
+        internal FolderPathMapper(string folderPath, FolderPathNode staleMap) : this(folderPath)
+        {
+            copyChildrenRecursive(PathMap, staleMap);
+
+            void copyChildrenRecursive(FolderPathNode currentParent, FolderPathNode oldParent)
+            {
+                foreach (FolderPathNode oldChild in oldParent.Children)
+                {
+                    string currentPath = PathUtils.Rebase(oldChild.CurrentPath, staleMap.CurrentPath, folderPath);
+                    FolderPathNode currentChild = new FolderPathNode(currentPath);
+
+                    currentParent.Children.Add(currentChild);
+                    copyChildrenRecursive(currentChild, oldChild);
+                }
+            }
         }
 
         public FolderPathNode Resolve(string path)
