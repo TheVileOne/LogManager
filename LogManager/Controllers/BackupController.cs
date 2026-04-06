@@ -333,10 +333,11 @@ namespace LogManager.Controllers
             }
         }
 
-        private string getBackupPathFromHistory(string backupHash)
+        private string getBackupPathFromHistory(string backupHash, out string backupFilename)
         {
+            backupFilename = null;
             if (BackupHistory.TryGetValue(backupHash, out string backupLocation))
-                return Path.Combine(BackupPath, backupLocation);
+                return PathUtils.PathWithoutFilename(Path.Combine(BackupPath, backupLocation), out backupFilename);
             return null;
         }
 
@@ -347,28 +348,60 @@ namespace LogManager.Controllers
         private void manageExistingBackups(string backupHash, LogFilename backupFilename, string currentBackupPath)
         {
             Plugin.Logger.LogInfo("Getting backup history for " + backupFilename);
-            string lastBackupPath = getBackupPathFromHistory(backupHash);
+            string lastBackupPath = getBackupPathFromHistory(backupHash, out string lastBackupFilename);
 
             List<string> existingBackups;
             if (PathUtils.IsEmpty(lastBackupPath))
             {
                 Plugin.Logger.LogDebug("No backup history found - checking backup path");
-                existingBackups = FindExistingBackups(backupFilename, currentBackupPath);
+                string filenamePattern = backupFilename + "_bkp";
+
+                existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
                 Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
             }
             else
             {
-                existingBackups = FindExistingBackups(backupFilename, lastBackupPath);
-                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+                string filenamePattern = FileExtension.Remove(lastBackupFilename) + "_bkp";
 
-                if (!PathUtils.PathsAreEqual(currentBackupPath, lastBackupPath))
+                existingBackups = FindExistingBackups(filenamePattern, lastBackupPath);
+
+                bool filenameChanged = !ComparerUtils.FilenameComparer.Equals(backupFilename.WithExtension(), lastBackupFilename);
+                bool pathChanged = !PathUtils.PathsAreEqual(currentBackupPath, lastBackupPath);
+
+                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+                if (filenameChanged || pathChanged)
                 {
-                    Plugin.Logger.LogDebug("History entry does not match current path");
+                    Plugin.Logger.LogDebug("History entry path info does not match");
                     foreach (string backup in existingBackups)
                     {
-                        FileUtils.TryMove(backup, Path.Combine(currentBackupPath, Path.GetFileName(backup)));
+                        string targetPath = PathUtils.PathWithoutFilename(backup, out string targetFilename);
+
+                        if (filenameChanged)
+                        {
+                            try
+                            {
+                                //Transfer the old bracket info to the new filename
+                                targetFilename = formatBackupFilename(backupFilename, int.Parse(FileUtils.GetBracketInfo(targetFilename)));
+                            }
+                            catch (FormatException)
+                            {
+                                Plugin.Logger.LogWarning("Backup is malformatted");
+                                RecycleBin.MoveToRecycleBin(backup);
+                            }
+                        }
+
+                        if (pathChanged)
+                            targetPath = currentBackupPath;
+
+                        targetPath = Path.Combine(targetPath, targetFilename);
+                        FileUtils.TryMove(backup, targetPath);
                     }
-                    DirectoryUtils.Delete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
+                    DirectoryUtils.TryDelete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
+
+                    Plugin.Logger.LogInfo("Updating existing backups");
+                    BuildFileCache();
+                    filenamePattern = backupFilename + "_bkp";
+                    existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
                 }
             }
 
@@ -409,17 +442,15 @@ namespace LogManager.Controllers
         /// </summary>
         public List<string> FindExistingBackups(LogID logFile)
         {
-            return FindExistingBackups(logFile.Properties.CurrentFilename, BackupPath);
+            return FindExistingBackups(filenamePattern: logFile.Properties.CurrentFilename + "_bkp", BackupPath);
         }
 
         /// <summary>
         /// Find backups associated with a filename
         /// </summary>
-        /// <param name="backupName">
-        /// A filename (without path)
-        /// <br>File extension will be removed if present</br>
-        /// </param>
-        public List<string> FindExistingBackups(LogFilename backupFilename, string backupFolderPath)
+        /// <param name="filenamePattern">A search pattern to use to find file matches</param>
+        /// <param name="backupFolderPath">The exact folder to check for file matches</param>
+        public List<string> FindExistingBackups(string filenamePattern, string backupFolderPath)
         {
             if (BackupFilesTemp == null)
                 BuildFileCache();
@@ -427,7 +458,6 @@ namespace LogManager.Controllers
             List<string> existingBackups = new List<string>(AllowedBackupsPerFile);
             List<int> existingBackupIndexes = new List<int>(AllowedBackupsPerFile);
 
-            string filenamePattern = backupFilename + "_bkp";
             foreach (string backupPath in GetBackupFiles(backupFolderPath))
             {
                 string backupFile = Path.GetFileNameWithoutExtension(backupPath);
