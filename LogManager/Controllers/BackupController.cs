@@ -378,12 +378,13 @@ namespace LogManager.Controllers
 
                         if (filenameChanged)
                         {
-                            try
+                            int backupNumber = parseBackupNumber(targetFilename);
+                            if (backupNumber != -1)
                             {
                                 //Transfer the old bracket info to the new filename
-                                targetFilename = formatBackupFilename(backupFilename, int.Parse(FileUtils.GetBracketInfo(targetFilename)));
+                                targetFilename = formatBackupFilename(backupFilename, backupNumber);
                             }
-                            catch (FormatException)
+                            else
                             {
                                 Plugin.Logger.LogWarning("Backup is malformatted");
                                 RecycleBin.MoveToRecycleBin(backup);
@@ -513,17 +514,12 @@ namespace LogManager.Controllers
 
         private int parseBackupNumber(string backupFilename)
         {
-            int parseIndexStart = backupFilename.LastIndexOf('[');
-            int parseIndexEnd = 1;//backupFilename.LastIndexOf(']');
+            string info = FileUtils.GetBracketInfo(backupFilename);
 
-            if (parseIndexStart < 0)
+            int value;
+            if (info == null || !int.TryParse(info, out value))
                 return -1;
-
-            string parseSubstring = backupFilename.Substring(parseIndexStart + 1, parseIndexEnd);
-
-            if (int.TryParse(parseSubstring, out int foundIndex))
-                return foundIndex;
-            return -1;
+            return value;
         }
 
         /// <summary>
