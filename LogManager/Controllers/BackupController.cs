@@ -350,51 +350,54 @@ namespace LogManager.Controllers
             Plugin.Logger.LogInfo("Getting backup history for " + backupFilename);
             string lastBackupPath = getBackupPathFromHistory(backupHash, out string lastBackupFilename);
 
+            bool filenameChanged, pathChanged;
+            string filenamePattern;
+
             List<string> existingBackups;
             if (PathUtils.IsEmpty(lastBackupPath))
             {
                 Plugin.Logger.LogDebug("No backup history found - checking backup path");
-                string filenamePattern = backupFilename + "_bkp";
 
+                filenamePattern = backupFilename + "_bkp";
                 existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
-                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+
+                filenameChanged = pathChanged = false;
             }
             else
             {
-                string filenamePattern = FileExtension.Remove(lastBackupFilename) + "_bkp";
-
+                filenamePattern = FileExtension.Remove(lastBackupFilename) + "_bkp";
                 existingBackups = FindExistingBackups(filenamePattern, lastBackupPath);
 
-                bool filenameChanged = !ComparerUtils.FilenameComparer.Equals(backupFilename.WithExtension(), lastBackupFilename);
-                bool pathChanged = !PathUtils.PathsAreEqual(currentBackupPath, lastBackupPath);
+                filenameChanged = !ComparerUtils.FilenameComparer.Equals(backupFilename.WithExtension(), lastBackupFilename);
+                pathChanged = !PathUtils.PathsAreEqual(currentBackupPath, lastBackupPath);
+            }
 
-                Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
-                if (filenameChanged || pathChanged)
+            Plugin.Logger.LogInfo($"{existingBackups.Count} existing backups detected");
+            if (filenameChanged || pathChanged)
+            {
+                Plugin.Logger.LogDebug("History entry path info does not match");
+                foreach (string backup in existingBackups)
                 {
-                    Plugin.Logger.LogDebug("History entry path info does not match");
-                    foreach (string backup in existingBackups)
+                    string targetPath = PathUtils.PathWithoutFilename(backup, out string targetFilename);
+
+                    if (filenameChanged)
                     {
-                        string targetPath = PathUtils.PathWithoutFilename(backup, out string targetFilename);
-
-                        if (filenameChanged)
-                        {
-                            //Transfer the old bracket info to the new filename
-                            targetFilename = formatBackupFilename(backupFilename, parseBackupNumber(targetFilename));
-                        }
-
-                        if (pathChanged)
-                            targetPath = currentBackupPath;
-
-                        targetPath = Path.Combine(targetPath, targetFilename);
-                        FileUtils.TryMove(backup, targetPath);
+                        //Transfer the old bracket info to the new filename
+                        targetFilename = formatBackupFilename(backupFilename, parseBackupNumber(targetFilename));
                     }
-                    DirectoryUtils.TryDelete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
 
-                    Plugin.Logger.LogInfo("Updating existing backups");
-                    BuildFileCache();
-                    filenamePattern = backupFilename + "_bkp";
-                    existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
+                    if (pathChanged)
+                        targetPath = currentBackupPath;
+
+                    targetPath = Path.Combine(targetPath, targetFilename);
+                    FileUtils.TryMove(backup, targetPath);
                 }
+                DirectoryUtils.TryDelete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
+
+                Plugin.Logger.LogInfo("Updating existing backups");
+                BuildFileCache();
+                filenamePattern = backupFilename + "_bkp";
+                existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
             }
 
             //Handle existing backups
