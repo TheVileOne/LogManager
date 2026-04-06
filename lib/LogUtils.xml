@@ -7130,6 +7130,43 @@
         <member name="M:LogUtils.ExceptionInfo.ToString">
             <inheritdoc/>
         </member>
+        <member name="P:LogUtils.FileMover.ReplaceExistingFile">
+            <summary>
+            Move attempt will replace a file at the destination path when true; fail to move when false
+            </summary>
+        </member>
+        <member name="P:LogUtils.FileMover.EnforceSupportedFileTypes">
+            <summary>
+            Indicate whether files with unsupported file extensions should be handled
+            </summary>
+        </member>
+        <member name="P:LogUtils.FileMover.ExceptionHandler">
+            <summary>
+            Handles exceptions caught while handling file system operations through this instance
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileMover.#ctor(System.String,System.String)">
+            <summary>
+            Creates an object capable of moving, or copying files to a new destination
+            </summary>
+            <param name="sourcePath">The full path to the file that needs to be moved (including filename + ext)</param>
+            <param name="destPath">The full path to the destination of the file. Filename is optional.</param>
+        </member>
+        <member name="M:LogUtils.FileMover.MoveFile">
+            <summary>
+            Moves a file from one place to another. Allows file renaming.
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileMover.CopyFile">
+            <summary>
+            Copies a file from one place to another. Allows file renaming.
+            </summary>
+        </member>
+        <member name="M:LogUtils.FileMover.PrepareToMoveFile(LogUtils.Helpers.FileHandling.FilePathValidator)">
+            <summary>
+            Handles file system operations that are necessary before a move/copy operation can be possible
+            </summary>
+        </member>
         <member name="M:LogUtils.FilteredStringEntry.CheckValidation">
             <summary>
             Checks whether the filter is currently applicable
@@ -8204,6 +8241,16 @@
             <returns>The filename (or path) with the applied file extension</returns>
             <remarks>Filenames with long extensions may be unaffected by this operation</remarks>
         </member>
+        <member name="F:LogUtils.Helpers.FileHandling.FilePathValidator.EnforceSupportedFileTypes">
+            <summary>
+            Indicate whether files with unsupported file extensions should be handled
+            </summary>
+        </member>
+        <member name="M:LogUtils.Helpers.FileHandling.FilePathValidator.GetLastException">
+            <summary>
+            Retrieves the last handled exception. Handled exception will then be cleared.
+            </summary>
+        </member>
         <member name="T:LogUtils.Helpers.FileHandling.FileUtils">
             <summary>
             Helper class for interacting with the file system that is safe and supported by LogUtils
@@ -9179,11 +9226,6 @@
             Set the lifetime remaining to a duration in milliseconds
             </summary>
         </member>
-        <member name="F:LogUtils.LogFileMover.ReplaceExistingFile">
-            <summary>
-            Move attempt will replace a file at the destination path when true; fail to move when false
-            </summary>
-        </member>
         <member name="M:LogUtils.LogFileMover.#ctor(System.String,System.String)">
             <summary>
             Creates an object capable of moving, or copying log files to a new destination
@@ -9191,20 +9233,8 @@
             <param name="sourceLogPath">The full path to the log file that needs to be moved (including filename + ext)</param>
             <param name="destLogPath">The full path to the destination of the log file. Log filename is optional.</param>
         </member>
-        <member name="M:LogUtils.LogFileMover.MoveFile">
-            <summary>
-            Moves a log file from one place to another. Allows file renaming.
-            </summary>
-        </member>
-        <member name="M:LogUtils.LogFileMover.CopyFile">
-            <summary>
-            Copies a log file from one place to another. Allows file renaming.
-            </summary>
-        </member>
-        <member name="M:LogUtils.LogFileMover.PrepareToMoveFile(LogUtils.LogValidator)">
-            <summary>
-            Handles FileSystem operations that are necessary before a move/copy operation can be possible
-            </summary>
+        <member name="M:LogUtils.LogFileMover.CreateValidator">
+            <inheritdoc/>
         </member>
         <member name="F:LogUtils.LogFilename.Extension">
             <summary>
@@ -10151,6 +10181,12 @@
             All members associated with this log group
             </summary>
         </member>
+        <member name="P:LogUtils.Properties.LogGroupProperties.AvoidMemberSeparation">
+            <summary>
+            When true, group-wide file operations will fail if all qualifying members cannot be kept together as a unit
+            </summary>
+            <remarks>This property does nothing unless you specify a folder path</remarks>
+        </member>
         <member name="P:LogUtils.Properties.LogGroupProperties.CompareMask">
             <inheritdoc/>
         </member>
@@ -11059,11 +11095,6 @@
         <member name="M:LogUtils.LogsFolder.FolderProcessor.GroupTopLevelEntries">
             <summary>
             Groups entries that should be processed together (because they share the same path, or don't have a path)
-            </summary>
-        </member>
-        <member name="M:LogUtils.LogValidator.GetLastException">
-            <summary>
-            Retrieves the last handled exception. Handled exception will then be cleared.
             </summary>
         </member>
         <member name="F:LogUtils.LogWriter.Writer">
