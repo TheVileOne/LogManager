@@ -378,17 +378,8 @@ namespace LogManager.Controllers
 
                         if (filenameChanged)
                         {
-                            int backupNumber = parseBackupNumber(targetFilename);
-                            if (backupNumber != -1)
-                            {
-                                //Transfer the old bracket info to the new filename
-                                targetFilename = formatBackupFilename(backupFilename, backupNumber);
-                            }
-                            else
-                            {
-                                Plugin.Logger.LogWarning("Backup is malformatted");
-                                RecycleBin.MoveToRecycleBin(backup);
-                            }
+                            //Transfer the old bracket info to the new filename
+                            targetFilename = formatBackupFilename(backupFilename, parseBackupNumber(targetFilename));
                         }
 
                         if (pathChanged)
