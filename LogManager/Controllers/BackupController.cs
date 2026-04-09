@@ -301,6 +301,7 @@ namespace LogManager.Controllers
         /// </summary>
         public void BuildFileCache()
         {
+            BackupFilesTemp = null;
             BackupFilesTemp = GetBackupFiles().ToList();
         }
 
@@ -394,7 +395,7 @@ namespace LogManager.Controllers
                 }
                 DirectoryUtils.TryDelete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
 
-                Plugin.Logger.LogInfo("Updating existing backups");
+                Plugin.Logger.LogInfo("Rebuilding file cache");
                 BuildFileCache();
                 filenamePattern = backupFilename + "_bkp";
                 existingBackups = FindExistingBackups(filenamePattern, currentBackupPath);
