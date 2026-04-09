@@ -242,6 +242,7 @@ namespace LogManager.Controllers
                 if (shouldUsePathMap)
                 {
                     Plugin.Logger.LogInfo("Resolving path");
+
                     //Build up a path for the group folder targeting the backup path
                     backupFolderPath = BackupPathMapper.Resolve(backupEvent.LogFile.Properties.CurrentFolderPath).CurrentPath;
                     Directory.CreateDirectory(backupFolderPath);
