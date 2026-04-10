@@ -191,7 +191,6 @@ namespace LogManager.Controllers
 
             if (!Enabled || !IsBackupAllowed(backupEvent.LogFile))
             {
-                Plugin.Logger.LogDebug("File not eligible for backup");
                 //Check for an existing backup record - only one record should be stored per log file
                 int index = pendingBackups.FindIndex(record => record.LogFile.Equals(backupEvent.LogFile));
 
