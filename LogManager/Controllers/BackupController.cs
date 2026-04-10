@@ -394,7 +394,12 @@ namespace LogManager.Controllers
                     targetPath = Path.Combine(targetPath, targetFilename);
                     FileUtils.TryMove(backup, targetPath);
                 }
-                DirectoryUtils.TryDelete(lastBackupPath, DirectoryDeletionScope.OnlyIfEmpty, DirectoryDeletionMode.Permanent);
+
+                if (pathChanged)
+                {
+                    Plugin.Logger.LogInfo("Removing empty folders");
+                    CleanBackupFolder();
+                }
 
                 Plugin.Logger.LogInfo("Rebuilding file cache");
                 BuildFileCache();
@@ -432,6 +437,58 @@ namespace LogManager.Controllers
         private string formatBackupFilename(LogFilename filenameBase, int backupNumber)
         {
             return $"{filenameBase}_bkp[{backupNumber}]{filenameBase.Extension}";
+        }
+
+        public void CleanBackupFolder()
+        {
+            try
+            {
+                string[] emptyFolders = getEmptyFolders(BackupPath, false);
+
+                foreach (string folder in emptyFolders)
+                    DirectoryUtils.TryDelete(folder, DirectoryDeletionScope.AllFilesAndFolders, DirectoryDeletionMode.Permanent);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError(new IOException("Unable to clean directory", ex));
+            }
+        }
+
+        private string[] getEmptyFolders(string dirPath, bool includeCurrentDir)
+        {
+            return getEmptyFoldersRecursive(dirPath, includeCurrentDir, out _);
+        }
+
+        private string[] getEmptyFoldersRecursive(string dirPath, bool includeCurrentDir, out bool dirEmpty)
+        {
+            List<string> results = new List<string>();
+            bool filesDetected = false;
+            foreach (string dir in Directory.GetDirectories(dirPath))
+            {
+                string[] emptyFoldersThisPath = getEmptyFoldersRecursive(dir, true, out bool currentDirEmpty);
+
+                if (currentDirEmpty)
+                {
+                    results.Add(dir);
+                    continue;
+                }
+
+                filesDetected = true;
+                if (emptyFoldersThisPath.Length > 0) //These results are not included when the whole folder is empty
+                    results.AddRange(emptyFoldersThisPath);
+            }
+
+            if (!filesDetected)
+            {
+                //Check for toplevel files 
+                filesDetected = DirectoryUtils.GetFileCount(dirPath, SearchOption.TopDirectoryOnly) > 0;
+
+                if (!filesDetected && includeCurrentDir)
+                    results.Add(dirPath);
+            }
+
+            dirEmpty = !filesDetected;
+            return results.ToArray();
         }
 
         /// <summary>
